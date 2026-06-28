@@ -87,8 +87,8 @@ function AdminPage() {
     );
   }
 
-  async function updateConfig(patch: Partial<NonNullable<typeof config>>) {
-    const { error } = await supabase.from("collection_config").update(patch).eq("id", 1);
+  async function updateConfig(patch: Record<string, unknown>) {
+    const { error } = await supabase.from("collection_config").update(patch as never).eq("id", 1);
     if (error) return toast.error(error.message);
     toast.success("Config updated");
     qc.invalidateQueries({ queryKey: ["config"] });
