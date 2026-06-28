@@ -209,22 +209,6 @@ function ConfigForm({ config, onSave }: { config: any; onSave: (p: any) => void 
   );
 }
 
-  return (
-    <form
-      onSubmit={(e) => { e.preventDefault(); onSave({ mint_price: price, max_per_wallet: max, max_supply: supply, treasury_wallet: treasury || null, rpc_url: rpc, program_id: program || null }); }}
-      className="space-y-3 text-sm"
-    >
-      <Field label="Mint price (X1)" value={price} onChange={(v) => setPrice(Number(v))} type="number" step="0.01" />
-      <Field label="Max per wallet" value={max} onChange={(v) => setMax(Number(v))} type="number" />
-      <Field label="Max supply" value={supply} onChange={(v) => setSupply(Number(v))} type="number" />
-      <Field label="Treasury wallet" value={treasury} onChange={setTreasury} mono />
-      <Field label="X1 RPC URL" value={rpc} onChange={setRpc} mono />
-      <Field label="Program ID" value={program} onChange={setProgram} mono placeholder="Deploy your Anchor program, then paste here" />
-      <button className="mt-2 rounded-full bg-cyber-cyan px-4 py-2 text-sm font-semibold text-background hover:glow-blue">Save config</button>
-    </form>
-  );
-}
-
 function Field({ label, value, onChange, type = "text", step, mono, placeholder }: any) {
   return (
     <label className="block">
