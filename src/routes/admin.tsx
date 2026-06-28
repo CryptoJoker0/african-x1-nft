@@ -87,7 +87,7 @@ function AdminPage() {
     );
   }
 
-  async function updateConfig(patch: Record<string, unknown>) {
+  async function updateConfig(patch: Partial<NonNullable<typeof config>>) {
     const { error } = await supabase.from("collection_config").update(patch).eq("id", 1);
     if (error) return toast.error(error.message);
     toast.success("Config updated");
@@ -179,12 +179,12 @@ function Stat({ label, value, icon, accent }: { label: string; value: number; ic
 }
 
 function ConfigForm({ config, onSave }: { config: any; onSave: (p: any) => void }) {
-  const [price, setPrice] = useState(config?.mint_price ?? 0);
-  const [max, setMax] = useState(config?.max_per_wallet ?? 5);
-  const [supply, setSupply] = useState(config?.max_supply ?? 5000);
-  const [treasury, setTreasury] = useState(config?.treasury_wallet ?? "");
-  const [rpc, setRpc] = useState(config?.rpc_url ?? "");
-  const [program, setProgram] = useState(config?.program_id ?? "");
+  const [price, setPrice] = useState<number>(config?.mint_price ?? 0);
+  const [max, setMax] = useState<number>(config?.max_per_wallet ?? 5);
+  const [supply, setSupply] = useState<number>(config?.max_supply ?? 5000);
+  const [treasury, setTreasury] = useState<string>(config?.treasury_wallet ?? "");
+  const [rpc, setRpc] = useState<string>(config?.rpc_url ?? "");
+  const [program, setProgram] = useState<string>(config?.program_id ?? "");
 
   useEffect(() => {
     if (config) {
@@ -192,6 +192,22 @@ function ConfigForm({ config, onSave }: { config: any; onSave: (p: any) => void 
       setTreasury(config.treasury_wallet ?? ""); setRpc(config.rpc_url ?? ""); setProgram(config.program_id ?? "");
     }
   }, [config]);
+
+  return (
+    <form
+      onSubmit={(e) => { e.preventDefault(); onSave({ mint_price: price, max_per_wallet: max, max_supply: supply, treasury_wallet: treasury || null, rpc_url: rpc, program_id: program || null }); }}
+      className="space-y-3 text-sm"
+    >
+      <Field label="Mint price (X1)" value={price} onChange={(v: string) => setPrice(Number(v))} type="number" step="0.01" />
+      <Field label="Max per wallet" value={max} onChange={(v: string) => setMax(Number(v))} type="number" />
+      <Field label="Max supply" value={supply} onChange={(v: string) => setSupply(Number(v))} type="number" />
+      <Field label="Treasury wallet" value={treasury} onChange={setTreasury} mono />
+      <Field label="X1 RPC URL" value={rpc} onChange={setRpc} mono />
+      <Field label="Program ID" value={program} onChange={setProgram} mono placeholder="Deploy your Anchor program, then paste here" />
+      <button className="mt-2 rounded-full bg-cyber-cyan px-4 py-2 text-sm font-semibold text-background hover:glow-blue">Save config</button>
+    </form>
+  );
+}
 
   return (
     <form
