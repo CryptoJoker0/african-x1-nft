@@ -14,16 +14,252 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      collection_config: {
+        Row: {
+          collection_name: string
+          id: number
+          max_per_wallet: number
+          max_supply: number
+          mint_paused: boolean
+          mint_price: number
+          pre_reveal_image_url: string | null
+          program_id: string | null
+          revealed: boolean
+          rpc_url: string
+          symbol: string
+          treasury_wallet: string | null
+          updated_at: string
+          whitelist_only: boolean
+        }
+        Insert: {
+          collection_name?: string
+          id?: number
+          max_per_wallet?: number
+          max_supply?: number
+          mint_paused?: boolean
+          mint_price?: number
+          pre_reveal_image_url?: string | null
+          program_id?: string | null
+          revealed?: boolean
+          rpc_url?: string
+          symbol?: string
+          treasury_wallet?: string | null
+          updated_at?: string
+          whitelist_only?: boolean
+        }
+        Update: {
+          collection_name?: string
+          id?: number
+          max_per_wallet?: number
+          max_supply?: number
+          mint_paused?: boolean
+          mint_price?: number
+          pre_reveal_image_url?: string | null
+          program_id?: string | null
+          revealed?: boolean
+          rpc_url?: string
+          symbol?: string
+          treasury_wallet?: string | null
+          updated_at?: string
+          whitelist_only?: boolean
+        }
+        Relationships: []
+      }
+      nfts: {
+        Row: {
+          animation_url: string | null
+          created_at: string
+          description: string | null
+          external_url: string | null
+          id: string
+          image_url: string | null
+          mint_signature: string | null
+          minted_at: string | null
+          name: string
+          owner_user_id: string | null
+          owner_wallet: string | null
+          rarity: Database["public"]["Enums"]["nft_rarity"]
+          status: Database["public"]["Enums"]["nft_status"]
+          token_id: number
+          traits: Json
+        }
+        Insert: {
+          animation_url?: string | null
+          created_at?: string
+          description?: string | null
+          external_url?: string | null
+          id?: string
+          image_url?: string | null
+          mint_signature?: string | null
+          minted_at?: string | null
+          name: string
+          owner_user_id?: string | null
+          owner_wallet?: string | null
+          rarity?: Database["public"]["Enums"]["nft_rarity"]
+          status?: Database["public"]["Enums"]["nft_status"]
+          token_id: number
+          traits?: Json
+        }
+        Update: {
+          animation_url?: string | null
+          created_at?: string
+          description?: string | null
+          external_url?: string | null
+          id?: string
+          image_url?: string | null
+          mint_signature?: string | null
+          minted_at?: string | null
+          name?: string
+          owner_user_id?: string | null
+          owner_wallet?: string | null
+          rarity?: Database["public"]["Enums"]["nft_rarity"]
+          status?: Database["public"]["Enums"]["nft_status"]
+          token_id?: number
+          traits?: Json
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          id: string
+          updated_at: string
+          username: string | null
+          wallet_address: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          id: string
+          updated_at?: string
+          username?: string | null
+          wallet_address?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          id?: string
+          updated_at?: string
+          username?: string | null
+          wallet_address?: string | null
+        }
+        Relationships: []
+      }
+      transactions: {
+        Row: {
+          amount: number | null
+          confirmed_at: string | null
+          created_at: string
+          error_message: string | null
+          id: string
+          nft_id: string | null
+          signature: string | null
+          status: Database["public"]["Enums"]["tx_status"]
+          tx_type: Database["public"]["Enums"]["tx_type"]
+          user_id: string | null
+          wallet_address: string
+        }
+        Insert: {
+          amount?: number | null
+          confirmed_at?: string | null
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          nft_id?: string | null
+          signature?: string | null
+          status?: Database["public"]["Enums"]["tx_status"]
+          tx_type: Database["public"]["Enums"]["tx_type"]
+          user_id?: string | null
+          wallet_address: string
+        }
+        Update: {
+          amount?: number | null
+          confirmed_at?: string | null
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          nft_id?: string | null
+          signature?: string | null
+          status?: Database["public"]["Enums"]["tx_status"]
+          tx_type?: Database["public"]["Enums"]["tx_type"]
+          user_id?: string | null
+          wallet_address?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transactions_nft_id_fkey"
+            columns: ["nft_id"]
+            isOneToOne: false
+            referencedRelation: "nfts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      whitelist: {
+        Row: {
+          added_by: string | null
+          created_at: string
+          id: string
+          note: string | null
+          wallet_address: string
+        }
+        Insert: {
+          added_by?: string | null
+          created_at?: string
+          id?: string
+          note?: string | null
+          wallet_address: string
+        }
+        Update: {
+          added_by?: string | null
+          created_at?: string
+          id?: string
+          note?: string | null
+          wallet_address?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "user"
+      nft_rarity: "legendary" | "elite" | "rare" | "uncommon" | "common"
+      nft_status: "available" | "reserved" | "minted"
+      tx_status: "pending" | "confirmed" | "failed"
+      tx_type: "mint" | "transfer" | "reveal"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +386,12 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "user"],
+      nft_rarity: ["legendary", "elite", "rare", "uncommon", "common"],
+      nft_status: ["available", "reserved", "minted"],
+      tx_status: ["pending", "confirmed", "failed"],
+      tx_type: ["mint", "transfer", "reveal"],
+    },
   },
 } as const
