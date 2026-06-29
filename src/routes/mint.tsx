@@ -136,7 +136,7 @@ function MintPage() {
 
           <div className="mb-6 flex items-center justify-between rounded-xl border border-african-gold/20 bg-african-gold/5 p-4">
             <span className="text-sm text-muted-foreground">Total</span>
-            <span className="font-display text-2xl text-african-gold">{total.toFixed(2)} X1</span>
+            <span className="font-display text-2xl text-african-gold">{total.toFixed(2)} XNT</span>
           </div>
 
           {walletStatus !== "connected" ? (
