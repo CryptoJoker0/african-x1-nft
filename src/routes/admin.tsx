@@ -181,7 +181,7 @@ function Stat({ label, value, icon, accent }: { label: string; value: number; ic
 function ConfigForm({ config, onSave }: { config: any; onSave: (p: any) => void }) {
   const [price, setPrice] = useState<number>(config?.mint_price ?? 0);
   const [max, setMax] = useState<number>(config?.max_per_wallet ?? 5);
-  const [supply, setSupply] = useState<number>(config?.max_supply ?? 5000);
+  const [supply, setSupply] = useState<number>(config?.max_supply ?? 50);
   const [treasury, setTreasury] = useState<string>(config?.treasury_wallet ?? "");
   const [rpc, setRpc] = useState<string>(config?.rpc_url ?? "");
   const [program, setProgram] = useState<string>(config?.program_id ?? "");

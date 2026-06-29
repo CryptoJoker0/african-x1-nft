@@ -9,7 +9,7 @@ export const Route = createFileRoute("/collection")({
   head: () => ({
     meta: [
       { title: "Collection — AFRICAN X1 NFT" },
-      { name: "description", content: "Browse all 5,000 AFRICAN X1 NFTs. Filter by status, rarity and traits." },
+      { name: "description", content: "Browse all 50 AFRICAN X1 NFTs. Filter by status, rarity and traits." },
       { property: "og:title", content: "AFRICAN X1 NFT Collection" },
       { property: "og:description", content: "Explore the full AFRICAN X1 NFT collection on the X1 Blockchain." },
     ],
