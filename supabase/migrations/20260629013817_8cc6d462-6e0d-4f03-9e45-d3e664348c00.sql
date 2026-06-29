@@ -1,0 +1,1 @@
+UPDATE public.collection_config SET rpc_url='https://rpc.mainnet.x1.xyz', treasury_wallet='9rMJNa5QiNakB45qyymGBNVcALrcHYvwnm15mQcZJfNK' WHERE id=1;
