@@ -107,7 +107,7 @@ function MintPage() {
           <div className="mb-4 flex items-center justify-between">
             <div>
               <div className="text-[10px] uppercase tracking-[0.25em] text-muted-foreground">Price per NFT</div>
-              <div className="font-display text-3xl text-african-gold">{price} <span className="text-base text-muted-foreground">X1</span></div>
+              <div className="font-display text-3xl text-african-gold">{price} <span className="text-base text-muted-foreground">XNT</span></div>
             </div>
             <div className="text-right">
               <div className="text-[10px] uppercase tracking-[0.25em] text-muted-foreground">Minted</div>
@@ -136,7 +136,7 @@ function MintPage() {
 
           <div className="mb-6 flex items-center justify-between rounded-xl border border-african-gold/20 bg-african-gold/5 p-4">
             <span className="text-sm text-muted-foreground">Total</span>
-            <span className="font-display text-2xl text-african-gold">{total.toFixed(2)} X1</span>
+            <span className="font-display text-2xl text-african-gold">{total.toFixed(2)} XNT</span>
           </div>
 
           {walletStatus !== "connected" ? (
