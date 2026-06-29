@@ -10,7 +10,7 @@ export function Footer() {
         <div className="md:col-span-2">
           <Logo size={42} />
           <p className="mt-4 max-w-sm text-sm text-muted-foreground">
-            A 5,000-piece on-chain tribute to the spirit, mythology and futurism of the African continent — minted natively on the X1 blockchain.
+            A 50-piece on-chain tribute to the spirit, mythology and futurism of the African continent — minted natively on the X1 blockchain.
           </p>
           <div className="mt-4 flex gap-3">
             {[

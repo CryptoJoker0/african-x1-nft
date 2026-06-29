@@ -10,7 +10,7 @@ export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
       { title: "AFRICAN X1 NFT — Mint the Spirit of Africa on X1 Chain" },
-      { name: "description", content: "A 5,000-piece NFT collection inspired by African heritage, minted natively on the X1 Blockchain. Connect your wallet, mint, and join the tribe." },
+      { name: "description", content: "A 50-piece NFT collection inspired by African heritage, minted natively on the X1 Blockchain. Connect your wallet, mint, and join the tribe." },
       { property: "og:title", content: "AFRICAN X1 NFT" },
       { property: "og:description", content: "Premium NFTs on X1 — spirit, mythology and futurism of Africa, on-chain." },
     ],
@@ -43,7 +43,7 @@ function HomePage() {
     },
   });
 
-  const maxSupply = config?.max_supply ?? 5000;
+  const maxSupply = config?.max_supply ?? 50;
   const remaining = Math.max(0, maxSupply - minted);
   const progress = maxSupply > 0 ? (minted / maxSupply) * 100 : 0;
   const status = config?.mint_paused ? "PAUSED" : config?.whitelist_only ? "WHITELIST" : "LIVE";
@@ -64,7 +64,7 @@ function HomePage() {
               <span className="text-gradient-cyber">on-chain.</span>
             </h1>
             <p className="mt-6 max-w-lg text-base text-muted-foreground sm:text-lg">
-              5,000 unique digital artifacts inspired by African mythology, tribes and futurism — minted natively on the <span className="text-cyber-cyan">X1 Blockchain</span>.
+              50 unique digital artifacts inspired by African mythology, tribes and futurism — minted natively on the <span className="text-cyber-cyan">X1 Blockchain</span>.
             </p>
             <div className="mt-8 flex flex-wrap items-center gap-3">
               <Link
@@ -244,13 +244,13 @@ function FaqItem({ q, a }: { q: string; a: string }) {
 
 const ROADMAP = [
   { phase: "Phase 01", status: "done", title: "Genesis Reveal", desc: "Art & lore drop. Whitelist opens for early supporters and creators." },
-  { phase: "Phase 02", status: "active", title: "Public Mint", desc: "5,000 NFTs live on X1 Mainnet. Random assignment, verifiable provenance." },
+  { phase: "Phase 02", status: "active", title: "Public Mint", desc: "50 NFTs live on X1 Mainnet. Random assignment, verifiable provenance." },
   { phase: "Phase 03", status: "upcoming", title: "Holder Utility", desc: "Token-gated drops, staking and IRL events across African capitals." },
   { phase: "Phase 04", status: "upcoming", title: "Creator DAO", desc: "Treasury funds African digital artists. Holders vote on grants." },
 ] as const;
 
 const FAQ = [
-  { q: "What is AFRICAN X1 NFT?", a: "A 5,000-piece NFT collection minted natively on the X1 Blockchain that celebrates African culture, mythology and futurism." },
+  { q: "What is AFRICAN X1 NFT?", a: "A 50-piece NFT collection minted natively on the X1 Blockchain that celebrates African culture, mythology and futurism." },
   { q: "How do I mint?", a: "Connect a Solana-compatible wallet (Phantom, Backpack, OKX) on X1, head to the Mint page, and approve the transaction." },
   { q: "What is the mint price?", a: "The current mint price is shown in the live status panel above. Whitelisted wallets may receive a discount." },
   { q: "How is rarity assigned?", a: "Traits are generated from 250+ hand-illustrated assets. Rarity ranks are calculated on reveal." },

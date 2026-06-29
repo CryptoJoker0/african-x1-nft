@@ -64,7 +64,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "AFRICAN X1 NFT — Premium NFTs on the X1 Blockchain" },
-      { name: "description", content: "AFRICAN X1 NFT — a 5,000-piece collection celebrating African culture, minted natively on the X1 Blockchain. Connect your wallet, mint, and own a piece of the future." },
+      { name: "description", content: "AFRICAN X1 NFT — a 50-piece collection celebrating African culture, minted natively on the X1 Blockchain. Connect your wallet, mint, and own a piece of the future." },
       { name: "author", content: "AFRICAN X1 NFT" },
       { name: "theme-color", content: "#050816" },
       { property: "og:title", content: "AFRICAN X1 NFT" },
