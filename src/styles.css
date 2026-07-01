@@ -237,6 +237,11 @@
   color: transparent;
 }
 
+@utility animate-scan {
+  position: relative;
+  overflow: hidden;
+}
+
 @utility hairline-grid {
   background-image:
     linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
