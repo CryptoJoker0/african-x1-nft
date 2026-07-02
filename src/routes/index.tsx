@@ -4,15 +4,15 @@ import { useState } from "react";
 import { ArrowUpRight, ChevronDown } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { WalletButton } from "@/components/site/WalletButton";
-import logo from "@/assets/african-x1-logo.asset.json";
+import cover from "@/assets/african-x1-cover.png.asset.json";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "AFRICAN X1 NFT — Mint the Spirit of Africa on X1 Chain" },
-      { name: "description", content: "A 50-piece NFT collection inspired by African heritage, minted natively on the X1 Blockchain. Connect your wallet, mint, and join the tribe." },
-      { property: "og:title", content: "AFRICAN X1 NFT" },
-      { property: "og:description", content: "Premium NFTs on X1 — spirit, mythology and futurism of Africa, on-chain." },
+      { title: "AFRICAN X1 NFT — More Than an NFT. A Living Legacy." },
+      { name: "description", content: "A digital archive of Africa's identity — cultures, kingdoms, traditions and stories preserved forever on the X1 Blockchain." },
+      { property: "og:title", content: "AFRICAN X1 NFT — A Living Legacy" },
+      { property: "og:description", content: "Own a piece of Africa's story. Heritage, pride and legacy — written forever on the X1 Blockchain." },
     ],
   }),
   component: HomePage,
@@ -79,45 +79,44 @@ function HomePage() {
             </aside>
 
             {/* Center — Headline */}
-            <div className="col-span-12 md:col-span-7">
+            <div className="col-span-12 md:col-span-6">
               <div className="eyebrow mb-6 flex items-center gap-3">
                 <span className="h-1.5 w-1.5 rounded-full bg-african-gold" />
-                Phase I · Genesis Mint
+                Our Heritage · Our Pride · Our Legacy
               </div>
-              <h1 className="font-display leading-[0.94] tracking-tight text-[52px] sm:text-[74px] md:text-[92px]">
-                The <span className="serif-italic text-gradient-gold">spirit</span><br />
-                of Africa,<br />
-                <span className="text-muted-foreground/60">rendered</span><br />
-                <span className="shimmer-gold">on-chain.</span>
+              <h1 className="font-display leading-[0.94] tracking-tight text-[48px] sm:text-[70px] md:text-[88px]">
+                More than an <span className="serif-italic text-gradient-gold">NFT</span>.<br />
+                A <span className="shimmer-gold">living</span><br />
+                <span className="serif-italic">legacy.</span>
               </h1>
+              <p className="mt-8 max-w-lg text-base leading-relaxed text-muted-foreground">
+                The <span className="text-african-gold">AFRICAN X1 NFT</span> Collection is a digital archive of Africa's identity — preserving our cultures, kingdoms, traditions, ceremonies and stories forever on the X1 Blockchain. Every mask, every symbol, every color carries the spirit of our ancestors and the dreams of generations yet to come.
+              </p>
               <div className="mt-8 flex flex-wrap items-center gap-4">
                 <Link
                   to="/mint"
                   className="group inline-flex items-center gap-3 rounded-sm bg-foreground px-6 py-3.5 font-display text-lg text-background transition hover:bg-african-gold"
                 >
-                  Mint the collection
+                  Become a guardian
                   <ArrowUpRight size={18} className="transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
                 </Link>
                 <WalletButton />
               </div>
-              <p className="mt-8 max-w-lg text-base leading-relaxed text-muted-foreground">
-                Fifty digital artifacts, hand-illustrated across tribes, masks and totem creatures — minted natively on the <span className="text-african-gold">X1 Blockchain</span>. Every piece verifiable, every royalty on-ledger.
-              </p>
             </div>
 
             {/* Right — Cover portrait */}
-            <div className="col-span-12 md:col-span-3">
+            <div className="col-span-12 md:col-span-4">
               <div className="relative">
                 <div className="absolute -top-3 left-0 right-0 flex items-center justify-between text-[10px] uppercase tracking-[0.24em] text-muted-foreground">
-                  <span>№ 0001</span>
-                  <span className="text-african-gold">Legendary</span>
+                  <span>Cover · Volume I</span>
+                  <span className="text-african-gold">Genesis</span>
                 </div>
-                <div className="relative mt-6 aspect-[3/4] overflow-hidden rounded-sm border border-white/10">
-                  <img src={logo.url} alt="Genesis mask" className="h-full w-full object-cover" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-background/85 via-transparent to-transparent" />
+                <div className="relative mt-6 aspect-square overflow-hidden rounded-sm border border-white/10">
+                  <img src={cover.url} alt="Africa X1 — a continent rendered as living, on-chain terrain" className="h-full w-full object-cover" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-background/70 via-transparent to-transparent" />
                   <div className="absolute bottom-0 left-0 right-0 p-4">
-                    <div className="serif-italic text-2xl leading-none">Genesis Mask</div>
-                    <div className="mt-1 label-xs">Cover · Tribe of Ash</div>
+                    <div className="serif-italic text-2xl leading-none">A continent, on-chain</div>
+                    <div className="mt-1 label-xs">From ancient masks to royal heritage</div>
                   </div>
                 </div>
                 <div className="mt-3 flex items-center justify-between text-[10px] uppercase tracking-[0.24em] text-muted-foreground">
@@ -165,23 +164,23 @@ function HomePage() {
           </div>
           <div className="col-span-12 md:col-span-9">
             <h2 className="font-display text-4xl leading-[1.05] sm:text-6xl">
-              Where <span className="serif-italic text-gradient-gold">ancestral</span> memory<br />
-              meets the on-chain frontier.
+              History transformed<br />
+              into <span className="serif-italic text-gradient-gold">ownership</span>.
             </h2>
             <div className="mt-8 columns-1 gap-10 text-[15px] leading-[1.75] text-muted-foreground md:columns-2">
               <p className="first-letter:mr-2 first-letter:float-left first-letter:font-display first-letter:text-6xl first-letter:leading-none first-letter:text-african-gold">
-                Every AFRICAN X1 NFT is generated from 250+ hand-illustrated traits across tribes, regions, masks and totem creatures. The provenance hash is committed on-chain before mint opens — a public promise that no one, not even us, can alter the odds.
+                This is not just digital art. This is the heartbeat of a continent that has inspired the world for thousands of years. Every NFT represents courage, resilience, unity, creativity and the rich diversity of Africa's people — from ancient masks to royal heritage, from tribal traditions to modern innovation.
               </p>
               <p className="mt-4">
-                Royalties flow back to creators across the continent. Legendary pieces gate future drops, IRL gatherings across African capitals, and a creator DAO that funds the next generation of digital artists working from Lagos to Nairobi to Cape Town.
+                When you own an AFRICAN X1 NFT, you are not simply purchasing an asset. You are embracing a mission — saying <span className="serif-italic text-foreground">"I believe Africa's story deserves to be preserved, celebrated and shared with the world."</span> Built on the X1 Blockchain, this collection is a bridge between our past and our future.
               </p>
             </div>
             <div className="mt-10 grid gap-6 md:grid-cols-4">
               {[
-                { t: "Hand-Crafted", d: "250+ original traits.", n: "i." },
-                { t: "Verifiable", d: "Provenance on-chain.", n: "ii." },
-                { t: "Rarity Tiers", d: "Five tiers of scarcity.", n: "iii." },
-                { t: "X1 Native", d: "Fast, low-fee minting.", n: "iv." },
+                { t: "Heritage", d: "Cultures & kingdoms preserved.", n: "i." },
+                { t: "Ownership", d: "Guardianship, on-chain.", n: "ii." },
+                { t: "Unity", d: "For every believer in culture.", n: "iii." },
+                { t: "Legacy", d: "Written forever on X1.", n: "iv." },
               ].map((f) => (
                 <div key={f.t} className="border-t border-white/15 pt-4">
                   <div className="serif-italic text-african-gold">{f.n}</div>
