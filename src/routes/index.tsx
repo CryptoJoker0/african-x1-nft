@@ -4,15 +4,15 @@ import { useState } from "react";
 import { ArrowUpRight, ChevronDown } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { WalletButton } from "@/components/site/WalletButton";
-import logo from "@/assets/african-x1-logo.asset.json";
+import cover from "@/assets/african-x1-cover.png.asset.json";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "AFRICAN X1 NFT — Mint the Spirit of Africa on X1 Chain" },
-      { name: "description", content: "A 50-piece NFT collection inspired by African heritage, minted natively on the X1 Blockchain. Connect your wallet, mint, and join the tribe." },
-      { property: "og:title", content: "AFRICAN X1 NFT" },
-      { property: "og:description", content: "Premium NFTs on X1 — spirit, mythology and futurism of Africa, on-chain." },
+      { title: "AFRICAN X1 NFT — More Than an NFT. A Living Legacy." },
+      { name: "description", content: "A digital archive of Africa's identity — cultures, kingdoms, traditions and stories preserved forever on the X1 Blockchain." },
+      { property: "og:title", content: "AFRICAN X1 NFT — A Living Legacy" },
+      { property: "og:description", content: "Own a piece of Africa's story. Heritage, pride and legacy — written forever on the X1 Blockchain." },
     ],
   }),
   component: HomePage,
