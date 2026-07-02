@@ -164,23 +164,23 @@ function HomePage() {
           </div>
           <div className="col-span-12 md:col-span-9">
             <h2 className="font-display text-4xl leading-[1.05] sm:text-6xl">
-              Where <span className="serif-italic text-gradient-gold">ancestral</span> memory<br />
-              meets the on-chain frontier.
+              History transformed<br />
+              into <span className="serif-italic text-gradient-gold">ownership</span>.
             </h2>
             <div className="mt-8 columns-1 gap-10 text-[15px] leading-[1.75] text-muted-foreground md:columns-2">
               <p className="first-letter:mr-2 first-letter:float-left first-letter:font-display first-letter:text-6xl first-letter:leading-none first-letter:text-african-gold">
-                Every AFRICAN X1 NFT is generated from 250+ hand-illustrated traits across tribes, regions, masks and totem creatures. The provenance hash is committed on-chain before mint opens — a public promise that no one, not even us, can alter the odds.
+                This is not just digital art. This is the heartbeat of a continent that has inspired the world for thousands of years. Every NFT represents courage, resilience, unity, creativity and the rich diversity of Africa's people — from ancient masks to royal heritage, from tribal traditions to modern innovation.
               </p>
               <p className="mt-4">
-                Royalties flow back to creators across the continent. Legendary pieces gate future drops, IRL gatherings across African capitals, and a creator DAO that funds the next generation of digital artists working from Lagos to Nairobi to Cape Town.
+                When you own an AFRICAN X1 NFT, you are not simply purchasing an asset. You are embracing a mission — saying <span className="serif-italic text-foreground">"I believe Africa's story deserves to be preserved, celebrated and shared with the world."</span> Built on the X1 Blockchain, this collection is a bridge between our past and our future.
               </p>
             </div>
             <div className="mt-10 grid gap-6 md:grid-cols-4">
               {[
-                { t: "Hand-Crafted", d: "250+ original traits.", n: "i." },
-                { t: "Verifiable", d: "Provenance on-chain.", n: "ii." },
-                { t: "Rarity Tiers", d: "Five tiers of scarcity.", n: "iii." },
-                { t: "X1 Native", d: "Fast, low-fee minting.", n: "iv." },
+                { t: "Heritage", d: "Cultures & kingdoms preserved.", n: "i." },
+                { t: "Ownership", d: "Guardianship, on-chain.", n: "ii." },
+                { t: "Unity", d: "For every believer in culture.", n: "iii." },
+                { t: "Legacy", d: "Written forever on X1.", n: "iv." },
               ].map((f) => (
                 <div key={f.t} className="border-t border-white/15 pt-4">
                   <div className="serif-italic text-african-gold">{f.n}</div>
