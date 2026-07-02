@@ -79,45 +79,44 @@ function HomePage() {
             </aside>
 
             {/* Center — Headline */}
-            <div className="col-span-12 md:col-span-7">
+            <div className="col-span-12 md:col-span-6">
               <div className="eyebrow mb-6 flex items-center gap-3">
                 <span className="h-1.5 w-1.5 rounded-full bg-african-gold" />
-                Phase I · Genesis Mint
+                Our Heritage · Our Pride · Our Legacy
               </div>
-              <h1 className="font-display leading-[0.94] tracking-tight text-[52px] sm:text-[74px] md:text-[92px]">
-                The <span className="serif-italic text-gradient-gold">spirit</span><br />
-                of Africa,<br />
-                <span className="text-muted-foreground/60">rendered</span><br />
-                <span className="shimmer-gold">on-chain.</span>
+              <h1 className="font-display leading-[0.94] tracking-tight text-[48px] sm:text-[70px] md:text-[88px]">
+                More than an <span className="serif-italic text-gradient-gold">NFT</span>.<br />
+                A <span className="shimmer-gold">living</span><br />
+                <span className="serif-italic">legacy.</span>
               </h1>
+              <p className="mt-8 max-w-lg text-base leading-relaxed text-muted-foreground">
+                The <span className="text-african-gold">AFRICAN X1 NFT</span> Collection is a digital archive of Africa's identity — preserving our cultures, kingdoms, traditions, ceremonies and stories forever on the X1 Blockchain. Every mask, every symbol, every color carries the spirit of our ancestors and the dreams of generations yet to come.
+              </p>
               <div className="mt-8 flex flex-wrap items-center gap-4">
                 <Link
                   to="/mint"
                   className="group inline-flex items-center gap-3 rounded-sm bg-foreground px-6 py-3.5 font-display text-lg text-background transition hover:bg-african-gold"
                 >
-                  Mint the collection
+                  Become a guardian
                   <ArrowUpRight size={18} className="transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
                 </Link>
                 <WalletButton />
               </div>
-              <p className="mt-8 max-w-lg text-base leading-relaxed text-muted-foreground">
-                Fifty digital artifacts, hand-illustrated across tribes, masks and totem creatures — minted natively on the <span className="text-african-gold">X1 Blockchain</span>. Every piece verifiable, every royalty on-ledger.
-              </p>
             </div>
 
             {/* Right — Cover portrait */}
-            <div className="col-span-12 md:col-span-3">
+            <div className="col-span-12 md:col-span-4">
               <div className="relative">
                 <div className="absolute -top-3 left-0 right-0 flex items-center justify-between text-[10px] uppercase tracking-[0.24em] text-muted-foreground">
-                  <span>№ 0001</span>
-                  <span className="text-african-gold">Legendary</span>
+                  <span>Cover · Volume I</span>
+                  <span className="text-african-gold">Genesis</span>
                 </div>
-                <div className="relative mt-6 aspect-[3/4] overflow-hidden rounded-sm border border-white/10">
-                  <img src={logo.url} alt="Genesis mask" className="h-full w-full object-cover" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-background/85 via-transparent to-transparent" />
+                <div className="relative mt-6 aspect-square overflow-hidden rounded-sm border border-white/10">
+                  <img src={cover.url} alt="Africa X1 — a continent rendered as living, on-chain terrain" className="h-full w-full object-cover" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-background/70 via-transparent to-transparent" />
                   <div className="absolute bottom-0 left-0 right-0 p-4">
-                    <div className="serif-italic text-2xl leading-none">Genesis Mask</div>
-                    <div className="mt-1 label-xs">Cover · Tribe of Ash</div>
+                    <div className="serif-italic text-2xl leading-none">A continent, on-chain</div>
+                    <div className="mt-1 label-xs">From ancient masks to royal heritage</div>
                   </div>
                 </div>
                 <div className="mt-3 flex items-center justify-between text-[10px] uppercase tracking-[0.24em] text-muted-foreground">
