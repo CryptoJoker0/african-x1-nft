@@ -1,12 +1,14 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { Loader2, CheckCircle2, AlertTriangle, ExternalLink, Minus, Plus, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { useWallet } from "@/lib/wallet";
+import { useWallet, getInjectedProvider } from "@/lib/wallet";
 import { useAuth } from "@/lib/use-auth";
 import { WalletButton } from "@/components/site/WalletButton";
 import { toast } from "sonner";
+import { claimMint } from "@/lib/mint.functions";
 import logo from "@/assets/african-x1-logo.asset.json";
 
 export const Route = createFileRoute("/mint")({
@@ -24,8 +26,9 @@ export const Route = createFileRoute("/mint")({
 type Stage = "idle" | "preparing" | "signing" | "confirming" | "success" | "error";
 
 function MintPage() {
-  const { address, status: walletStatus } = useWallet();
+  const { address, status: walletStatus, walletId, isSimulated } = useWallet();
   const { user } = useAuth();
+  const claim = useServerFn(claimMint);
   const [qty, setQty] = useState(1);
   const [stage, setStage] = useState<Stage>("idle");
   const [signature, setSignature] = useState<string | null>(null);
@@ -49,38 +52,65 @@ function MintPage() {
   const max = config?.max_per_wallet ?? 5;
   const price = Number(config?.mint_price ?? 0);
   const total = price * qty;
-  const canMint = walletStatus === "connected" && !config?.mint_paused && minted < (config?.max_supply ?? 0);
+  const configReady = !!config?.treasury_wallet && !!config?.rpc_url;
+  const canMint =
+    walletStatus === "connected" &&
+    !isSimulated &&
+    !config?.mint_paused &&
+    configReady &&
+    !!user &&
+    minted < (config?.max_supply ?? 0);
 
   async function handleMint() {
     if (!address) return toast.error("Connect your wallet first");
+    if (isSimulated) return toast.error("Simulated wallet can't sign real transactions. Install Phantom, Backpack, or X1 Wallet.");
+    if (!user) return toast.error("Sign in first to mint");
     if (config?.mint_paused) return toast.error("Mint is currently paused");
+    if (!config?.treasury_wallet || !config?.rpc_url) return toast.error("Admin must set treasury wallet + RPC URL");
 
     setStage("preparing");
     setErrMsg(null);
     setSignature(null);
 
     try {
-      // 1. Record pending tx (requires auth)
-      if (user) {
-        await supabase.from("transactions").insert({
-          user_id: user.id,
-          wallet_address: address,
-          tx_type: "mint",
-          status: "pending",
-          amount: total,
-        });
-      }
+      const { Connection, PublicKey, Transaction, SystemProgram, LAMPORTS_PER_SOL } =
+        await import("@solana/web3.js");
+
+      const connection = new Connection(config.rpc_url, "confirmed");
+      const from = new PublicKey(address);
+      const to = new PublicKey(config.treasury_wallet);
+      const lamports = Math.round(total * LAMPORTS_PER_SOL);
+
+      const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash("confirmed");
+      const tx = new Transaction({ feePayer: from, blockhash, lastValidBlockHeight }).add(
+        SystemProgram.transfer({ fromPubkey: from, toPubkey: to, lamports }),
+      );
+
+      const provider = getInjectedProvider(walletId);
+      if (!provider) throw new Error("Wallet provider not found. Reconnect your wallet.");
 
       setStage("signing");
-      await sleep(900);
+      let sig: string;
+      if (typeof provider.signAndSendTransaction === "function") {
+        const res = await provider.signAndSendTransaction(tx);
+        sig = res.signature;
+      } else if (typeof provider.signTransaction === "function") {
+        const signed = (await provider.signTransaction(tx)) as InstanceType<typeof Transaction>;
+        sig = await connection.sendRawTransaction(signed.serialize());
+      } else {
+        throw new Error("Wallet does not support signing transactions");
+      }
 
-      // 2. Real X1 program call goes here. Until program ID + IDL are supplied,
-      //    we simulate the on-chain round-trip so the flow + UI are production-ready.
       setStage("confirming");
-      await sleep(1400);
+      await connection.confirmTransaction(
+        { signature: sig, blockhash, lastValidBlockHeight },
+        "confirmed",
+      );
 
-      const fakeSig = `${address.slice(0, 8)}${Date.now().toString(36)}`.padEnd(64, "x");
-      setSignature(fakeSig);
+      // Server-side verification + NFT assignment
+      const result = await claim({ data: { signature: sig, walletAddress: address, qty } });
+
+      setSignature(result.signature);
       setStage("success");
       toast.success(`Successfully minted ${qty} NFT${qty > 1 ? "s" : ""}!`);
     } catch (e) {
@@ -157,6 +187,15 @@ function MintPage() {
             </button>
           )}
 
+          {walletStatus === "connected" && (
+            <div className="mt-3 space-y-1 text-xs text-muted-foreground">
+              {isSimulated && <p className="text-african-gold">Simulated wallet detected — install Phantom, Backpack, or X1 Wallet to mint on-chain.</p>}
+              {!user && <p><Link to="/auth" className="text-cyber-cyan hover:underline">Sign in</Link> to record your mint.</p>}
+              {!configReady && <p>Waiting for admin to configure treasury wallet + RPC URL.</p>}
+              {config?.mint_paused && <p className="text-destructive">Mint is currently paused by admin.</p>}
+            </div>
+          )}
+
           {/* Progress timeline */}
           {stage !== "idle" && (
             <div className="mt-6 space-y-2">
@@ -215,5 +254,3 @@ function Step({ label, active, done }: { label: string; active: boolean; done: b
     </div>
   );
 }
-
-const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));

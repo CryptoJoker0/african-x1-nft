@@ -22,7 +22,7 @@ export interface WalletOption {
   detect: () => InjectedSolana | null;
 }
 
-interface InjectedSolana {
+export interface InjectedSolana {
   isPhantom?: boolean;
   isBackpack?: boolean;
   isX1?: boolean;
@@ -30,6 +30,14 @@ interface InjectedSolana {
   connect: (opts?: { onlyIfTrusted?: boolean }) => Promise<{ publicKey: { toString(): string } }>;
   disconnect: () => Promise<void>;
   on?: (event: string, cb: (...args: unknown[]) => void) => void;
+  signAndSendTransaction?: (tx: unknown) => Promise<{ signature: string }>;
+  signTransaction?: <T>(tx: T) => Promise<T>;
+}
+
+export function getInjectedProvider(id: WalletId | null): InjectedSolana | null {
+  if (!id) return null;
+  const opt = WALLET_OPTIONS.find((o) => o.id === id);
+  return opt?.detect() ?? null;
 }
 
 declare global {
