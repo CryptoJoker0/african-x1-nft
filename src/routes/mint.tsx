@@ -245,5 +245,3 @@ function Step({ label, active, done }: { label: string; active: boolean; done: b
     </div>
   );
 }
-
-const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
