@@ -95,8 +95,8 @@ function MintPage() {
         const res = await provider.signAndSendTransaction(tx);
         sig = res.signature;
       } else if (typeof provider.signTransaction === "function") {
-        const signed = await provider.signTransaction(tx);
-        sig = await connection.sendRawTransaction((signed as Transaction).serialize());
+        const signed = (await provider.signTransaction(tx)) as InstanceType<typeof Transaction>;
+        sig = await connection.sendRawTransaction(signed.serialize());
       } else {
         throw new Error("Wallet does not support signing transactions");
       }
