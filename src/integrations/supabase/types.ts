@@ -14,51 +14,17 @@ export type Database = {
   }
   public: {
     Tables: {
-      audit_logs: {
-        Row: {
-          action: string
-          actor_user_id: string | null
-          created_at: string
-          entity_id: string | null
-          entity_type: string | null
-          id: string
-          metadata: Json
-        }
-        Insert: {
-          action: string
-          actor_user_id?: string | null
-          created_at?: string
-          entity_id?: string | null
-          entity_type?: string | null
-          id?: string
-          metadata?: Json
-        }
-        Update: {
-          action?: string
-          actor_user_id?: string | null
-          created_at?: string
-          entity_id?: string | null
-          entity_type?: string | null
-          id?: string
-          metadata?: Json
-        }
-        Relationships: []
-      }
       collection_config: {
         Row: {
           collection_name: string
-          fee_wallet: string | null
           id: number
-          marketplace_enabled: boolean
           max_per_wallet: number
           max_supply: number
           mint_paused: boolean
           mint_price: number
-          platform_fee_bps: number
           pre_reveal_image_url: string | null
           program_id: string | null
           revealed: boolean
-          royalty_bps: number
           rpc_url: string
           symbol: string
           treasury_wallet: string | null
@@ -67,18 +33,14 @@ export type Database = {
         }
         Insert: {
           collection_name?: string
-          fee_wallet?: string | null
           id?: number
-          marketplace_enabled?: boolean
           max_per_wallet?: number
           max_supply?: number
           mint_paused?: boolean
           mint_price?: number
-          platform_fee_bps?: number
           pre_reveal_image_url?: string | null
           program_id?: string | null
           revealed?: boolean
-          royalty_bps?: number
           rpc_url?: string
           symbol?: string
           treasury_wallet?: string | null
@@ -87,18 +49,14 @@ export type Database = {
         }
         Update: {
           collection_name?: string
-          fee_wallet?: string | null
           id?: number
-          marketplace_enabled?: boolean
           max_per_wallet?: number
           max_supply?: number
           mint_paused?: boolean
           mint_price?: number
-          platform_fee_bps?: number
           pre_reveal_image_url?: string | null
           program_id?: string | null
           revealed?: boolean
-          royalty_bps?: number
           rpc_url?: string
           symbol?: string
           treasury_wallet?: string | null
@@ -107,60 +65,14 @@ export type Database = {
         }
         Relationships: []
       }
-      listings: {
-        Row: {
-          created_at: string
-          id: string
-          nft_id: string
-          price: number
-          seller_user_id: string
-          seller_wallet: string
-          status: Database["public"]["Enums"]["listing_status"]
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          nft_id: string
-          price: number
-          seller_user_id: string
-          seller_wallet: string
-          status?: Database["public"]["Enums"]["listing_status"]
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          nft_id?: string
-          price?: number
-          seller_user_id?: string
-          seller_wallet?: string
-          status?: Database["public"]["Enums"]["listing_status"]
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "listings_nft_id_fkey"
-            columns: ["nft_id"]
-            isOneToOne: false
-            referencedRelation: "nfts"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       nfts: {
         Row: {
           animation_url: string | null
           created_at: string
-          creator_user_id: string | null
           description: string | null
           external_url: string | null
           id: string
           image_url: string | null
-          is_featured: boolean
-          list_price: number | null
-          listed_at: string | null
-          metadata_uri: string | null
           mint_signature: string | null
           minted_at: string | null
           name: string
@@ -174,15 +86,10 @@ export type Database = {
         Insert: {
           animation_url?: string | null
           created_at?: string
-          creator_user_id?: string | null
           description?: string | null
           external_url?: string | null
           id?: string
           image_url?: string | null
-          is_featured?: boolean
-          list_price?: number | null
-          listed_at?: string | null
-          metadata_uri?: string | null
           mint_signature?: string | null
           minted_at?: string | null
           name: string
@@ -196,15 +103,10 @@ export type Database = {
         Update: {
           animation_url?: string | null
           created_at?: string
-          creator_user_id?: string | null
           description?: string | null
           external_url?: string | null
           id?: string
           image_url?: string | null
-          is_featured?: boolean
-          list_price?: number | null
-          listed_at?: string | null
-          metadata_uri?: string | null
           mint_signature?: string | null
           minted_at?: string | null
           name?: string
@@ -214,27 +116,6 @@ export type Database = {
           status?: Database["public"]["Enums"]["nft_status"]
           token_id?: number
           traits?: Json
-        }
-        Relationships: []
-      }
-      platform_settings: {
-        Row: {
-          ai_provider: string
-          id: number
-          updated_at: string
-          updated_by: string | null
-        }
-        Insert: {
-          ai_provider?: string
-          id?: number
-          updated_at?: string
-          updated_by?: string | null
-        }
-        Update: {
-          ai_provider?: string
-          id?: number
-          updated_at?: string
-          updated_by?: string | null
         }
         Relationships: []
       }
@@ -264,72 +145,6 @@ export type Database = {
           wallet_address?: string | null
         }
         Relationships: []
-      }
-      sales: {
-        Row: {
-          buyer_user_id: string | null
-          buyer_wallet: string
-          confirmed_at: string | null
-          created_at: string
-          id: string
-          listing_id: string | null
-          nft_id: string
-          platform_fee_amount: number
-          price: number
-          royalty_amount: number
-          seller_amount: number
-          seller_wallet: string
-          signature: string | null
-          status: Database["public"]["Enums"]["sale_status"]
-        }
-        Insert: {
-          buyer_user_id?: string | null
-          buyer_wallet: string
-          confirmed_at?: string | null
-          created_at?: string
-          id?: string
-          listing_id?: string | null
-          nft_id: string
-          platform_fee_amount?: number
-          price: number
-          royalty_amount?: number
-          seller_amount?: number
-          seller_wallet: string
-          signature?: string | null
-          status?: Database["public"]["Enums"]["sale_status"]
-        }
-        Update: {
-          buyer_user_id?: string | null
-          buyer_wallet?: string
-          confirmed_at?: string | null
-          created_at?: string
-          id?: string
-          listing_id?: string | null
-          nft_id?: string
-          platform_fee_amount?: number
-          price?: number
-          royalty_amount?: number
-          seller_amount?: number
-          seller_wallet?: string
-          signature?: string | null
-          status?: Database["public"]["Enums"]["sale_status"]
-        }
-        Relationships: [
-          {
-            foreignKeyName: "sales_listing_id_fkey"
-            columns: ["listing_id"]
-            isOneToOne: false
-            referencedRelation: "listings"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "sales_nft_id_fkey"
-            columns: ["nft_id"]
-            isOneToOne: false
-            referencedRelation: "nfts"
-            referencedColumns: ["id"]
-          },
-        ]
       }
       transactions: {
         Row: {
@@ -438,22 +253,11 @@ export type Database = {
         }
         Returns: boolean
       }
-      log_admin_action: {
-        Args: {
-          _action: string
-          _entity_id: string
-          _entity_type: string
-          _metadata?: Json
-        }
-        Returns: string
-      }
     }
     Enums: {
       app_role: "admin" | "user"
-      listing_status: "active" | "sold" | "cancelled"
       nft_rarity: "legendary" | "elite" | "rare" | "uncommon" | "common"
       nft_status: "available" | "reserved" | "minted"
-      sale_status: "pending" | "confirmed" | "failed"
       tx_status: "pending" | "confirmed" | "failed"
       tx_type: "mint" | "transfer" | "reveal"
     }
@@ -584,10 +388,8 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "user"],
-      listing_status: ["active", "sold", "cancelled"],
       nft_rarity: ["legendary", "elite", "rare", "uncommon", "common"],
       nft_status: ["available", "reserved", "minted"],
-      sale_status: ["pending", "confirmed", "failed"],
       tx_status: ["pending", "confirmed", "failed"],
       tx_type: ["mint", "transfer", "reveal"],
     },
