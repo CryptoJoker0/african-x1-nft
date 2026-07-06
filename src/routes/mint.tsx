@@ -187,6 +187,15 @@ function MintPage() {
             </button>
           )}
 
+          {walletStatus === "connected" && (
+            <div className="mt-3 space-y-1 text-xs text-muted-foreground">
+              {isSimulated && <p className="text-african-gold">Simulated wallet detected — install Phantom, Backpack, or X1 Wallet to mint on-chain.</p>}
+              {!user && <p><Link to="/auth" className="text-cyber-cyan hover:underline">Sign in</Link> to record your mint.</p>}
+              {!configReady && <p>Waiting for admin to configure treasury wallet + RPC URL.</p>}
+              {config?.mint_paused && <p className="text-destructive">Mint is currently paused by admin.</p>}
+            </div>
+          )}
+
           {/* Progress timeline */}
           {stage !== "idle" && (
             <div className="mt-6 space-y-2">
