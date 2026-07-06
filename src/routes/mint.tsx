@@ -1,12 +1,14 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { Loader2, CheckCircle2, AlertTriangle, ExternalLink, Minus, Plus, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { useWallet } from "@/lib/wallet";
+import { useWallet, getInjectedProvider } from "@/lib/wallet";
 import { useAuth } from "@/lib/use-auth";
 import { WalletButton } from "@/components/site/WalletButton";
 import { toast } from "sonner";
+import { claimMint } from "@/lib/mint.functions";
 import logo from "@/assets/african-x1-logo.asset.json";
 
 export const Route = createFileRoute("/mint")({
