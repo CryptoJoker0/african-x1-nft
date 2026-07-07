@@ -9,7 +9,7 @@ import { useAuth } from "@/lib/use-auth";
 import { WalletButton } from "@/components/site/WalletButton";
 import { toast } from "sonner";
 import { claimMint } from "@/lib/mint.functions";
-import { submitMintTransfer } from "@/lib/mint-tx.client";
+import { submitMintTransfer } from "@/lib/mint-tx";
 import logo from "@/assets/african-x1-logo.asset.json";
 
 export const Route = createFileRoute("/mint")({
