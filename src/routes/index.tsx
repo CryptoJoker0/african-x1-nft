@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ArrowUpRight, ChevronDown } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { WalletButton } from "@/components/site/WalletButton";
@@ -47,7 +47,10 @@ function HomePage() {
   const remaining = Math.max(0, maxSupply - minted);
   const progress = maxSupply > 0 ? (minted / maxSupply) * 100 : 0;
   const status = config?.mint_paused ? "Paused" : config?.whitelist_only ? "Whitelist" : "Live";
-  const today = new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" });
+  const [today, setToday] = useState("");
+  useEffect(() => {
+    setToday(new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" }));
+  }, []);
 
   return (
     <div>
