@@ -46,17 +46,29 @@ export const claimMint = createServerFn({ method: "POST" })
 
     const expectedLamports = Math.round(Number(config.mint_price) * qty * 1_000_000_000);
 
-    // 3. Verify tx on-chain
-    const { Connection } = await import("@solana/web3.js");
-    const connection = new Connection(config.rpc_url, "confirmed");
-    const tx = await connection.getTransaction(signature, {
-      maxSupportedTransactionVersion: 0,
-      commitment: "confirmed",
+    // 3. Verify tx on-chain via raw JSON-RPC (avoids bundling @solana/web3.js on the server/workerd)
+    const rpcRes = await fetch(config.rpc_url, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        jsonrpc: "2.0",
+        id: 1,
+        method: "getTransaction",
+        params: [signature, { encoding: "json", maxSupportedTransactionVersion: 0, commitment: "confirmed" }],
+      }),
     });
+    if (!rpcRes.ok) throw new Error(`RPC error ${rpcRes.status}`);
+    const rpcJson = (await rpcRes.json()) as {
+      result: {
+        meta: { err: unknown; preBalances: number[]; postBalances: number[] } | null;
+        transaction: { message: { accountKeys: string[] } };
+      } | null;
+    };
+    const tx = rpcJson.result;
     if (!tx) throw new Error("Transaction not found on-chain yet — try again in a few seconds");
     if (tx.meta?.err) throw new Error("Transaction failed on-chain");
 
-    const keys = tx.transaction.message.getAccountKeys().staticAccountKeys.map((k) => k.toBase58());
+    const keys = tx.transaction.message.accountKeys;
     const senderIdx = keys.indexOf(walletAddress);
     const treasuryIdx = keys.indexOf(config.treasury_wallet);
     if (senderIdx === -1 || treasuryIdx === -1) throw new Error("Signature does not involve this wallet + treasury");
@@ -67,6 +79,7 @@ export const claimMint = createServerFn({ method: "POST" })
     if (delta < expectedLamports) {
       throw new Error(`Underpaid: expected ${expectedLamports} lamports, got ${delta}`);
     }
+
 
     // 4. Enforce max_per_wallet (count existing minted for this user)
     const { count: existingCount } = await supabase

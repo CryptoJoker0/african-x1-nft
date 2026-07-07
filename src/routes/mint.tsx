@@ -4,11 +4,12 @@ import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { Loader2, CheckCircle2, AlertTriangle, ExternalLink, Minus, Plus, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { useWallet, getInjectedProvider } from "@/lib/wallet";
+import { useWallet } from "@/lib/wallet";
 import { useAuth } from "@/lib/use-auth";
 import { WalletButton } from "@/components/site/WalletButton";
 import { toast } from "sonner";
 import { claimMint } from "@/lib/mint.functions";
+import { submitMintTransfer } from "@/lib/mint-tx";
 import logo from "@/assets/african-x1-logo.asset.json";
 
 export const Route = createFileRoute("/mint")({
@@ -73,39 +74,15 @@ function MintPage() {
     setSignature(null);
 
     try {
-      const { Connection, PublicKey, Transaction, SystemProgram, LAMPORTS_PER_SOL } =
-        await import("@solana/web3.js");
+      const sig = await submitMintTransfer({
+        rpcUrl: config.rpc_url,
+        treasury: config.treasury_wallet,
+        address,
+        totalXnt: total,
+        walletId,
+        onStage: (s) => setStage(s),
+      });
 
-      const connection = new Connection(config.rpc_url, "confirmed");
-      const from = new PublicKey(address);
-      const to = new PublicKey(config.treasury_wallet);
-      const lamports = Math.round(total * LAMPORTS_PER_SOL);
-
-      const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash("confirmed");
-      const tx = new Transaction({ feePayer: from, blockhash, lastValidBlockHeight }).add(
-        SystemProgram.transfer({ fromPubkey: from, toPubkey: to, lamports }),
-      );
-
-      const provider = getInjectedProvider(walletId);
-      if (!provider) throw new Error("Wallet provider not found. Reconnect your wallet.");
-
-      setStage("signing");
-      let sig: string;
-      if (typeof provider.signAndSendTransaction === "function") {
-        const res = await provider.signAndSendTransaction(tx);
-        sig = res.signature;
-      } else if (typeof provider.signTransaction === "function") {
-        const signed = (await provider.signTransaction(tx)) as InstanceType<typeof Transaction>;
-        sig = await connection.sendRawTransaction(signed.serialize());
-      } else {
-        throw new Error("Wallet does not support signing transactions");
-      }
-
-      setStage("confirming");
-      await connection.confirmTransaction(
-        { signature: sig, blockhash, lastValidBlockHeight },
-        "confirmed",
-      );
 
       // Server-side verification + NFT assignment
       const result = await claim({ data: { signature: sig, walletAddress: address, qty } });
