@@ -1,12 +1,12 @@
 import { createIsomorphicFn } from "@tanstack/react-start";
-import { getInjectedProvider } from "@/lib/wallet";
+import { getInjectedProvider, type WalletId } from "@/lib/wallet";
 
 export interface MintTxParams {
   rpcUrl: string;
   treasury: string;
   address: string;
   totalXnt: number;
-  walletId: string | null;
+  walletId: WalletId | null;
   onStage: (stage: "signing" | "confirming") => void;
 }
 
