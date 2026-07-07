@@ -8,6 +8,11 @@ export default defineConfig({
     server: { entry: "server" },
   },
   vite: {
+    server: {
+      port: 5000,
+      host: "0.0.0.0",
+      allowedHosts: true,
+    },
     environments: {
       ssr: {
         resolve: {

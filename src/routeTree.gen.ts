@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as MintRouteImport } from './routes/mint'
+import { Route as MarketplaceRouteImport } from './routes/marketplace'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as CollectionRouteImport } from './routes/collection'
 import { Route as AuthRouteImport } from './routes/auth'
@@ -25,6 +26,11 @@ const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
 const MintRoute = MintRouteImport.update({
   id: '/mint',
   path: '/mint',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MarketplaceRoute = MarketplaceRouteImport.update({
+  id: '/marketplace',
+  path: '/marketplace',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DashboardRoute = DashboardRouteImport.update({
@@ -59,6 +65,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/collection': typeof CollectionRoute
   '/dashboard': typeof DashboardRoute
+  '/marketplace': typeof MarketplaceRoute
   '/mint': typeof MintRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
 }
@@ -68,6 +75,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/collection': typeof CollectionRoute
   '/dashboard': typeof DashboardRoute
+  '/marketplace': typeof MarketplaceRoute
   '/mint': typeof MintRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
 }
@@ -78,6 +86,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/collection': typeof CollectionRoute
   '/dashboard': typeof DashboardRoute
+  '/marketplace': typeof MarketplaceRoute
   '/mint': typeof MintRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
 }
@@ -89,6 +98,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/collection'
     | '/dashboard'
+    | '/marketplace'
     | '/mint'
     | '/sitemap.xml'
   fileRoutesByTo: FileRoutesByTo
@@ -98,6 +108,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/collection'
     | '/dashboard'
+    | '/marketplace'
     | '/mint'
     | '/sitemap.xml'
   id:
@@ -107,6 +118,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/collection'
     | '/dashboard'
+    | '/marketplace'
     | '/mint'
     | '/sitemap.xml'
   fileRoutesById: FileRoutesById
@@ -117,6 +129,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   CollectionRoute: typeof CollectionRoute
   DashboardRoute: typeof DashboardRoute
+  MarketplaceRoute: typeof MarketplaceRoute
   MintRoute: typeof MintRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
 }
@@ -135,6 +148,13 @@ declare module '@tanstack/react-router' {
       path: '/mint'
       fullPath: '/mint'
       preLoaderRoute: typeof MintRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/marketplace': {
+      id: '/marketplace'
+      path: '/marketplace'
+      fullPath: '/marketplace'
+      preLoaderRoute: typeof MarketplaceRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dashboard': {
@@ -181,6 +201,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   CollectionRoute: CollectionRoute,
   DashboardRoute: DashboardRoute,
+  MarketplaceRoute: MarketplaceRoute,
   MintRoute: MintRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
 }

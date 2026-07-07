@@ -18,7 +18,7 @@ const ClaimInput = z.object({
  */
 export const claimMint = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: unknown) => ClaimInput.parse(data))
+  .validator((data: unknown) => ClaimInput.parse(data))
   .handler(async ({ data, context }) => {
     const { signature, walletAddress, qty } = data;
     const { supabase, userId } = context;
@@ -127,19 +127,25 @@ export const claimMint = createServerFn({ method: "POST" })
       .in("id", ids);
     if (updErr) throw new Error(updErr.message);
 
-    // 7. Record transactions (one per NFT so ledger is granular)
-    const pricePer = Number(config.mint_price);
-    const txRows = available.map((n) => ({
+    // 7. Record one transaction row per claim (one signature = one ledger entry).
+    // Multiple per-NFT rows with the same signature would violate any unique
+    // constraint on the signature column and break the idempotency check above.
+    const totalAmount = Number(config.mint_price) * qty;
+    const { error: txErr } = await supabaseAdmin.from("transactions").insert({
       user_id: userId,
-      nft_id: n.id,
+      nft_id: available[0].id, // primary NFT for the claim
       wallet_address: walletAddress,
       tx_type: "mint" as const,
       status: "confirmed" as const,
       signature,
-      amount: pricePer,
+      amount: totalAmount,
       confirmed_at: nowIso,
-    }));
-    await supabaseAdmin.from("transactions").insert(txRows);
+    });
+    if (txErr) {
+      console.error("[claimMint] transaction ledger insert failed:", txErr.message);
+      // NFTs were already marked minted — log the error but don't throw so the
+      // user gets their NFTs. The admin can reconcile via the audit logs.
+    }
 
     return {
       alreadyClaimed: false,

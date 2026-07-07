@@ -37,6 +37,7 @@ export function Footer() {
             <ul className="space-y-2.5 font-display text-xl">
               <li><Link to="/collection" className="hover:text-african-gold">Collection</Link></li>
               <li><Link to="/mint" className="hover:text-african-gold">Mint</Link></li>
+              <li><Link to="/marketplace" className="hover:text-african-gold">Marketplace</Link></li>
               <li><Link to="/dashboard" className="hover:text-african-gold">Dashboard</Link></li>
             </ul>
           </div>
@@ -52,7 +53,7 @@ export function Footer() {
         <div className="flex flex-col items-start justify-between gap-4 border-t border-white/10 py-6 sm:flex-row sm:items-center">
           <div className="flex items-center gap-4">
             <Logo size={28} withWord={false} />
-            <div className="label-xs">© {new Date().getFullYear()} · Volume I · All rights reserved</div>
+            <div className="label-xs">© 2026 · Volume I · All rights reserved</div>
           </div>
           <div className="label-xs">Set in Instrument Serif &amp; Work Sans · Pressed on X1</div>
         </div>

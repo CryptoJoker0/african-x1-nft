@@ -86,9 +86,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootShell({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" className="dark">
-      <head><HeadContent /></head>
-      <body>{children}<Scripts /></body>
+    // suppressHydrationWarning: @tanstack/devtools-vite injects data-tsd-source
+    // attributes whose line numbers differ between SSR and client transforms in
+    // dev mode. This is a tooling-only attribute — production builds are clean.
+    <html lang="en" className="dark" suppressHydrationWarning>
+      <head suppressHydrationWarning><HeadContent /></head>
+      <body suppressHydrationWarning>{children}<Scripts /></body>
     </html>
   );
 }
