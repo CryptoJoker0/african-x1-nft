@@ -1,3 +1,5 @@
 - [TanStack devtools hydration warning](tsd-source-hydration.md) — data-tsd-source attrs from devtools-vite cause dev-only hydration mismatch; production builds clean.
 - [Asset CDN URLs](asset-cdn.md) — Lovable /__l5e/ asset URLs are auth-gated and won't work outside Lovable; use /pre-reveal.jpg local placeholder.
 - [Solana SSR stub](solana-ssr.md) — @solana/web3.js aliased to empty stub in SSR env; mint tx uses createIsomorphicFn().client() so it only runs in browser.
+- [Node.js 22 required](node22-required.md) — TanStack Start requires Node ≥ 22.12.0; Bus error on Node 20. Use installProgrammingLanguage({ language: "nodejs-22" }) then full clean reinstall (rm -rf node_modules package-lock.json && npm install) to rebuild native bindings (Rollup).
+- [Mint wallet binding](mint-wallet-binding.md) — processClaimMint and processPreflight both check profiles.wallet_address vs provided walletAddress; if profile has a wallet set, it must match to prevent replay attacks.

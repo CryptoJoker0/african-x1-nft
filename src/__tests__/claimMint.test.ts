@@ -87,7 +87,8 @@ const VALID_CONFIG = {
   max_per_wallet: 5,
   mint_paused: false,
   whitelist_only: false,
-  treasury_wallet: "Treasury11111111111111111111111111111111111",
+  // Must match TREASURY_WALLET constant in mint.logic.ts
+  treasury_wallet: "9rMJNa5QiNakB45qyymGBNVcALrcHYvwnm15mQcZJfNK",
   rpc_url: "https://rpc.x1.xyz",
   max_supply: 50,
 };

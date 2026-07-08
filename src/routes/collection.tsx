@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import preReveal from "@/assets/pre-reveal.jpg";
+import cover from "@/assets/african-x1-cover.png.asset.json";
 import { CheckCircle2, Sparkles } from "lucide-react";
 
 export const Route = createFileRoute("/collection")({
@@ -11,7 +11,7 @@ export const Route = createFileRoute("/collection")({
       {
         name: "description",
         content:
-          "5,000 Genesis NFTs on the X1 Blockchain. Every NFT represents a unique piece of African history, culture and identity.",
+          "50 Genesis NFTs on the X1 Blockchain. Every NFT represents a unique piece of African history, culture and identity.",
       },
       { property: "og:title", content: "AFRICAN X1 NFT Collection" },
       {
@@ -47,7 +47,7 @@ function CollectionPage() {
     },
   });
 
-  const maxSupply = config?.max_supply ?? 5000;
+  const maxSupply = config?.max_supply ?? 50;
   const remaining = Math.max(0, maxSupply - mintedCount);
   const pct = maxSupply > 0 ? Math.round((mintedCount / maxSupply) * 100) : 0;
   const soldOut = remaining === 0 && maxSupply > 0;
@@ -65,7 +65,7 @@ function CollectionPage() {
       {/* Full-bleed background — subtle dark overlay on the cover art */}
       <div className="absolute inset-0 -z-10">
         <img
-          src={preReveal}
+          src={cover.url}
           alt="AFRICAN X1 Collection"
           className="h-full w-full object-cover opacity-15 blur-sm scale-105"
         />
@@ -78,7 +78,7 @@ function CollectionPage() {
         <div className="relative mx-auto w-full max-w-sm md:max-w-none animate-scan">
           <div className="relative overflow-hidden rounded-3xl border border-white/10 shadow-2xl">
             <img
-              src={preReveal}
+              src={cover.url}
               alt="AFRICAN X1 NFT — Pre-Reveal"
               className="aspect-square w-full object-cover"
             />

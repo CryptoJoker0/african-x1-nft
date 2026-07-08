@@ -156,6 +156,21 @@ export async function processPreflight(params: PreflightParams): Promise<Preflig
     );
   }
 
+  // 3.5 Wallet identity binding — if the user has a registered wallet, it must
+  // match the wallet they're minting with. Prevents replay attacks where an
+  // attacker submits another user's valid tx signature.
+  const { data: preflightProfile } = await supabase
+    .from("profiles")
+    .select("wallet_address")
+    .eq("id", userId)
+    .single();
+  if (preflightProfile?.wallet_address && preflightProfile.wallet_address !== walletAddress) {
+    throw new Error(
+      "The connected wallet does not match the wallet registered to your account. " +
+        "Reconnect with your registered wallet to mint.",
+    );
+  }
+
   // 4. NFT availability (admin client bypasses RLS)
   const { count: availableCount, error: availErr } = await admin
     .from("nfts")
@@ -230,6 +245,22 @@ export async function processClaimMint(params: ClaimMintParams): Promise<ClaimMi
   const maxPerWallet = config.max_per_wallet ?? 5;
   if (owned + qty > maxPerWallet) {
     throw new Error(`Exceeds wallet limit of ${maxPerWallet} NFTs (already owns ${owned})`);
+  }
+
+  // ── Step 3.5: Wallet identity binding ────────────────────────────────────
+  // If the user has a registered wallet in their profile, the provided wallet
+  // MUST match it. This prevents replay attacks where an attacker intercepts
+  // another user's on-chain tx signature and submits it under their own session.
+  const { data: claimProfile } = await supabase
+    .from("profiles")
+    .select("wallet_address")
+    .eq("id", userId)
+    .single();
+  if (claimProfile?.wallet_address && claimProfile.wallet_address !== walletAddress) {
+    throw new Error(
+      "The connected wallet does not match the wallet registered to your account. " +
+        "Reconnect with your registered wallet to mint.",
+    );
   }
 
   // ── Step 4: Primary idempotency check (via transactions ledger) ──────────
