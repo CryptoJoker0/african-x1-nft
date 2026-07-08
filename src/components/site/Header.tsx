@@ -18,7 +18,9 @@ export function Header() {
   return (
     <header className="sticky top-0 z-40 border-b border-white/10 backdrop-blur-xl bg-background/70">
       <div className="mx-auto flex max-w-[1400px] items-center justify-between gap-6 px-6 py-4 sm:px-10">
-        <Link to="/" className="shrink-0"><Logo /></Link>
+        <Link to="/" className="shrink-0">
+          <Logo />
+        </Link>
         <nav className="hidden items-center gap-7 md:flex">
           {nav.map((n) => {
             const active = pathname === n.to || (n.to !== "/" && pathname.startsWith(n.to));
@@ -38,7 +40,9 @@ export function Header() {
           })}
         </nav>
         <div className="flex items-center gap-3">
-          <div className="hidden md:block"><WalletButton /></div>
+          <div className="hidden md:block">
+            <WalletButton />
+          </div>
           <button
             className="rounded-sm p-2 text-foreground md:hidden"
             onClick={() => setOpen((o) => !o)}
@@ -63,7 +67,9 @@ export function Header() {
                 <span className="font-display text-xl">{n.label}</span>
               </Link>
             ))}
-            <div className="pt-2"><WalletButton /></div>
+            <div className="pt-2">
+              <WalletButton />
+            </div>
           </div>
         </div>
       )}

@@ -14,9 +14,7 @@ export function Logo({ size = 40, withWord = true }: { size?: number; withWord?:
           <div className="font-display text-[22px] leading-none tracking-tight text-foreground">
             African <span className="serif-italic text-gradient-gold">X1</span>
           </div>
-          <div className="mt-1 label-xs">
-            Genesis · X1 Chain
-          </div>
+          <div className="mt-1 label-xs">Genesis · X1 Chain</div>
         </div>
       )}
     </div>

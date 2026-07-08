@@ -1,227 +1,225 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
-import { Search, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import preReveal from "@/assets/pre-reveal.jpg";
+import { CheckCircle2, Sparkles } from "lucide-react";
 
 export const Route = createFileRoute("/collection")({
   head: () => ({
     meta: [
       { title: "Collection — AFRICAN X1 NFT" },
-      { name: "description", content: "Browse all 50 AFRICAN X1 NFTs. Filter by status, rarity and traits." },
+      {
+        name: "description",
+        content:
+          "5,000 Genesis NFTs on the X1 Blockchain. Every NFT represents a unique piece of African history, culture and identity.",
+      },
       { property: "og:title", content: "AFRICAN X1 NFT Collection" },
-      { property: "og:description", content: "Explore the full AFRICAN X1 NFT collection on the X1 Blockchain." },
+      {
+        property: "og:description",
+        content: "Explore the AFRICAN X1 NFT genesis collection on X1 Blockchain.",
+      },
     ],
   }),
   component: CollectionPage,
 });
 
-type Status = "all" | "available" | "minted" | "owned";
-type Rarity = "all" | "legendary" | "elite" | "rare" | "uncommon" | "common";
-
-interface NFT {
-  id: string;
-  token_id: number;
-  name: string;
-  description: string | null;
-  image_url: string | null;
-  rarity: Rarity;
-  status: "available" | "minted" | "reserved";
-  owner_wallet: string | null;
-  traits: Record<string, string>;
-}
-
-const RARITY_COLOR: Record<string, string> = {
-  legendary: "text-rarity-legendary border-rarity-legendary/50 bg-rarity-legendary/10",
-  elite: "text-rarity-elite border-rarity-elite/50 bg-rarity-elite/10",
-  rare: "text-rarity-rare border-rarity-rare/50 bg-rarity-rare/10",
-  uncommon: "text-rarity-uncommon border-rarity-uncommon/50 bg-rarity-uncommon/10",
-  common: "text-rarity-common border-rarity-common/50 bg-rarity-common/10",
-};
-
 function CollectionPage() {
-  const [status, setStatus] = useState<Status>("all");
-  const [rarity, setRarity] = useState<Rarity>("all");
-  const [search, setSearch] = useState("");
-  const [active, setActive] = useState<NFT | null>(null);
-
-  const { data: nfts = [], isLoading } = useQuery({
-    queryKey: ["nfts"],
+  const { data: config } = useQuery({
+    queryKey: ["config"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("nfts").select("*").order("token_id", { ascending: true }).limit(200);
-      if (error) throw error;
-      return (data ?? []) as unknown as NFT[];
+      const { data } = await supabase
+        .from("collection_config")
+        .select(
+          "mint_price, max_supply, minted_count:nfts(count), revealed, mint_paused, collection_name",
+        )
+        .eq("id", 1)
+        .single();
+      return data;
     },
   });
 
-  const filtered = useMemo(() => {
-    return nfts.filter((n) => {
-      if (status !== "all" && status !== "owned" && n.status !== status) return false;
-      if (rarity !== "all" && n.rarity !== rarity) return false;
-      if (search && !`${n.name} ${n.token_id}`.toLowerCase().includes(search.toLowerCase())) return false;
-      return true;
-    });
-  }, [nfts, status, rarity, search]);
+  const { data: mintedCount = 0 } = useQuery({
+    queryKey: ["minted-count"],
+    queryFn: async () => {
+      const { count } = await supabase
+        .from("nfts")
+        .select("*", { count: "exact", head: true })
+        .eq("status", "minted");
+      return count ?? 0;
+    },
+  });
 
-  const rarityCounts = useMemo(() => {
-    const c: Record<string, number> = {};
-    nfts.forEach((n) => { c[n.rarity] = (c[n.rarity] ?? 0) + 1; });
-    return c;
-  }, [nfts]);
+  const maxSupply = config?.max_supply ?? 5000;
+  const remaining = Math.max(0, maxSupply - mintedCount);
+  const pct = maxSupply > 0 ? Math.round((mintedCount / maxSupply) * 100) : 0;
+  const soldOut = remaining === 0 && maxSupply > 0;
+  const paused = config?.mint_paused ?? false;
+
+  const highlights = [
+    { label: `${maxSupply.toLocaleString()} Genesis NFTs` },
+    { label: "Random Reveal" },
+    { label: "Powered by X1 Blockchain" },
+    { label: "Mint to discover your NFT" },
+  ];
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6">
-      <header className="mb-8">
-        <div className="text-[10px] uppercase tracking-[0.3em] text-african-gold">Genesis Collection</div>
-        <h1 className="mt-2 font-display text-3xl sm:text-4xl">Browse the <span className="text-gradient-cyber">tribe</span>.</h1>
-        <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-          {nfts.length.toLocaleString()} indexed · {filtered.length.toLocaleString()} match your filters.
-        </p>
-      </header>
-
-      <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-        <div className="relative w-full max-w-sm">
-          <Search size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-          <input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search by name or #ID"
-            className="w-full rounded-full border border-white/10 bg-white/5 py-2.5 pl-9 pr-4 text-sm placeholder:text-muted-foreground focus:border-cyber-cyan/60 focus:outline-none focus:ring-2 focus:ring-cyber-cyan/30"
-          />
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
-          {(["all","available","minted","owned"] as Status[]).map((s) => (
-            <Chip key={s} active={status === s} onClick={() => setStatus(s)}>{s}</Chip>
-          ))}
-        </div>
+    <div className="relative min-h-screen overflow-hidden">
+      {/* Full-bleed background — subtle dark overlay on the cover art */}
+      <div className="absolute inset-0 -z-10">
+        <img
+          src={preReveal}
+          alt="AFRICAN X1 Collection"
+          className="h-full w-full object-cover opacity-15 blur-sm scale-105"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-background/80 to-background" />
       </div>
 
-      <div className="mb-8 flex flex-wrap items-center gap-2">
-        <span className="text-[10px] uppercase tracking-[0.25em] text-muted-foreground mr-1">Rarity</span>
-        {(["all","legendary","elite","rare","uncommon","common"] as Rarity[]).map((r) => (
-          <Chip key={r} active={rarity === r} onClick={() => setRarity(r)} color={r}>
-            {r}{r !== "all" && rarityCounts[r] ? ` · ${rarityCounts[r]}` : ""}
-          </Chip>
-        ))}
-      </div>
-
-      {isLoading ? (
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-          {Array.from({ length: 12 }).map((_, i) => (
-            <div key={i} className="aspect-square animate-pulse rounded-2xl bg-white/5" />
-          ))}
-        </div>
-      ) : filtered.length === 0 ? (
-        <EmptyState />
-      ) : (
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-          {filtered.map((n) => (
-            <button
-              key={n.id}
-              onClick={() => setActive(n)}
-              className="group relative overflow-hidden rounded-2xl glass-card text-left transition hover:border-cyber-cyan/50 hover:glow-blue"
-            >
-              <div className="relative aspect-square overflow-hidden">
-                <img
-                  src={n.image_url || preReveal}
-                  alt={n.name}
-                  loading="lazy"
-                  className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
-                />
-                <span className={`absolute left-3 top-3 rounded-full border px-2 py-0.5 text-[10px] uppercase tracking-widest ${RARITY_COLOR[n.rarity]}`}>
-                  {n.rarity}
+      {/* Main hero */}
+      <section className="mx-auto grid min-h-screen max-w-7xl grid-cols-1 items-center gap-12 px-6 py-20 md:grid-cols-2 sm:px-10">
+        {/* Left — artwork */}
+        <div className="relative mx-auto w-full max-w-sm md:max-w-none animate-scan">
+          <div className="relative overflow-hidden rounded-3xl border border-white/10 shadow-2xl">
+            <img
+              src={preReveal}
+              alt="AFRICAN X1 NFT — Pre-Reveal"
+              className="aspect-square w-full object-cover"
+            />
+            {/* Corner badge */}
+            <div className="absolute left-4 top-4 rounded-full border border-african-gold/60 bg-african-gold/15 px-3 py-1 text-[10px] uppercase tracking-[0.2em] text-african-gold backdrop-blur-sm">
+              Genesis Collection
+            </div>
+            {/* Supply counter */}
+            <div className="absolute bottom-4 right-4 rounded-xl border border-white/10 bg-background/70 px-4 py-2 text-right backdrop-blur-sm">
+              <div className="font-mono text-xs text-muted-foreground">Minted</div>
+              <div className="font-display text-xl leading-none">
+                {mintedCount.toLocaleString()}
+                <span className="ml-1 text-sm text-muted-foreground">
+                  / {maxSupply.toLocaleString()}
                 </span>
-                {n.status === "minted" && (
-                  <span className="absolute right-3 top-3 rounded-full border border-cyber-cyan/40 bg-cyber-cyan/15 px-2 py-0.5 text-[10px] uppercase tracking-widest text-cyber-cyan">
-                    minted
-                  </span>
-                )}
               </div>
-              <div className="p-3">
-                <div className="flex items-center justify-between">
-                  <span className="font-display text-sm">{n.name}</span>
-                  <span className="font-mono text-xs text-muted-foreground">#{n.token_id}</span>
-                </div>
-              </div>
-            </button>
-          ))}
-        </div>
-      )}
-
-      {active && <NFTModal nft={active} onClose={() => setActive(null)} />}
-    </div>
-  );
-}
-
-function Chip({ children, active, onClick, color }: { children: React.ReactNode; active?: boolean; onClick?: () => void; color?: string }) {
-  const colorCls = color && color !== "all" && active ? RARITY_COLOR[color] : "";
-  return (
-    <button
-      onClick={onClick}
-      className={`rounded-full border px-3 py-1.5 text-xs font-medium capitalize transition ${
-        active
-          ? colorCls || "border-cyber-cyan/60 bg-cyber-cyan/15 text-cyber-cyan"
-          : "border-white/10 bg-white/[0.03] text-muted-foreground hover:text-foreground"
-      }`}
-    >{children}</button>
-  );
-}
-
-function EmptyState() {
-  return (
-    <div className="rounded-2xl glass-card p-10 text-center">
-      <div className="font-display text-lg">No NFTs to show yet</div>
-      <p className="mt-2 text-sm text-muted-foreground">
-        The collection will populate as the admin uploads metadata and the genesis mint begins.
-      </p>
-    </div>
-  );
-}
-
-function NFTModal({ nft, onClose }: { nft: NFT; onClose: () => void }) {
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 p-4 backdrop-blur-md" onClick={onClose}>
-      <div
-        className="relative grid w-full max-w-3xl gap-0 overflow-hidden rounded-2xl glass-card md:grid-cols-2"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <button onClick={onClose} aria-label="Close" className="absolute right-3 top-3 z-10 rounded-full bg-background/60 p-1.5 hover:bg-background">
-          <X size={18} />
-        </button>
-        <div className="relative aspect-square">
-          <img src={nft.image_url || preReveal} alt={nft.name} className="h-full w-full object-cover" />
-        </div>
-        <div className="p-6">
-          <div className="text-xs font-mono text-muted-foreground">#{nft.token_id}</div>
-          <h3 className="mt-1 font-display text-2xl">{nft.name}</h3>
-          <span className={`mt-2 inline-flex rounded-full border px-2 py-0.5 text-[10px] uppercase tracking-widest ${RARITY_COLOR[nft.rarity]}`}>
-            {nft.rarity}
-          </span>
-          {nft.description && <p className="mt-4 text-sm text-muted-foreground">{nft.description}</p>}
-          <div className="mt-6">
-            <div className="mb-2 text-[10px] uppercase tracking-[0.2em] text-african-gold">Traits</div>
-            <div className="grid grid-cols-2 gap-2">
-              {Object.entries(nft.traits || {}).map(([k, v]) => (
-                <div key={k} className="rounded-lg border border-white/5 bg-white/[0.02] p-2">
-                  <div className="text-[10px] uppercase text-muted-foreground">{k}</div>
-                  <div className="text-sm">{v}</div>
-                </div>
-              ))}
-              {Object.keys(nft.traits || {}).length === 0 && (
-                <div className="col-span-2 text-xs text-muted-foreground">No trait metadata uploaded yet.</div>
-              )}
             </div>
           </div>
-          <div className="mt-6 border-t border-white/5 pt-4 text-xs text-muted-foreground">
-            <div>Status: <span className="text-foreground capitalize">{nft.status}</span></div>
-            {nft.owner_wallet && (
-              <div className="mt-1 truncate">Owner: <span className="font-mono text-foreground">{nft.owner_wallet}</span></div>
-            )}
+
+          {/* Progress bar */}
+          <div className="mt-4 space-y-1">
+            <div className="flex justify-between text-xs text-muted-foreground">
+              <span>{pct}% minted</span>
+              <span>{remaining.toLocaleString()} remaining</span>
+            </div>
+            <div className="h-1 w-full overflow-hidden rounded-full bg-white/5">
+              <div
+                className="h-full rounded-full bg-gradient-to-r from-african-gold to-cyber-cyan transition-all duration-700"
+                style={{ width: `${Math.max(pct, 1)}%` }}
+              />
+            </div>
           </div>
         </div>
+
+        {/* Right — copy */}
+        <div className="flex flex-col gap-8">
+          <div>
+            <div className="text-[10px] uppercase tracking-[0.35em] text-african-gold">
+              X1 Blockchain · Genesis Drop
+            </div>
+            <h1 className="mt-3 font-display text-4xl leading-tight sm:text-5xl xl:text-6xl">
+              Unlock your <span className="text-gradient-gold">unique</span>
+              <br />
+              Africa NFT.
+            </h1>
+            <p className="mt-5 max-w-md text-base text-muted-foreground leading-relaxed">
+              Every NFT represents a unique piece of African history, culture and identity. No two
+              are alike. Each is yours forever on the X1 Blockchain.
+            </p>
+          </div>
+
+          {/* Highlights */}
+          <ul className="space-y-3">
+            {highlights.map((h) => (
+              <li key={h.label} className="flex items-center gap-3 text-sm">
+                <CheckCircle2 size={16} className="shrink-0 text-african-gold" />
+                <span>{h.label}</span>
+              </li>
+            ))}
+          </ul>
+
+          {/* CTA */}
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+            <Link
+              to="/mint"
+              className={`inline-flex items-center justify-center gap-2 rounded-full px-8 py-4 font-semibold text-background transition
+                ${
+                  soldOut || paused
+                    ? "cursor-not-allowed bg-white/20 text-muted-foreground"
+                    : "bg-[var(--gradient-cyber)] animate-pulse-glow hover:opacity-90"
+                }`}
+              aria-disabled={soldOut || paused}
+              onClick={(e) => {
+                if (soldOut || paused) e.preventDefault();
+              }}
+            >
+              <Sparkles size={16} />
+              {soldOut ? "Sold Out" : paused ? "Mint Paused" : "Mint Now"}
+            </Link>
+
+            {!soldOut && !paused && (
+              <span className="text-xs text-muted-foreground">
+                {config?.mint_price ? `${config.mint_price} XNT per NFT` : "Price set by admin"}
+              </span>
+            )}
+          </div>
+
+          {/* Collection info strip */}
+          <div className="grid grid-cols-3 divide-x divide-white/10 border border-white/10 rounded-xl overflow-hidden">
+            <Stat label="Supply" value={maxSupply.toLocaleString()} />
+            <Stat label="Minted" value={mintedCount.toLocaleString()} accent />
+            <Stat label="Remaining" value={remaining.toLocaleString()} />
+          </div>
+        </div>
+      </section>
+
+      {/* Info row */}
+      <section className="border-t border-white/5 bg-background/60 backdrop-blur-sm">
+        <div className="mx-auto grid max-w-7xl grid-cols-1 gap-6 px-6 py-16 sm:px-10 md:grid-cols-3">
+          <InfoCard
+            num="01"
+            title="Payment Verified"
+            desc="Your XNT payment is verified on-chain before any NFT is assigned. Your funds are never at risk."
+          />
+          <InfoCard
+            num="02"
+            title="Random Reveal"
+            desc="Your NFT is hidden until the collection reveal. Every mint is a surprise — rarity unknown until then."
+          />
+          <InfoCard
+            num="03"
+            title="X1 Native"
+            desc="Built entirely on X1 Blockchain. Your NFT lives on-chain as a permanent, verifiable digital asset."
+          />
+        </div>
+      </section>
+    </div>
+  );
+}
+
+function Stat({ label, value, accent }: { label: string; value: string; accent?: boolean }) {
+  return (
+    <div className="flex flex-col items-center py-4 px-2 text-center">
+      <div className={`font-display text-2xl leading-none ${accent ? "text-african-gold" : ""}`}>
+        {value}
       </div>
+      <div className="mt-1 text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+        {label}
+      </div>
+    </div>
+  );
+}
+
+function InfoCard({ num, title, desc }: { num: string; title: string; desc: string }) {
+  return (
+    <div className="group relative border-l-2 border-l-african-gold/30 pl-6">
+      <div className="font-mono text-xs text-african-gold/60">{num}</div>
+      <h3 className="mt-1 font-display text-xl">{title}</h3>
+      <p className="mt-2 text-sm text-muted-foreground leading-relaxed">{desc}</p>
     </div>
   );
 }

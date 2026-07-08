@@ -16,6 +16,7 @@ export default defineConfig({
     environments: {
       ssr: {
         resolve: {
+          // @ts-expect-error — alias is valid at runtime but missing from EnvironmentResolveOptions types
           alias: {
             "@solana/web3.js": stub,
             "rpc-websockets": stub,

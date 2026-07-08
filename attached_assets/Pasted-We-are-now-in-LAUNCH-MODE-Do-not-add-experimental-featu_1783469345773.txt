@@ -1,0 +1,126 @@
+We are now in LAUNCH MODE.
+
+Do not add experimental features. Do not refactor working code unless required. Your only goal is to finish AFRICA X1 NFT and make it production-ready today.
+
+PROJECT RULES
+
+- We are NOT using Anchor Programs.
+- We are using direct X1 blockchain transactions.
+- Minting is payment verification + NFT assignment.
+- Keep the existing architecture.
+- Never break working pages while fixing another page.
+
+PRIORITY ORDER
+
+1. Fix every compile, TypeScript, Vite and runtime error until:
+   - npm install succeeds
+   - npm run build succeeds
+   - npm run dev succeeds
+   - zero build errors
+
+2. Verify these pages work:
+   - Home
+   - Collection
+   - Mint
+   - Dashboard
+   - Marketplace
+   - Admin
+   - Auth
+
+3. Finish the Collection page.
+   Remove the visible NFT grid before mint.
+
+   Replace it with one premium hero artwork using the Africa NFT cover image.
+
+   Display something similar to:
+
+   UNLOCK YOUR UNIQUE AFRICA NFT
+
+   Every NFT represents a unique piece of African history, culture and identity.
+
+   ✔ 5,000 Genesis NFTs
+   ✔ Random Reveal
+   ✔ Powered by X1 Blockchain
+   ✔ Mint to discover your NFT
+
+   Add one premium "Mint Now" button.
+
+4. Finish the mint flow.
+
+   User Flow:
+
+   Connect Wallet
+      ↓
+   Click Mint
+      ↓
+   Wallet signs transaction
+      ↓
+   XNT payment sent
+      ↓
+   Wait for confirmation
+      ↓
+   Server verifies payment
+      ↓
+   Assign next available NFT
+      ↓
+   Save ownership
+      ↓
+   Success screen
+
+   Never assign an NFT unless payment is verified.
+
+5. Admin Dashboard must support:
+
+   • Treasury Wallet
+   • X1 RPC URL
+   • Mint Price
+   • Max Per Wallet
+   • Collection Status
+   • Upload Artwork
+   • Upload Metadata
+   • Reveal Collection
+   • View Transactions
+   • View Minted NFTs
+
+6. Security
+
+   Prevent:
+   - double mint
+   - duplicate transactions
+   - insufficient payment
+   - missing service key
+   - invalid wallet
+   - replay attacks
+
+7. Before finishing:
+
+   Run:
+
+   npm install
+
+   npm run lint
+
+   npm run build
+
+   npm run dev
+
+   Fix every error until all pass.
+
+8. Finally:
+
+   Deploy the application.
+
+   Give me:
+
+   ✔ Live URL
+   ✔ Build status
+   ✔ Total NFTs
+   ✔ Mint price
+   ✔ Treasury wallet
+   ✔ Admin URL
+   ✔ Collection status
+   ✔ Remaining launch blockers (if any)
+
+Do not stop after partial progress.
+
+Continue automatically until the website is production-ready or until you encounter a blocker that requires my manual action.

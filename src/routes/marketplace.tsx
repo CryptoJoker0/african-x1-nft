@@ -11,9 +11,15 @@ export const Route = createFileRoute("/marketplace")({
   head: () => ({
     meta: [
       { title: "Marketplace — AFRICAN X1 NFT" },
-      { name: "description", content: "Buy and sell AFRICAN X1 NFTs on the X1 Blockchain marketplace." },
+      {
+        name: "description",
+        content: "Buy and sell AFRICAN X1 NFTs on the X1 Blockchain marketplace.",
+      },
       { property: "og:title", content: "AFRICAN X1 NFT Marketplace" },
-      { property: "og:description", content: "Browse and acquire AFRICAN X1 NFTs from the secondary marketplace." },
+      {
+        property: "og:description",
+        content: "Browse and acquire AFRICAN X1 NFTs from the secondary marketplace.",
+      },
     ],
   }),
   component: MarketplacePage,
@@ -76,7 +82,8 @@ function MarketplacePage() {
             The <span className="serif-italic text-gradient-gold">Exchange</span>.
           </h1>
           <p className="mt-3 max-w-lg text-sm text-muted-foreground">
-            Browse and acquire AFRICAN X1 NFTs from other holders. All trades settle on-chain on the X1 Blockchain with creator royalties enforced.
+            Browse and acquire AFRICAN X1 NFTs from other holders. All trades settle on-chain on the
+            X1 Blockchain with creator royalties enforced.
           </p>
         </div>
         <div className="col-span-12 md:col-span-4 flex justify-end">
@@ -92,10 +99,16 @@ function MarketplacePage() {
             The secondary marketplace will open after the genesis mint is complete. Check back soon.
           </p>
           <div className="mt-8 flex justify-center gap-4">
-            <Link to="/collection" className="inline-flex items-center gap-2 rounded-sm border border-white/15 px-5 py-2.5 text-sm font-medium hover:border-african-gold/60 hover:text-african-gold">
+            <Link
+              to="/collection"
+              className="inline-flex items-center gap-2 rounded-sm border border-white/15 px-5 py-2.5 text-sm font-medium hover:border-african-gold/60 hover:text-african-gold"
+            >
               Browse Collection
             </Link>
-            <Link to="/mint" className="inline-flex items-center gap-2 rounded-sm bg-foreground px-5 py-2.5 text-sm font-display text-background hover:bg-african-gold">
+            <Link
+              to="/mint"
+              className="inline-flex items-center gap-2 rounded-sm bg-foreground px-5 py-2.5 text-sm font-display text-background hover:bg-african-gold"
+            >
               Go to Mint
             </Link>
           </div>
@@ -118,7 +131,9 @@ function MarketplacePage() {
                 {f === "active" ? "Active listings" : "All listings"}
               </button>
             ))}
-            <span className="ml-auto label-xs">{listings.length} listing{listings.length !== 1 ? "s" : ""}</span>
+            <span className="ml-auto label-xs">
+              {listings.length} listing{listings.length !== 1 ? "s" : ""}
+            </span>
           </div>
 
           {/* Grid */}
@@ -183,7 +198,9 @@ function ListingCard({ listing }: { listing: Listing }) {
           )}
         </div>
         <div className="mt-2 flex items-center justify-between">
-          <span className="font-display text-lg text-african-gold">{listing.price} <span className="text-xs text-muted-foreground">XNT</span></span>
+          <span className="font-display text-lg text-african-gold">
+            {listing.price} <span className="text-xs text-muted-foreground">XNT</span>
+          </span>
           {isActive && (
             <a
               href={`https://explorer.x1.xyz/address/${listing.seller_wallet}`}

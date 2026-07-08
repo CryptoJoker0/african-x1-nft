@@ -1,10 +1,25 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/use-auth";
 import { toast } from "sonner";
-import { Pause, Play, Eye, Settings, Users, Activity, ShieldAlert, Sliders, ScrollText } from "lucide-react";
+import {
+  Pause,
+  Play,
+  Eye,
+  Settings,
+  Users,
+  Activity,
+  ShieldAlert,
+  Sliders,
+  ScrollText,
+  Upload,
+  ImageIcon,
+  FileJson,
+  ExternalLink,
+  Loader2,
+} from "lucide-react";
 
 export const Route = createFileRoute("/admin")({
   head: () => ({
@@ -16,7 +31,8 @@ export const Route = createFileRoute("/admin")({
   component: AdminPage,
 });
 
-type Section = "overview" | "controls" | "config" | "whitelist";
+type Section =
+  "overview" | "controls" | "config" | "whitelist" | "uploads" | "transactions" | "minted";
 
 function AdminPage() {
   const { user, loading } = useAuth();
@@ -28,13 +44,20 @@ function AdminPage() {
     enabled: !!user,
     queryKey: ["my-role", user?.id],
     queryFn: async () => {
-      const { data } = await supabase.from("user_roles").select("role").eq("user_id", user!.id).eq("role", "admin").maybeSingle();
+      const { data } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", user!.id)
+        .eq("role", "admin")
+        .maybeSingle();
       return data;
     },
   });
   const isAdmin = !!roleRow;
 
-  useEffect(() => { if (!loading && !user) navigate({ to: "/auth" }); }, [loading, user, navigate]);
+  useEffect(() => {
+    if (!loading && !user) navigate({ to: "/auth" });
+  }, [loading, user, navigate]);
 
   const { data: config } = useQuery({
     enabled: isAdmin,
@@ -68,7 +91,10 @@ function AdminPage() {
     enabled: isAdmin,
     queryKey: ["whitelist"],
     queryFn: async () => {
-      const { data } = await supabase.from("whitelist").select("*").order("created_at", { ascending: false });
+      const { data } = await supabase
+        .from("whitelist")
+        .select("*")
+        .order("created_at", { ascending: false });
       return data ?? [];
     },
   });
@@ -77,13 +103,21 @@ function AdminPage() {
     enabled: isAdmin,
     queryKey: ["recent-tx"],
     queryFn: async () => {
-      const { data } = await supabase.from("transactions").select("*").order("created_at", { ascending: false }).limit(6);
+      const { data } = await supabase
+        .from("transactions")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .limit(6);
       return data ?? [];
     },
   });
 
   if (loading || roleLoading || !user) {
-    return <div className="mx-auto max-w-3xl px-4 py-20 text-center text-muted-foreground">Verifying admin access…</div>;
+    return (
+      <div className="mx-auto max-w-3xl px-4 py-20 text-center text-muted-foreground">
+        Verifying admin access…
+      </div>
+    );
   }
 
   if (!isAdmin) {
@@ -92,15 +126,24 @@ function AdminPage() {
         <ShieldAlert size={40} className="mx-auto text-destructive" />
         <h1 className="mt-4 font-display text-3xl">Restricted area</h1>
         <p className="mt-3 text-sm text-muted-foreground">
-          Your account doesn't have admin privileges. Ask a collection admin to grant your account the <span className="font-mono text-african-gold">admin</span> role.
+          Your account doesn&apos;t have admin privileges. Ask a collection admin to grant your
+          account the <span className="font-mono text-african-gold">admin</span> role.
         </p>
-        <Link to="/dashboard" className="mt-6 inline-flex rounded-sm border border-white/15 px-4 py-2 text-sm">Back to dashboard</Link>
+        <Link
+          to="/dashboard"
+          className="mt-6 inline-flex rounded-sm border border-white/15 px-4 py-2 text-sm"
+        >
+          Back to dashboard
+        </Link>
       </div>
     );
   }
 
   async function updateConfig(patch: Record<string, unknown>) {
-    const { error } = await supabase.from("collection_config").update(patch as never).eq("id", 1);
+    const { error } = await supabase
+      .from("collection_config")
+      .update(patch as never)
+      .eq("id", 1);
     if (error) return toast.error(error.message);
     toast.success("Config updated");
     qc.invalidateQueries({ queryKey: ["config"] });
@@ -108,9 +151,12 @@ function AdminPage() {
 
   const nav: { id: Section; label: string; num: string; icon: React.ReactNode }[] = [
     { id: "overview", label: "Overview", num: "01", icon: <Activity size={14} /> },
-    { id: "controls", label: "Mint controls", num: "02", icon: <Sliders size={14} /> },
+    { id: "controls", label: "Mint Controls", num: "02", icon: <Sliders size={14} /> },
     { id: "config", label: "Configuration", num: "03", icon: <Settings size={14} /> },
     { id: "whitelist", label: "Whitelist", num: "04", icon: <Users size={14} /> },
+    { id: "uploads", label: "Upload", num: "05", icon: <Upload size={14} /> },
+    { id: "transactions", label: "Transactions", num: "06", icon: <ScrollText size={14} /> },
+    { id: "minted", label: "Minted NFTs", num: "07", icon: <ImageIcon size={14} /> },
   ];
 
   return (
@@ -120,10 +166,11 @@ function AdminPage() {
         <div className="col-span-12 md:col-span-8">
           <div className="eyebrow">Command Deck · Restricted</div>
           <h1 className="mt-3 font-display text-5xl leading-none sm:text-6xl">
-            The <span className="serif-italic text-gradient-gold">Editor's</span> desk.
+            The <span className="serif-italic text-gradient-gold">Editor&apos;s</span> desk.
           </h1>
           <p className="mt-3 max-w-lg text-sm text-muted-foreground">
-            Operate the collection: pause the mint, revise configuration, curate the whitelist. All changes commit to the on-chain ledger of decisions.
+            Operate the collection: pause the mint, revise configuration, curate the whitelist,
+            upload artwork and metadata. All changes commit to the on-chain ledger.
           </p>
         </div>
         <div className="col-span-12 md:col-span-4">
@@ -160,16 +207,32 @@ function AdminPage() {
               );
             })}
           </nav>
+          {/* Recent transactions mini-feed */}
           <div className="mt-8 border border-white/10 p-4">
-            <div className="label-xs mb-2 flex items-center gap-2"><ScrollText size={12} /> Recent Ledger</div>
+            <div className="label-xs mb-2 flex items-center gap-2">
+              <ScrollText size={12} /> Recent Ledger
+            </div>
             {recentTx.length === 0 ? (
               <div className="text-xs text-muted-foreground">No transactions yet.</div>
             ) : (
               <ul className="space-y-2 text-xs">
-                {recentTx.map((t: any) => (
-                  <li key={t.id} className="flex items-center justify-between gap-2 border-t border-white/5 pt-2 first:border-0 first:pt-0">
-                    <span className="capitalize">{t.tx_type}</span>
-                    <span className={`serif-italic ${t.status === "confirmed" ? "text-cyber-cyan" : t.status === "failed" ? "text-destructive" : "text-african-gold"}`}>{t.status}</span>
+                {recentTx.map((t: Record<string, unknown>) => (
+                  <li
+                    key={t.id as string}
+                    className="flex items-center justify-between gap-2 border-t border-white/5 pt-2 first:border-0 first:pt-0"
+                  >
+                    <span className="capitalize">{t.tx_type as string}</span>
+                    <span
+                      className={`serif-italic ${
+                        t.status === "confirmed"
+                          ? "text-cyber-cyan"
+                          : t.status === "failed"
+                            ? "text-destructive"
+                            : "text-african-gold"
+                      }`}
+                    >
+                      {t.status as string}
+                    </span>
                   </li>
                 ))}
               </ul>
@@ -183,15 +246,30 @@ function AdminPage() {
           {section === "controls" && <ControlsPanel config={config} onUpdate={updateConfig} />}
           {section === "config" && <ConfigPanel config={config} onSave={updateConfig} />}
           {section === "whitelist" && (
-            <WhitelistPanel rows={whitelist} userId={user.id} onChange={() => qc.invalidateQueries({ queryKey: ["whitelist"] })} />
+            <WhitelistPanel
+              rows={whitelist}
+              userId={user.id}
+              onChange={() => qc.invalidateQueries({ queryKey: ["whitelist"] })}
+            />
           )}
+          {section === "uploads" && (
+            <UploadPanel
+              config={config}
+              onRefresh={() => {
+                qc.invalidateQueries({ queryKey: ["config"] });
+                qc.invalidateQueries({ queryKey: ["admin-stats"] });
+              }}
+            />
+          )}
+          {section === "transactions" && <TransactionsPanel />}
+          {section === "minted" && <MintedPanel />}
         </main>
       </div>
     </div>
   );
 }
 
-/* -------------------- PANELS -------------------- */
+/* ─────────────────────────────────────────── PANELS ── */
 
 function PanelHeader({ n, kicker, title }: { n: string; kicker: string; title: string }) {
   return (
@@ -205,7 +283,13 @@ function PanelHeader({ n, kicker, title }: { n: string; kicker: string; title: s
   );
 }
 
-function OverviewPanel({ stats, config }: any) {
+function OverviewPanel({
+  stats,
+  config,
+}: {
+  stats: Record<string, number> | undefined;
+  config: Record<string, unknown> | null | undefined;
+}) {
   const supply = stats?.totalNfts ?? 0;
   const minted = stats?.minted ?? 0;
   const progress = supply ? (minted / supply) * 100 : 0;
@@ -220,7 +304,10 @@ function OverviewPanel({ stats, config }: any) {
             <span className="font-display text-2xl text-muted-foreground">/ {supply}</span>
           </div>
           <div className="mt-6 h-[3px] w-full bg-white/5">
-            <div className="h-full bg-african-gold" style={{ width: `${Math.max(progress, 1)}%` }} />
+            <div
+              className="h-full bg-african-gold"
+              style={{ width: `${Math.max(progress, 1)}%` }}
+            />
           </div>
           <div className="mt-2 label-xs">{progress.toFixed(1)}% subscribed</div>
         </div>
@@ -229,21 +316,33 @@ function OverviewPanel({ stats, config }: any) {
           <ul className="mt-4 space-y-3 text-sm">
             <li className="flex items-center justify-between border-b border-white/5 pb-2">
               <span className="text-muted-foreground">Mint</span>
-              <span className={`serif-italic ${config?.mint_paused ? "text-destructive" : "text-cyber-cyan"}`}>
+              <span
+                className={`serif-italic ${config?.mint_paused ? "text-destructive" : "text-cyber-cyan"}`}
+              >
                 {config?.mint_paused ? "Paused" : "Live"}
               </span>
             </li>
             <li className="flex items-center justify-between border-b border-white/5 pb-2">
               <span className="text-muted-foreground">Access</span>
-              <span className="serif-italic text-african-gold">{config?.whitelist_only ? "Whitelist only" : "Public"}</span>
+              <span className="serif-italic text-african-gold">
+                {config?.whitelist_only ? "Whitelist only" : "Public"}
+              </span>
             </li>
             <li className="flex items-center justify-between border-b border-white/5 pb-2">
               <span className="text-muted-foreground">Revealed</span>
               <span className="serif-italic">{config?.revealed ? "Yes" : "Not yet"}</span>
             </li>
-            <li className="flex items-center justify-between">
+            <li className="flex items-center justify-between border-b border-white/5 pb-2">
               <span className="text-muted-foreground">Price</span>
-              <span className="serif-italic text-african-gold">{config?.mint_price ?? "—"} XNT</span>
+              <span className="serif-italic text-african-gold">
+                {config?.mint_price != null ? `${config.mint_price} XNT` : "—"}
+              </span>
+            </li>
+            <li className="flex items-center justify-between">
+              <span className="text-muted-foreground">Treasury</span>
+              <span className="font-mono text-xs text-foreground truncate max-w-[180px]">
+                {config?.treasury_wallet ? String(config.treasury_wallet) : "Not set"}
+              </span>
             </li>
           </ul>
         </div>
@@ -252,12 +351,20 @@ function OverviewPanel({ stats, config }: any) {
   );
 }
 
-function ControlsPanel({ config, onUpdate }: any) {
+function ControlsPanel({
+  config,
+  onUpdate,
+}: {
+  config: Record<string, unknown> | null | undefined;
+  onUpdate: (p: Record<string, unknown>) => void;
+}) {
   const items = [
     {
       k: "mint_paused",
       label: config?.mint_paused ? "Resume mint" : "Pause mint",
-      desc: config?.mint_paused ? "Currently halted. Resume to accept new mints." : "Currently accepting mints. Pause immediately halts.",
+      desc: config?.mint_paused
+        ? "Currently halted. Resume to accept new mints."
+        : "Currently accepting mints. Pause immediately halts.",
       value: !!config?.mint_paused,
       icon: config?.mint_paused ? <Play size={14} /> : <Pause size={14} />,
     },
@@ -271,7 +378,7 @@ function ControlsPanel({ config, onUpdate }: any) {
     {
       k: "revealed",
       label: "Reveal collection",
-      desc: "Show real artwork instead of the pre-reveal placeholder.",
+      desc: "Show real artwork instead of the pre-reveal placeholder. Irreversible once published.",
       value: !!config?.revealed,
       icon: <Eye size={14} />,
     },
@@ -301,18 +408,26 @@ function ControlsPanel({ config, onUpdate }: any) {
   );
 }
 
-function ConfigPanel({ config, onSave }: any) {
-  const [price, setPrice] = useState<number>(config?.mint_price ?? 0);
-  const [max, setMax] = useState<number>(config?.max_per_wallet ?? 5);
-  const [supply, setSupply] = useState<number>(config?.max_supply ?? 50);
-  const [treasury, setTreasury] = useState<string>(config?.treasury_wallet ?? "");
-  const [rpc, setRpc] = useState<string>(config?.rpc_url ?? "");
-  const [program, setProgram] = useState<string>(config?.program_id ?? "");
+function ConfigPanel({
+  config,
+  onSave,
+}: {
+  config: Record<string, unknown> | null | undefined;
+  onSave: (p: Record<string, unknown>) => void;
+}) {
+  const [price, setPrice] = useState<number>(Number(config?.mint_price ?? 0));
+  const [max, setMax] = useState<number>(Number(config?.max_per_wallet ?? 5));
+  const [supply, setSupply] = useState<number>(Number(config?.max_supply ?? 50));
+  const [treasury, setTreasury] = useState<string>(String(config?.treasury_wallet ?? ""));
+  const [rpc, setRpc] = useState<string>(String(config?.rpc_url ?? ""));
 
   useEffect(() => {
     if (config) {
-      setPrice(config.mint_price); setMax(config.max_per_wallet); setSupply(config.max_supply);
-      setTreasury(config.treasury_wallet ?? ""); setRpc(config.rpc_url ?? ""); setProgram(config.program_id ?? "");
+      setPrice(Number(config.mint_price));
+      setMax(Number(config.max_per_wallet));
+      setSupply(Number(config.max_supply));
+      setTreasury(String(config.treasury_wallet ?? ""));
+      setRpc(String(config.rpc_url ?? ""));
     }
   }, [config]);
 
@@ -320,15 +435,41 @@ function ConfigPanel({ config, onSave }: any) {
     <div>
       <PanelHeader n="03" kicker="Section" title="Configuration" />
       <form
-        onSubmit={(e) => { e.preventDefault(); onSave({ mint_price: price, max_per_wallet: max, max_supply: supply, treasury_wallet: treasury || null, rpc_url: rpc, program_id: program || null }); }}
+        onSubmit={(e) => {
+          e.preventDefault();
+          onSave({
+            mint_price: price,
+            max_per_wallet: max,
+            max_supply: supply,
+            treasury_wallet: treasury || null,
+            rpc_url: rpc,
+          });
+        }}
         className="grid gap-8 md:grid-cols-2"
       >
-        <Field label="Mint price (XNT)" value={price} onChange={(v: string) => setPrice(Number(v))} type="number" step="0.01" />
-        <Field label="Max per wallet" value={max} onChange={(v: string) => setMax(Number(v))} type="number" />
-        <Field label="Max supply" value={supply} onChange={(v: string) => setSupply(Number(v))} type="number" />
+        <Field
+          label="Mint price (XNT)"
+          value={price}
+          onChange={(v: string) => setPrice(Number(v))}
+          type="number"
+          step="0.01"
+        />
+        <Field
+          label="Max per wallet"
+          value={max}
+          onChange={(v: string) => setMax(Number(v))}
+          type="number"
+        />
+        <Field
+          label="Max supply"
+          value={supply}
+          onChange={(v: string) => setSupply(Number(v))}
+          type="number"
+        />
         <Field label="Treasury wallet" value={treasury} onChange={setTreasury} mono />
-        <div className="md:col-span-2"><Field label="X1 RPC URL" value={rpc} onChange={setRpc} mono /></div>
-        <div className="md:col-span-2"><Field label="Program ID" value={program} onChange={setProgram} mono placeholder="Deploy your Anchor program, then paste here" /></div>
+        <div className="md:col-span-2">
+          <Field label="X1 RPC URL" value={rpc} onChange={setRpc} mono />
+        </div>
         <div className="md:col-span-2 flex justify-end">
           <button className="rounded-sm bg-foreground px-6 py-3 font-display text-lg text-background transition hover:bg-african-gold">
             Save configuration
@@ -339,12 +480,31 @@ function ConfigPanel({ config, onSave }: any) {
   );
 }
 
-function Field({ label, value, onChange, type = "text", step, mono, placeholder }: any) {
+function Field({
+  label,
+  value,
+  onChange,
+  type = "text",
+  step,
+  mono,
+  placeholder,
+}: {
+  label: string;
+  value: string | number;
+  onChange: (v: string) => void;
+  type?: string;
+  step?: string;
+  mono?: boolean;
+  placeholder?: string;
+}) {
   return (
     <label className="block">
       <span className="label-xs mb-2 block">{label}</span>
       <input
-        type={type} step={step} value={value ?? ""} placeholder={placeholder}
+        type={type}
+        step={step}
+        value={value ?? ""}
+        placeholder={placeholder}
         onChange={(e) => onChange(e.target.value)}
         className={`w-full border-0 border-b border-white/15 bg-transparent py-2 text-lg focus:border-african-gold focus:outline-none focus:ring-0 ${mono ? "font-mono text-sm" : "font-display"}`}
       />
@@ -352,19 +512,31 @@ function Field({ label, value, onChange, type = "text", step, mono, placeholder 
   );
 }
 
-function WhitelistPanel({ rows, userId, onChange }: { rows: any[]; userId: string; onChange: () => void }) {
+function WhitelistPanel({
+  rows,
+  userId,
+  onChange,
+}: {
+  rows: Record<string, unknown>[];
+  userId: string;
+  onChange: () => void;
+}) {
   const [wallet, setWallet] = useState("");
   const [note, setNote] = useState("");
 
   async function add(e: React.FormEvent) {
     e.preventDefault();
     if (!wallet.trim()) return;
-    const { error } = await supabase.from("whitelist").insert({ wallet_address: wallet.trim(), added_by: userId, note: note || null });
+    const { error } = await supabase
+      .from("whitelist")
+      .insert({ wallet_address: wallet.trim(), added_by: userId, note: note || null });
     if (error) return toast.error(error.message);
-    setWallet(""); setNote("");
+    setWallet("");
+    setNote("");
     toast.success("Added to whitelist");
     onChange();
   }
+
   async function remove(id: string) {
     const { error } = await supabase.from("whitelist").delete().eq("id", id);
     if (error) return toast.error(error.message);
@@ -377,27 +549,51 @@ function WhitelistPanel({ rows, userId, onChange }: { rows: any[]; userId: strin
       <PanelHeader n="04" kicker="Section" title={`Whitelist · ${rows.length}`} />
       <form onSubmit={add} className="mb-8 grid gap-3 sm:grid-cols-[2fr_1fr_auto]">
         <input
-          value={wallet} onChange={(e) => setWallet(e.target.value)} placeholder="X1 wallet address"
+          value={wallet}
+          onChange={(e) => setWallet(e.target.value)}
+          placeholder="X1 wallet address"
           className="border-0 border-b border-white/15 bg-transparent py-2 font-mono text-sm focus:border-african-gold focus:outline-none"
         />
         <input
-          value={note} onChange={(e) => setNote(e.target.value)} placeholder="Note"
+          value={note}
+          onChange={(e) => setNote(e.target.value)}
+          placeholder="Note"
           className="border-0 border-b border-white/15 bg-transparent py-2 text-sm focus:border-african-gold focus:outline-none"
         />
-        <button className="rounded-sm bg-foreground px-5 py-2.5 font-display text-lg text-background transition hover:bg-african-gold">Add</button>
+        <button className="rounded-sm bg-foreground px-5 py-2.5 font-display text-lg text-background transition hover:bg-african-gold">
+          Add
+        </button>
       </form>
       <div className="border-t border-white/10">
         {rows.length === 0 ? (
-          <div className="py-10 text-center text-sm text-muted-foreground">No whitelisted wallets yet.</div>
+          <div className="py-10 text-center text-sm text-muted-foreground">
+            No whitelisted wallets yet.
+          </div>
         ) : (
           rows.map((r, i) => (
-            <div key={r.id} className="grid grid-cols-12 items-center gap-4 border-b border-white/10 py-4">
-              <div className="col-span-1 folio text-xl text-african-gold/50">{String(i + 1).padStart(2, "0")}</div>
-              <div className="col-span-6 truncate font-mono text-xs">{r.wallet_address}</div>
-              <div className="col-span-3 truncate text-sm text-muted-foreground">{r.note ?? "—"}</div>
-              <div className="col-span-1 text-xs text-muted-foreground">{new Date(r.created_at).toLocaleDateString()}</div>
+            <div
+              key={r.id as string}
+              className="grid grid-cols-12 items-center gap-4 border-b border-white/10 py-4"
+            >
+              <div className="col-span-1 folio text-xl text-african-gold/50">
+                {String(i + 1).padStart(2, "0")}
+              </div>
+              <div className="col-span-6 truncate font-mono text-xs">
+                {r.wallet_address as string}
+              </div>
+              <div className="col-span-3 truncate text-sm text-muted-foreground">
+                {(r.note as string) ?? "—"}
+              </div>
+              <div className="col-span-1 text-xs text-muted-foreground">
+                {new Date(r.created_at as string).toLocaleDateString()}
+              </div>
               <div className="col-span-1 text-right">
-                <button onClick={() => remove(r.id)} className="serif-italic text-sm text-destructive hover:underline">remove</button>
+                <button
+                  onClick={() => remove(r.id as string)}
+                  className="serif-italic text-sm text-destructive hover:underline"
+                >
+                  remove
+                </button>
               </div>
             </div>
           ))
@@ -407,10 +603,510 @@ function WhitelistPanel({ rows, userId, onChange }: { rows: any[]; userId: strin
   );
 }
 
+/* ── Upload Panel ── */
+function UploadPanel({
+  config,
+  onRefresh,
+}: {
+  config: Record<string, unknown> | null | undefined;
+  onRefresh: () => void;
+}) {
+  const [artworkFile, setArtworkFile] = useState<File | null>(null);
+  const [artworkUploading, setArtworkUploading] = useState(false);
+  const artworkRef = useRef<HTMLInputElement>(null);
+
+  const [metaFile, setMetaFile] = useState<File | null>(null);
+  const [metaUploading, setMetaUploading] = useState(false);
+  const [metaPreview, setMetaPreview] = useState<string | null>(null);
+  const metaRef = useRef<HTMLInputElement>(null);
+
+  async function uploadArtwork() {
+    if (!artworkFile) return;
+    setArtworkUploading(true);
+    try {
+      const ext = artworkFile.name.split(".").pop() ?? "jpg";
+      const filename = `pre-reveal-${Date.now()}.${ext}`;
+      const { data: storageData, error: storageErr } = await supabase.storage
+        .from("collection")
+        .upload(filename, artworkFile, { upsert: true });
+
+      if (storageErr) {
+        // If storage bucket doesn't exist yet, guide the admin
+        if (
+          storageErr.message.includes("Bucket not found") ||
+          storageErr.message.includes("bucket")
+        ) {
+          toast.error(
+            'Storage bucket "collection" not found. Create it in Supabase Dashboard → Storage.',
+          );
+        } else {
+          toast.error(`Upload failed: ${storageErr.message}`);
+        }
+        return;
+      }
+
+      const { data: urlData } = supabase.storage.from("collection").getPublicUrl(storageData.path);
+      const publicUrl = urlData.publicUrl;
+
+      const { error: cfgErr } = await supabase
+        .from("collection_config")
+        .update({ pre_reveal_image_url: publicUrl })
+        .eq("id", 1);
+
+      if (cfgErr) {
+        toast.error(cfgErr.message);
+        return;
+      }
+
+      toast.success("Artwork uploaded and collection config updated");
+      setArtworkFile(null);
+      if (artworkRef.current) artworkRef.current.value = "";
+      onRefresh();
+    } finally {
+      setArtworkUploading(false);
+    }
+  }
+
+  async function uploadMetadata() {
+    if (!metaFile) return;
+    setMetaUploading(true);
+    try {
+      const text = await metaFile.text();
+      let records: Array<{
+        token_id: number;
+        name?: string;
+        description?: string;
+        image_url?: string;
+        rarity?: string;
+        traits?: Record<string, unknown>;
+      }>;
+      try {
+        records = JSON.parse(text);
+      } catch {
+        toast.error("Invalid JSON file. Expected an array of NFT objects.");
+        return;
+      }
+      if (!Array.isArray(records) || records.length === 0) {
+        toast.error("JSON must be a non-empty array of NFT objects.");
+        return;
+      }
+
+      let updated = 0;
+      let errors = 0;
+      for (const r of records) {
+        if (!r.token_id) continue;
+        const patch: Record<string, unknown> = {};
+        if (r.name) patch.name = r.name;
+        if (r.description) patch.description = r.description;
+        if (r.image_url) patch.image_url = r.image_url;
+        if (r.rarity) patch.rarity = r.rarity;
+        if (r.traits) patch.traits = r.traits;
+        const { error } = await supabase
+          .from("nfts")
+          .update(patch as never)
+          .eq("token_id", r.token_id);
+        if (error) {
+          errors++;
+        } else {
+          updated++;
+        }
+      }
+
+      if (errors > 0) {
+        toast.error(`${updated} updated, ${errors} failed. Check console for details.`);
+      } else {
+        toast.success(`${updated} NFT${updated !== 1 ? "s" : ""} updated successfully`);
+      }
+      setMetaFile(null);
+      setMetaPreview(null);
+      if (metaRef.current) metaRef.current.value = "";
+      onRefresh();
+    } finally {
+      setMetaUploading(false);
+    }
+  }
+
+  return (
+    <div>
+      <PanelHeader n="05" kicker="Section" title="Upload" />
+
+      {/* Artwork upload */}
+      <section className="mb-12">
+        <div className="mb-4 flex items-center gap-3">
+          <ImageIcon size={16} className="text-african-gold" />
+          <h3 className="font-display text-2xl">Artwork</h3>
+        </div>
+        <p className="mb-4 text-sm text-muted-foreground">
+          Upload the pre-reveal or cover image. This image will be shown on the Collection page and
+          during mint. Stored in Supabase Storage bucket{" "}
+          <span className="font-mono text-xs">collection</span>.
+        </p>
+        {config?.pre_reveal_image_url != null && (
+          <div className="mb-4 flex items-center gap-3 rounded-lg border border-white/10 p-3 text-xs text-muted-foreground">
+            <img
+              src={String(config.pre_reveal_image_url)}
+              alt="Current artwork"
+              className="h-12 w-12 rounded object-cover"
+            />
+            <span className="truncate font-mono">{String(config.pre_reveal_image_url)}</span>
+          </div>
+        )}
+        <div className="flex items-start gap-3">
+          <input
+            ref={artworkRef}
+            type="file"
+            accept="image/*"
+            onChange={(e) => setArtworkFile(e.target.files?.[0] ?? null)}
+            className="flex-1 rounded-lg border border-white/10 bg-transparent p-3 text-sm file:mr-4 file:rounded file:border-0 file:bg-white/10 file:px-3 file:py-1 file:text-xs file:text-foreground"
+          />
+          <button
+            onClick={uploadArtwork}
+            disabled={!artworkFile || artworkUploading}
+            className="flex items-center gap-2 rounded-sm bg-foreground px-5 py-3 text-sm font-semibold text-background transition hover:bg-african-gold disabled:opacity-40"
+          >
+            {artworkUploading ? (
+              <Loader2 size={14} className="animate-spin" />
+            ) : (
+              <Upload size={14} />
+            )}
+            Upload
+          </button>
+        </div>
+      </section>
+
+      {/* Metadata upload */}
+      <section>
+        <div className="mb-4 flex items-center gap-3">
+          <FileJson size={16} className="text-african-gold" />
+          <h3 className="font-display text-2xl">Metadata</h3>
+        </div>
+        <p className="mb-2 text-sm text-muted-foreground">
+          Upload a JSON file containing an array of NFT metadata objects. Each object must include
+          <span className="font-mono text-xs"> token_id</span> plus any combination of{" "}
+          <span className="font-mono text-xs">name, description, image_url, rarity, traits</span>.
+        </p>
+        <pre className="mb-4 overflow-x-auto rounded-lg border border-white/10 bg-white/[0.02] p-3 text-[11px] text-muted-foreground">
+          {`[
+  { "token_id": 1, "name": "AFRICAN X1 #001", "rarity": "legendary",
+    "image_url": "https://...", "traits": { "tribe": "Zulu", "era": "Ancient" } },
+  ...
+]`}
+        </pre>
+        <div className="flex items-start gap-3">
+          <input
+            ref={metaRef}
+            type="file"
+            accept=".json,application/json"
+            onChange={(e) => {
+              const f = e.target.files?.[0] ?? null;
+              setMetaFile(f);
+              if (f) {
+                f.text().then((t) => {
+                  try {
+                    const arr = JSON.parse(t);
+                    setMetaPreview(`${Array.isArray(arr) ? arr.length : "?"} records detected`);
+                  } catch {
+                    setMetaPreview("Invalid JSON");
+                  }
+                });
+              } else {
+                setMetaPreview(null);
+              }
+            }}
+            className="flex-1 rounded-lg border border-white/10 bg-transparent p-3 text-sm file:mr-4 file:rounded file:border-0 file:bg-white/10 file:px-3 file:py-1 file:text-xs file:text-foreground"
+          />
+          <button
+            onClick={uploadMetadata}
+            disabled={!metaFile || metaUploading}
+            className="flex items-center gap-2 rounded-sm bg-foreground px-5 py-3 text-sm font-semibold text-background transition hover:bg-african-gold disabled:opacity-40"
+          >
+            {metaUploading ? <Loader2 size={14} className="animate-spin" /> : <Upload size={14} />}
+            Apply
+          </button>
+        </div>
+        {metaPreview && (
+          <p
+            className={`mt-2 text-xs ${metaPreview.includes("Invalid") ? "text-destructive" : "text-cyber-cyan"}`}
+          >
+            {metaPreview}
+          </p>
+        )}
+      </section>
+    </div>
+  );
+}
+
+/* ── Transactions Panel ── */
+function TransactionsPanel() {
+  const PAGE = 25;
+  const [page, setPage] = useState(0);
+
+  const { data, isLoading } = useQuery({
+    queryKey: ["admin-txs", page],
+    queryFn: async () => {
+      const { data, count } = await supabase
+        .from("transactions")
+        .select("*", { count: "exact" })
+        .order("created_at", { ascending: false })
+        .range(page * PAGE, page * PAGE + PAGE - 1);
+      return { rows: data ?? [], total: count ?? 0 };
+    },
+  });
+
+  const rows = data?.rows ?? [];
+  const total = data?.total ?? 0;
+  const pages = Math.ceil(total / PAGE);
+
+  return (
+    <div>
+      <PanelHeader n="06" kicker="Section" title={`Transactions · ${total.toLocaleString()}`} />
+      {isLoading ? (
+        <div className="py-20 text-center text-muted-foreground">
+          <Loader2 size={24} className="mx-auto animate-spin" />
+        </div>
+      ) : rows.length === 0 ? (
+        <div className="py-16 text-center text-sm text-muted-foreground">No transactions yet.</div>
+      ) : (
+        <>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-white/10 text-left text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+                  <th className="pb-3 pr-4">Date</th>
+                  <th className="pb-3 pr-4">Type</th>
+                  <th className="pb-3 pr-4">Status</th>
+                  <th className="pb-3 pr-4">Wallet</th>
+                  <th className="pb-3 pr-4 text-right">Amount</th>
+                  <th className="pb-3">Signature</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-white/5">
+                {rows.map((t: Record<string, unknown>) => (
+                  <tr key={t.id as string} className="py-3 hover:bg-white/[0.02]">
+                    <td className="py-3 pr-4 text-xs text-muted-foreground whitespace-nowrap">
+                      {new Date(t.created_at as string).toLocaleDateString()}{" "}
+                      {new Date(t.created_at as string).toLocaleTimeString([], {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </td>
+                    <td className="py-3 pr-4 capitalize">{t.tx_type as string}</td>
+                    <td className="py-3 pr-4">
+                      <span
+                        className={`rounded-full border px-2 py-0.5 text-[10px] uppercase tracking-widest ${
+                          t.status === "confirmed"
+                            ? "border-cyber-cyan/30 text-cyber-cyan"
+                            : t.status === "failed"
+                              ? "border-destructive/30 text-destructive"
+                              : "border-african-gold/30 text-african-gold"
+                        }`}
+                      >
+                        {t.status as string}
+                      </span>
+                    </td>
+                    <td className="py-3 pr-4 font-mono text-xs text-muted-foreground">
+                      {String(t.wallet_address ?? "").slice(0, 8)}…
+                      {String(t.wallet_address ?? "").slice(-4)}
+                    </td>
+                    <td className="py-3 pr-4 text-right font-mono text-xs">
+                      {t.amount != null ? `${Number(t.amount).toFixed(4)} XNT` : "—"}
+                    </td>
+                    <td className="py-3">
+                      {t.signature ? (
+                        <a
+                          href={`https://explorer.x1.xyz/tx/${t.signature}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="flex items-center gap-1 font-mono text-[11px] text-cyber-cyan hover:underline"
+                        >
+                          {String(t.signature).slice(0, 10)}…
+                          <ExternalLink size={10} />
+                        </a>
+                      ) : (
+                        <span className="text-xs text-muted-foreground">—</span>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          {pages > 1 && (
+            <div className="mt-6 flex items-center justify-between text-sm">
+              <button
+                onClick={() => setPage((p) => Math.max(0, p - 1))}
+                disabled={page === 0}
+                className="rounded-sm border border-white/10 px-4 py-2 text-sm disabled:opacity-30"
+              >
+                ← Previous
+              </button>
+              <span className="text-muted-foreground">
+                Page {page + 1} / {pages}
+              </span>
+              <button
+                onClick={() => setPage((p) => Math.min(pages - 1, p + 1))}
+                disabled={page >= pages - 1}
+                className="rounded-sm border border-white/10 px-4 py-2 text-sm disabled:opacity-30"
+              >
+                Next →
+              </button>
+            </div>
+          )}
+        </>
+      )}
+    </div>
+  );
+}
+
+/* ── Minted NFTs Panel ── */
+function MintedPanel() {
+  const PAGE = 25;
+  const [page, setPage] = useState(0);
+
+  const { data, isLoading } = useQuery({
+    queryKey: ["admin-minted", page],
+    queryFn: async () => {
+      const { data, count } = await supabase
+        .from("nfts")
+        .select("id, token_id, name, rarity, image_url, owner_wallet, minted_at, mint_signature", {
+          count: "exact",
+        })
+        .eq("status", "minted")
+        .order("minted_at", { ascending: false })
+        .range(page * PAGE, page * PAGE + PAGE - 1);
+      return { rows: data ?? [], total: count ?? 0 };
+    },
+  });
+
+  const rows = data?.rows ?? [];
+  const total = data?.total ?? 0;
+  const pages = Math.ceil(total / PAGE);
+
+  const RARITY_COLOR: Record<string, string> = {
+    legendary: "text-rarity-legendary",
+    elite: "text-rarity-elite",
+    rare: "text-rarity-rare",
+    uncommon: "text-rarity-uncommon",
+    common: "text-rarity-common",
+  };
+
+  return (
+    <div>
+      <PanelHeader n="07" kicker="Section" title={`Minted NFTs · ${total.toLocaleString()}`} />
+      {isLoading ? (
+        <div className="py-20 text-center text-muted-foreground">
+          <Loader2 size={24} className="mx-auto animate-spin" />
+        </div>
+      ) : rows.length === 0 ? (
+        <div className="py-16 text-center text-sm text-muted-foreground">No NFTs minted yet.</div>
+      ) : (
+        <>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-white/10 text-left text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+                  <th className="pb-3 pr-4">#</th>
+                  <th className="pb-3 pr-4">Name</th>
+                  <th className="pb-3 pr-4">Rarity</th>
+                  <th className="pb-3 pr-4">Owner Wallet</th>
+                  <th className="pb-3 pr-4">Minted</th>
+                  <th className="pb-3">Tx</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-white/5">
+                {rows.map((n: Record<string, unknown>) => (
+                  <tr key={n.id as string} className="hover:bg-white/[0.02]">
+                    <td className="py-3 pr-4 font-mono text-xs text-muted-foreground">
+                      #{n.token_id as number}
+                    </td>
+                    <td className="py-3 pr-4">
+                      <div className="flex items-center gap-3">
+                        {n.image_url ? (
+                          <img
+                            src={n.image_url as string}
+                            alt={n.name as string}
+                            className="h-8 w-8 rounded object-cover"
+                          />
+                        ) : (
+                          <div className="h-8 w-8 rounded bg-white/5" />
+                        )}
+                        <span>{n.name as string}</span>
+                      </div>
+                    </td>
+                    <td
+                      className={`py-3 pr-4 capitalize text-xs font-medium ${RARITY_COLOR[n.rarity as string] ?? ""}`}
+                    >
+                      {n.rarity as string}
+                    </td>
+                    <td className="py-3 pr-4 font-mono text-xs text-muted-foreground">
+                      {n.owner_wallet
+                        ? `${String(n.owner_wallet).slice(0, 8)}…${String(n.owner_wallet).slice(-4)}`
+                        : "—"}
+                    </td>
+                    <td className="py-3 pr-4 text-xs text-muted-foreground whitespace-nowrap">
+                      {n.minted_at ? new Date(n.minted_at as string).toLocaleString() : "—"}
+                    </td>
+                    <td className="py-3">
+                      {n.mint_signature ? (
+                        <a
+                          href={`https://explorer.x1.xyz/tx/${n.mint_signature}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="flex items-center gap-1 font-mono text-[11px] text-cyber-cyan hover:underline"
+                        >
+                          {String(n.mint_signature).slice(0, 8)}…
+                          <ExternalLink size={10} />
+                        </a>
+                      ) : (
+                        <span className="text-xs text-muted-foreground">—</span>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          {pages > 1 && (
+            <div className="mt-6 flex items-center justify-between text-sm">
+              <button
+                onClick={() => setPage((p) => Math.max(0, p - 1))}
+                disabled={page === 0}
+                className="rounded-sm border border-white/10 px-4 py-2 text-sm disabled:opacity-30"
+              >
+                ← Previous
+              </button>
+              <span className="text-muted-foreground">
+                Page {page + 1} / {pages}
+              </span>
+              <button
+                onClick={() => setPage((p) => Math.min(pages - 1, p + 1))}
+                disabled={page >= pages - 1}
+                className="rounded-sm border border-white/10 px-4 py-2 text-sm disabled:opacity-30"
+              >
+                Next →
+              </button>
+            </div>
+          )}
+        </>
+      )}
+    </div>
+  );
+}
+
+/* ─────────────────────────────────────────── SHARED WIDGETS ── */
+
 function Toggle({ on }: { on: boolean }) {
   return (
-    <span className={`relative inline-flex h-6 w-11 items-center rounded-full transition ${on ? "bg-african-gold" : "bg-white/10"}`}>
-      <span className={`inline-block h-5 w-5 transform rounded-full bg-background transition ${on ? "translate-x-5" : "translate-x-0.5"}`} />
+    <span
+      className={`relative inline-flex h-6 w-11 items-center rounded-full transition ${
+        on ? "bg-african-gold" : "bg-white/10"
+      }`}
+    >
+      <span
+        className={`inline-block h-5 w-5 transform rounded-full bg-background transition ${
+          on ? "translate-x-5" : "translate-x-0.5"
+        }`}
+      />
     </span>
   );
 }
@@ -419,7 +1115,9 @@ function Kpi({ label, value, accent }: { label: string; value: number; accent?: 
   return (
     <div className="border-t border-white/15 pt-3">
       <div className="label-xs">{label}</div>
-      <div className={`mt-1 font-display text-3xl leading-none ${accent ? "text-african-gold" : ""}`}>
+      <div
+        className={`mt-1 font-display text-3xl leading-none ${accent ? "text-african-gold" : ""}`}
+      >
         {value.toLocaleString()}
       </div>
     </div>

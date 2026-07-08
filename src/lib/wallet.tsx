@@ -8,7 +8,15 @@
  *
  * RPC + treasury are read from collection_config (set to X1 mainnet).
  */
-import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from "react";
 
 type WalletStatus = "disconnected" | "connecting" | "connected";
 
@@ -135,18 +143,27 @@ export function WalletProvider({ children }: { children: ReactNode }) {
           setWalletId((w as WalletId) ?? null);
           setStatus("connected");
         }
-      } catch { /* ignore */ }
+      } catch {
+        /* ignore */
+      }
       return;
     }
     // Silent reconnect to the first detected provider
     for (const opt of WALLET_OPTIONS) {
       const provider = opt.detect();
       if (provider?.connect) {
-        provider.connect({ onlyIfTrusted: true })
+        provider
+          .connect({ onlyIfTrusted: true })
           .then((r) => {
             const a = r.publicKey.toString();
-            setAddress(a); setStatus("connected"); setIsSimulated(false); setWalletId(opt.id);
-            localStorage.setItem(LS_KEY, JSON.stringify({ address: a, simulated: false, walletId: opt.id }));
+            setAddress(a);
+            setStatus("connected");
+            setIsSimulated(false);
+            setWalletId(opt.id);
+            localStorage.setItem(
+              LS_KEY,
+              JSON.stringify({ address: a, simulated: false, walletId: opt.id }),
+            );
           })
           .catch(() => {});
         break;
@@ -168,13 +185,22 @@ export function WalletProvider({ children }: { children: ReactNode }) {
         }
         const r = await provider.connect();
         const a = r.publicKey.toString();
-        setAddress(a); setIsSimulated(false); setWalletId(id); setStatus("connected");
-        localStorage.setItem(LS_KEY, JSON.stringify({ address: a, simulated: false, walletId: id }));
+        setAddress(a);
+        setIsSimulated(false);
+        setWalletId(id);
+        setStatus("connected");
+        localStorage.setItem(
+          LS_KEY,
+          JSON.stringify({ address: a, simulated: false, walletId: id }),
+        );
         return;
       }
       // No id: simulated fallback for dev preview
       const a = genSimulatedAddress();
-      setAddress(a); setIsSimulated(true); setWalletId(null); setStatus("connected");
+      setAddress(a);
+      setIsSimulated(true);
+      setWalletId(null);
+      setStatus("connected");
       localStorage.setItem(LS_KEY, JSON.stringify({ address: a, simulated: true, walletId: null }));
     } catch (e) {
       setStatus("disconnected");
@@ -188,15 +214,29 @@ export function WalletProvider({ children }: { children: ReactNode }) {
         const opt = WALLET_OPTIONS.find((o) => o.id === walletId);
         await opt?.detect()?.disconnect();
       }
-    } catch { /* ignore */ }
+    } catch {
+      /* ignore */
+    }
     localStorage.removeItem(LS_KEY);
-    setAddress(null); setIsSimulated(false); setWalletId(null); setStatus("disconnected");
+    setAddress(null);
+    setIsSimulated(false);
+    setWalletId(null);
+    setStatus("disconnected");
   }, [walletId]);
 
-  const value = useMemo<WalletContextValue>(() => ({
-    address, status, isSimulated, walletId, connect, disconnect,
-    shortAddress: shorten(address), options: WALLET_OPTIONS,
-  }), [address, status, isSimulated, walletId, connect, disconnect]);
+  const value = useMemo<WalletContextValue>(
+    () => ({
+      address,
+      status,
+      isSimulated,
+      walletId,
+      connect,
+      disconnect,
+      shortAddress: shorten(address),
+      options: WALLET_OPTIONS,
+    }),
+    [address, status, isSimulated, walletId, connect, disconnect],
+  );
 
   return <WalletContext.Provider value={value}>{children}</WalletContext.Provider>;
 }

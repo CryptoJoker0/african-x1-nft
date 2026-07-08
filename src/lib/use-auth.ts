@@ -19,7 +19,10 @@ export function useAuth() {
       setSession(s);
       setUser(s?.user ?? null);
     });
-    return () => { mounted = false; sub.subscription.unsubscribe(); };
+    return () => {
+      mounted = false;
+      sub.subscription.unsubscribe();
+    };
   }, []);
 
   return { user, session, loading, isAuthed: !!user };

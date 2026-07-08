@@ -45,7 +45,11 @@ export function WalletButton({ compact = false }: { compact?: boolean }) {
           <div className="absolute right-0 top-full z-50 mt-2 w-72 rounded-xl glass-card p-3 text-sm">
             <div className="mb-2 flex items-center justify-between text-xs uppercase tracking-widest text-muted-foreground">
               <span>{active?.name ?? "Wallet"}</span>
-              {isSimulated && <span className="rounded-full bg-african-gold/15 px-2 py-0.5 text-african-gold">simulated</span>}
+              {isSimulated && (
+                <span className="rounded-full bg-african-gold/15 px-2 py-0.5 text-african-gold">
+                  simulated
+                </span>
+              )}
             </div>
             <div className="flex items-center justify-between gap-2 rounded-lg bg-background/60 p-2 font-mono text-[11px] break-all">
               <span>{address}</span>
@@ -53,7 +57,8 @@ export function WalletButton({ compact = false }: { compact?: boolean }) {
                 aria-label="Copy address"
                 onClick={() => {
                   navigator.clipboard.writeText(address);
-                  setCopied(true); toast.success("Address copied");
+                  setCopied(true);
+                  toast.success("Address copied");
                   setTimeout(() => setCopied(false), 1500);
                 }}
                 className="shrink-0 rounded p-1 hover:bg-white/5"
@@ -62,7 +67,11 @@ export function WalletButton({ compact = false }: { compact?: boolean }) {
               </button>
             </div>
             <button
-              onClick={async () => { await disconnect(); setMenuOpen(false); toast("Wallet disconnected"); }}
+              onClick={async () => {
+                await disconnect();
+                setMenuOpen(false);
+                toast("Wallet disconnected");
+              }}
               className="mt-3 flex w-full items-center justify-center gap-2 rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-destructive hover:bg-destructive/20"
             >
               <LogOut size={14} /> Disconnect
@@ -95,7 +104,9 @@ export function WalletButton({ compact = false }: { compact?: boolean }) {
             className="w-full max-w-md rounded-2xl glass-card p-6"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="mb-1 text-[10px] uppercase tracking-[0.3em] text-african-gold">Connect</div>
+            <div className="mb-1 text-[10px] uppercase tracking-[0.3em] text-african-gold">
+              Connect
+            </div>
             <h2 className="font-display text-2xl">Choose your wallet</h2>
             <p className="mt-1 text-sm text-muted-foreground">
               AFRICAN X1 NFT runs on X1 Mainnet. Pick a wallet to continue.
