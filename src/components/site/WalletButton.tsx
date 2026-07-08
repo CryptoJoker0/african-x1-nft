@@ -87,7 +87,7 @@ export function WalletButton({ compact = false }: { compact?: boolean }) {
       <button
         onClick={() => setPickerOpen(true)}
         disabled={status === "connecting"}
-        className="group relative inline-flex items-center gap-2 overflow-hidden rounded-full bg-[var(--gradient-cyber)] px-4 py-2 text-sm font-semibold text-background transition disabled:opacity-60"
+        className="group relative inline-flex items-center gap-2 overflow-hidden rounded-full bg-[var(--gradient-cyber)] px-4 py-2 text-sm font-semibold text-yellow-400 transition disabled:opacity-60"
         style={{ boxShadow: "var(--shadow-glow-blue)" }}
       >
         <Wallet size={16} />
