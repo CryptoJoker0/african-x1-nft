@@ -1,0 +1,165 @@
+We are launching AFRICA X1 NFT TODAY.
+
+From this point forward, act as the Lead Production Engineer.
+
+Do NOT add new features.
+Do NOT redesign the website.
+Do NOT change the project architecture.
+
+Your objective is to finish the existing project and make it production-ready.
+
+========================
+1. FIX THE PROJECT
+========================
+
+- Fix every TypeScript error.
+- Fix every Vite error.
+- Fix every SSR/hydration issue.
+- Fix every runtime error.
+- Fix every build error.
+- Ensure:
+  - npm install passes.
+  - npm run dev passes.
+  - npm run build passes with ZERO errors.
+
+========================
+2. RESTORE THE WEBSITE
+========================
+
+Restore the original AFRICA X1 website design.
+
+Do NOT redesign the Collection page.
+
+Keep:
+- Original layout
+- Original spacing
+- Original buttons
+- Original typography
+- Original animations
+- Original navigation
+
+Only make the following changes:
+
+• Replace the existing collection cover artwork with the SECOND image I provided.
+
+• This cover image should represent the entire collection before mint.
+
+• Hide all NFT images before mint.
+
+========================
+3. RESTORE BRANDING
+========================
+
+Restore the original AFRICA X1 logo everywhere.
+
+Do NOT use placeholders.
+Do NOT generate a new logo.
+
+Use the original project logo.
+
+========================
+4. FIX COLLECTION SIZE
+========================
+
+The Genesis Collection contains EXACTLY 50 NFTs.
+
+Remove every incorrect value of:
+- 500
+- 5,000
+
+Update:
+- Collection page
+- Dashboard
+- Marketplace
+- Admin
+- Progress bars
+- Counters
+- Remaining supply
+- Statistics
+
+Everything must use 50 NFTs from one shared configuration.
+
+========================
+5. MINT FLOW
+========================
+
+We are NOT using Anchor.
+
+Keep the existing X1 architecture.
+
+Mint flow:
+
+1. Connect wallet.
+2. Verify wallet.
+3. Verify payment.
+4. Verify treasury wallet.
+5. Verify XNT amount.
+6. Verify transaction.
+7. Verify NFT availability.
+8. Assign the next available NFT.
+9. Save ownership.
+10. Show success.
+
+Never assign an NFT unless payment is successfully verified.
+
+Prevent:
+- Double minting
+- Duplicate transactions
+- Invalid payments
+- Wrong treasury wallet
+- Missing Service Role Key
+
+========================
+6. TREASURY WALLET
+========================
+
+Use this treasury wallet:
+
+9rMJNa5QiNakB45qyymGBNVcALrcHYvwnm15mQcZJfNK
+
+The backend must verify that every mint payment is sent to this wallet before assigning an NFT.
+
+========================
+7. ADMIN SECURITY
+========================
+
+The Admin Dashboard must NOT be public.
+
+Protect /admin with authentication.
+
+If a user is not authenticated as an administrator:
+- Redirect to the admin login page or deny access.
+- Do not expose admin controls.
+- Do not expose API keys or secrets.
+- Keep all sensitive configuration on the backend.
+
+========================
+8. VERIFY
+========================
+
+Verify these routes:
+
+/
+ /collection
+ /mint
+ /marketplace
+ /dashboard
+ /admin
+ /auth
+
+========================
+9. DEPLOY
+========================
+
+Deploy a production-ready build.
+
+When finished provide:
+
+- Build status
+- Production URL
+- Admin URL
+- Collection status
+- Mint status
+- Any remaining launch blockers
+
+Continue working until the project is production-ready or until you encounter a blocker that requires my manual action.

@@ -45,6 +45,13 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
 
+/**
+ * The canonical treasury wallet for the AFRICAN X1 Genesis Collection.
+ * Every mint payment MUST be verified against this address on-chain.
+ * Any configuration that points to a different wallet is rejected.
+ */
+export const TREASURY_WALLET = "9rMJNa5QiNakB45qyymGBNVcALrcHYvwnm15mQcZJfNK";
+
 export type DB = SupabaseClient<Database>;
 
 export interface ClaimMintParams {
@@ -112,6 +119,13 @@ export async function processPreflight(params: PreflightParams): Promise<Preflig
   if (config.mint_paused) throw new Error("Minting is currently paused by the administrator");
   if (!config.treasury_wallet) {
     throw new Error("Administrator configuration error: treasury wallet address is not set");
+  }
+  // Enforce the canonical treasury wallet — reject any misconfigured address
+  if (config.treasury_wallet !== TREASURY_WALLET) {
+    throw new Error(
+      "Administrator configuration error: treasury wallet does not match the expected address. " +
+        `Expected ${TREASURY_WALLET}.`,
+    );
   }
   if (!config.rpc_url) {
     throw new Error("Administrator configuration error: X1 RPC URL is not set");
@@ -187,6 +201,13 @@ export async function processClaimMint(params: ClaimMintParams): Promise<ClaimMi
   if (config.mint_paused) throw new Error("Minting is currently paused");
   if (!config.treasury_wallet)
     throw new Error("Administrator error: treasury wallet not configured");
+  // Enforce the canonical treasury wallet — reject any misconfigured address
+  if (config.treasury_wallet !== TREASURY_WALLET) {
+    throw new Error(
+      "Administrator error: treasury wallet does not match the required address. " +
+        `Expected ${TREASURY_WALLET}.`,
+    );
+  }
   if (!config.rpc_url) throw new Error("Administrator error: X1 RPC URL not configured");
 
   // ── Step 2: Whitelist check ──────────────────────────────────────────────

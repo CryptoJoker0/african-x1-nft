@@ -29,9 +29,7 @@ function CollectionPage() {
     queryFn: async () => {
       const { data } = await supabase
         .from("collection_config")
-        .select(
-          "mint_price, max_supply, minted_count:nfts(count), revealed, mint_paused, collection_name",
-        )
+        .select("mint_price, max_supply, revealed, mint_paused, collection_name")
         .eq("id", 1)
         .single();
       return data;

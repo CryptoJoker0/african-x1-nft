@@ -1,78 +1,86 @@
-# AFRICA X1 NFT Platform
+# AFRICAN X1 NFT — Replit Project
 
-## Project Overview
+## Overview
 
-AFRICA X1 NFT is a full-stack NFT minting and marketplace platform built on the X1 Blockchain (Solana fork). It is a magazine-editorial-styled web application celebrating African culture, mythology, and heritage through on-chain digital art.
+A full-stack NFT minting platform for the Genesis Collection — 50 unique NFTs minted natively on the X1 Blockchain (a Solana fork). Magazine-editorial aesthetic celebrating African culture.
 
-**Stack:**
-- **Framework:** TanStack Start (React SSR) with TanStack Router (file-based routing)
-- **Frontend:** React 19, Tailwind CSS v4, shadcn/ui, Framer Motion
-- **Backend:** TanStack Start server functions + Nitro (Cloudflare Workers target)
-- **Database / Auth:** Supabase (PostgreSQL + Auth)
-- **Blockchain:** X1 Mainnet (Solana fork) via `@solana/web3.js` (browser-only)
-- **Build tool:** Vite 8
+**Tech Stack:**
+- TanStack Start (React 19 + SSR) with TanStack Router
+- Supabase (PostgreSQL + Auth)
+- Vite 8 / Node.js 22
+- Tailwind CSS v4, shadcn/ui, Framer Motion
+- @solana/web3.js (browser-only via SSR stub)
 
-## Running the Application
+## Running the Project
 
 ```bash
 npm install
-npm run dev     # development server on port 5000
-npm run build   # production build → .output/
+npm run dev      # dev server on :5000
+npm run build    # production build → .output/
 ```
 
-The dev server runs on **port 5000** with `host: "0.0.0.0"` so it is accessible in Replit's preview pane.
+Requires Node.js 22+ (node v22 module installed).
 
 ## Routes
 
-| Route | Description |
-|---|---|
-| `/` | Home / landing page (hero, story, roadmap, FAQ) |
-| `/auth` | Sign-in / sign-up (email + Google OAuth via Lovable Auth) |
-| `/collection` | Browse all 50 NFTs with filter/search |
-| `/mint` | Mint page — connects wallet, initiates on-chain transfer |
-| `/marketplace` | Secondary market listings (toggles via `collection_config.marketplace_enabled`) |
-| `/dashboard` | Holder dashboard — owned NFTs, transaction history, profile |
-| `/admin` | Admin panel — mint controls, config, whitelist (admin role required) |
-| `/sitemap.xml` | Dynamic XML sitemap |
+| Route          | Description                        | Auth Required |
+|----------------|------------------------------------|---------------|
+| `/`            | Homepage / Magazine hero           | No            |
+| `/collection`  | NFT collection page                | No            |
+| `/mint`        | Mint NFTs (wallet + sign-in req.)  | Yes + Wallet  |
+| `/marketplace` | Secondary market                   | No            |
+| `/dashboard`   | Holder dashboard                   | Yes           |
+| `/admin`       | Admin panel                        | Admin role    |
+| `/auth`        | Sign in / Sign up                  | No            |
 
-## Architecture Notes
+## Environment Variables
 
-### SSR Safety
-- `@solana/web3.js` and `rpc-websockets` are aliased to an empty stub in the SSR/server environment (see `vite.config.ts`)
-- Wallet connection, localStorage, `window`, and `navigator` access are all gated inside `useEffect` or click handlers — never executed server-side
-- The mint transfer (`submitMintTransfer`) uses `createIsomorphicFn().client()` so it only ever runs in the browser
+Already set in `.replit` (userenv/shared):
+- `SUPABASE_URL` — Supabase project URL
+- `SUPABASE_PUBLISHABLE_KEY` — Supabase anon/public key
+- `VITE_SUPABASE_URL` / `VITE_SUPABASE_PUBLISHABLE_KEY` — client-side variants
 
-### Wallet Layer
-`src/lib/wallet.tsx` supports Phantom, Backpack, and X1 Web Wallet (all Solana-style injected providers). Falls back to a simulated ephemeral address for dev preview when no wallet is installed.
+**Secrets required (set in Replit Secrets):**
+- `SUPABASE_SERVICE_ROLE_KEY` — **Required for minting.** Bypasses RLS for NFT assignment. Get from Supabase Dashboard → Settings → API.
 
-### Mint Flow
-1. Client: build + sign + submit treasury transfer via `@solana/web3.js` (browser only)
-2. Server: `claimMint` server function verifies the transaction on-chain via raw JSON-RPC, checks whitelist/supply limits, then assigns available NFTs to the user
+## Collection Configuration
 
-### Environment Variables (required)
+- **Genesis Collection:** 50 NFTs
+- **Treasury wallet:** `9rMJNa5QiNakB45qyymGBNVcALrcHYvwnm15mQcZJfNK`
+- **Chain:** X1 Mainnet (`https://rpc.mainnet.x1.xyz`)
+- Config lives in `collection_config` table (editable via `/admin`)
 
-| Variable | Description |
-|---|---|
-| `SUPABASE_URL` | Supabase project URL |
-| `SUPABASE_PUBLISHABLE_KEY` | Supabase publishable (anon) key |
-| `VITE_SUPABASE_URL` | Same as above, exposed to client build |
-| `VITE_SUPABASE_PUBLISHABLE_KEY` | Same as above, exposed to client build |
-| `SUPABASE_SERVICE_ROLE_KEY` | **Secret** — Supabase service role key (server-only, for admin NFT assignment) |
+## Database Setup
 
-The `SUPABASE_SERVICE_ROLE_KEY` is needed for the `claimMint` server function to bypass RLS when assigning NFTs. Set it as a Replit Secret.
+Migrations are in `supabase/migrations/`. Apply in order:
+1. `20260628204638_*` — Full schema (profiles, NFTs, transactions, whitelist)
+2. `20260628204651_*` / `20260628205340_*` — Function updates
+3. `20260629013817_*` — Sets treasury wallet + RPC URL
+4. `20260708000000_seed_genesis_collection.sql` — **Seeds 50 NFTs, sets max_supply=50**
 
-### Images / Assets
-- `src/assets/pre-reveal.jpg` — local pre-reveal placeholder image
-- `public/pre-reveal.jpg` — same image served statically at `/pre-reveal.jpg`
-- `src/assets/*.asset.json` — asset descriptor files; `url` field points to `/pre-reveal.jpg` as the placeholder. Replace with real CDN URLs when the collection is revealed.
+To apply migration 4 (if not already done):
+→ Supabase Dashboard → SQL Editor → paste `supabase/migrations/20260708000000_seed_genesis_collection.sql`
 
-## Known Dev-Mode Behaviour
+## Admin Access
 
-The `@tanstack/devtools-vite` plugin (loaded via `@lovable.dev/vite-tanstack-config`) injects `data-tsd-source` attributes onto every JSX element in development mode. Because SSR and client transforms calculate different line numbers, React prints a hydration mismatch warning in the browser console during development. This is **dev-only** — production builds (`npm run build`) are fully clean and do not exhibit this behaviour.
+The first user to register automatically receives the `admin` role (see `handle_new_user` trigger).
+Admin panel at `/admin` — protected by session + role check.
+
+## Mint Flow Security
+
+1. Pre-flight: validates config, whitelist, wallet limits, NFT availability (server-side, before payment)
+2. Payment: user signs X1 SOL transfer to treasury wallet on-chain
+3. Claim: server verifies payment on X1 RPC, atomically assigns NFT
+4. Treasury wallet is hardcoded in `src/lib/mint.logic.ts` (`TREASURY_WALLET`) and validated on every mint
+
+## Asset Notes
+
+- Logo and cover images: Currently using `public/pre-reveal.jpg` as placeholder
+  (original assets on Lovable CDN are inaccessible outside Lovable)
+- To restore originals: upload via Admin → Upload panel, or replace `public/pre-reveal.jpg`
 
 ## User Preferences
 
-- Lead engineer role: stabilise and finish the existing application
-- Do NOT redesign the UI or branding
-- Do NOT add features beyond what is already planned/implemented
-- Focus on clean, production-ready builds
+- No new features, no redesigns — production-ready fixes only
+- Collection size: exactly 50 NFTs
+- Architecture: TanStack Start + Supabase (no Anchor, no migrations to different stack)
