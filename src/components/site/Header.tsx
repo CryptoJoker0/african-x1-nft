@@ -50,9 +50,15 @@ export function Header() {
         <div className="flex items-center gap-3">
           <button
             onClick={() => setStakingOpen(true)}
-            className="hidden items-center gap-1.5 rounded-full border border-african-gold/40 bg-african-gold/10 px-3.5 py-1.5 text-sm font-medium text-african-gold transition hover:bg-african-gold/20 md:flex"
+            className="btn-gold group relative hidden shrink-0 items-center gap-2 overflow-hidden whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold text-ink transition hover:brightness-110 md:inline-flex"
+            style={{ boxShadow: "var(--shadow-glow-gold)" }}
           >
-            🔘 Africa 🌍 Staking
+            <span className="text-base leading-none">🌍</span>
+            <span className="tracking-tight">Africa Staking</span>
+            <span className="shrink-0 rounded-full bg-ink/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest">
+              Soon
+            </span>
+            <span className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/50 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
           </button>
           <div className="hidden md:block">
             <WalletButton />
@@ -86,9 +92,14 @@ export function Header() {
                 setOpen(false);
                 setStakingOpen(true);
               }}
-              className="flex items-center gap-1.5 rounded-sm border border-african-gold/40 bg-african-gold/10 px-3 py-2.5 text-left text-african-gold"
+              className="btn-gold mt-1 flex items-center justify-center gap-2 rounded-sm px-3 py-2.5 text-left font-semibold text-ink"
+              style={{ boxShadow: "var(--shadow-glow-gold)" }}
             >
-              🔘 Africa 🌍 Staking
+              <span className="text-base leading-none">🌍</span>
+              <span>Africa Staking</span>
+              <span className="rounded-full bg-ink/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest">
+                Soon
+              </span>
             </button>
             <div className="pt-2">
               <WalletButton />
