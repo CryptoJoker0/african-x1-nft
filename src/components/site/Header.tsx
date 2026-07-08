@@ -50,8 +50,8 @@ export function Header() {
         <div className="flex items-center gap-3">
           <button
             onClick={() => setStakingOpen(true)}
-            className="btn-gold group relative hidden shrink-0 items-center gap-2 overflow-hidden whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold text-ink transition hover:brightness-110 md:inline-flex"
-            style={{ boxShadow: "var(--shadow-glow-gold)" }}
+            className="btn-staking group relative hidden shrink-0 items-center gap-2 overflow-hidden whitespace-nowrap rounded-full bg-[position:0%_50%] px-4 py-2 text-sm font-semibold text-ink transition-[background-position,filter] duration-500 hover:bg-[position:100%_50%] hover:brightness-110 md:inline-flex"
+            style={{ boxShadow: "var(--shadow-glow-staking)" }}
           >
             <span className="text-base leading-none">🌍</span>
             <span className="tracking-tight">Africa Staking</span>
@@ -92,8 +92,8 @@ export function Header() {
                 setOpen(false);
                 setStakingOpen(true);
               }}
-              className="btn-gold mt-1 flex items-center justify-center gap-2 rounded-sm px-3 py-2.5 text-left font-semibold text-ink"
-              style={{ boxShadow: "var(--shadow-glow-gold)" }}
+              className="btn-staking mt-1 flex items-center justify-center gap-2 rounded-sm px-3 py-2.5 text-left font-semibold text-ink"
+              style={{ boxShadow: "var(--shadow-glow-staking)" }}
             >
               <span className="text-base leading-none">🌍</span>
               <span>Africa Staking</span>

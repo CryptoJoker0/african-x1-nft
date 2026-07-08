@@ -54,6 +54,9 @@
 
   --gradient-cyber: linear-gradient(135deg, #2d7ff9 0%, #00e5ff 100%);
   --gradient-gold: linear-gradient(135deg, #d4af37 0%, #ffd700 55%, #ffe566 100%);
+  --gradient-staking: linear-gradient(120deg, #ffffff 0%, #ffe566 32%, #ffd700 50%, #00e5ff 78%, #2d7ff9 100%);
+  --shadow-glow-staking: 0 0 18px color-mix(in oklab, #ffd700 45%, transparent),
+    0 0 30px color-mix(in oklab, #00e5ff 35%, transparent);
 }
 
 :root {
@@ -158,8 +161,9 @@
 @utility btn-cyber {
   background-image: var(--gradient-cyber);
 }
-@utility btn-gold {
-  background-image: var(--gradient-gold);
+@utility btn-staking {
+  background-image: var(--gradient-staking);
+  background-size: 200% 200%;
 }
 
 @utility eyebrow {
