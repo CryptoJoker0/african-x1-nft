@@ -58,9 +58,6 @@ export interface ClaimMintParams {
   signature: string;
   walletAddress: string;
   qty: number;
-  userId: string;
-  /** User-scoped client — RLS enforced. */
-  supabase: DB;
   /**
    * Returns the admin client (bypasses RLS).
    * Called first — throws if service role key is missing so no payment
@@ -78,8 +75,6 @@ export interface ClaimMintResult {
 export interface PreflightParams {
   walletAddress: string;
   qty: number;
-  userId: string;
-  supabase: DB;
   getAdmin: () => Promise<DB>;
 }
 
@@ -100,13 +95,13 @@ export interface PreflightResult {
  * a broken or sold-out collection.
  */
 export async function processPreflight(params: PreflightParams): Promise<PreflightResult> {
-  const { walletAddress, qty, userId, supabase, getAdmin } = params;
+  const { walletAddress, qty, getAdmin } = params;
 
   // 0. Validate admin key — fail before anything else
   const admin = await getAdmin();
 
   // 1. Load config (tests Supabase connectivity)
-  const { data: config, error: cfgErr } = await supabase
+  const { data: config, error: cfgErr } = await admin
     .from("collection_config")
     .select(
       "mint_price, max_per_wallet, mint_paused, whitelist_only, treasury_wallet, rpc_url, max_supply",
@@ -133,7 +128,7 @@ export async function processPreflight(params: PreflightParams): Promise<Preflig
 
   // 2. Whitelist check
   if (config.whitelist_only) {
-    const { data: wl } = await supabase
+    const { data: wl } = await admin
       .from("whitelist")
       .select("id")
       .eq("wallet_address", walletAddress)
@@ -141,11 +136,14 @@ export async function processPreflight(params: PreflightParams): Promise<Preflig
     if (!wl) throw new Error("This wallet address is not on the whitelist");
   }
 
-  // 3. Per-wallet limit
-  const { count: existingCount } = await supabase
+  // 3. Per-wallet limit — identity is the wallet address itself. No sign-in is
+  // required to mint: the on-chain payment signature is independently verified
+  // against this exact wallet before any NFT is assigned (see verifyPaymentOnChain),
+  // so wallet possession is already the trust boundary.
+  const { count: existingCount } = await admin
     .from("nfts")
     .select("*", { count: "exact", head: true })
-    .eq("owner_user_id", userId)
+    .eq("owner_wallet", walletAddress)
     .eq("status", "minted");
   const owned = existingCount ?? 0;
   const maxPerWallet = config.max_per_wallet ?? 5;
@@ -153,21 +151,6 @@ export async function processPreflight(params: PreflightParams): Promise<Preflig
     throw new Error(
       `This wallet already owns ${owned} NFT${owned !== 1 ? "s" : ""}. ` +
         `Minting ${qty} more would exceed the limit of ${maxPerWallet} per wallet.`,
-    );
-  }
-
-  // 3.5 Wallet identity binding — if the user has a registered wallet, it must
-  // match the wallet they're minting with. Prevents replay attacks where an
-  // attacker submits another user's valid tx signature.
-  const { data: preflightProfile } = await supabase
-    .from("profiles")
-    .select("wallet_address")
-    .eq("id", userId)
-    .single();
-  if (preflightProfile?.wallet_address && preflightProfile.wallet_address !== walletAddress) {
-    throw new Error(
-      "The connected wallet does not match the wallet registered to your account. " +
-        "Reconnect with your registered wallet to mint.",
     );
   }
 
@@ -198,14 +181,14 @@ export async function processPreflight(params: PreflightParams): Promise<Preflig
 // ─── Claim ───────────────────────────────────────────────────────────────────
 
 export async function processClaimMint(params: ClaimMintParams): Promise<ClaimMintResult> {
-  const { signature, walletAddress, qty, userId, supabase, getAdmin } = params;
+  const { signature, walletAddress, qty, getAdmin } = params;
 
   // ── Step 0: Validate admin key is configured ─────────────────────────────
   // MUST be first: if the key is missing we must never tell a buyer to proceed.
   const admin = await getAdmin();
 
   // ── Step 1: Load and validate collection config ──────────────────────────
-  const { data: config, error: cfgErr } = await supabase
+  const { data: config, error: cfgErr } = await admin
     .from("collection_config")
     .select(
       "mint_price, max_per_wallet, mint_paused, whitelist_only, treasury_wallet, rpc_url, max_supply",
@@ -227,7 +210,7 @@ export async function processClaimMint(params: ClaimMintParams): Promise<ClaimMi
 
   // ── Step 2: Whitelist check ──────────────────────────────────────────────
   if (config.whitelist_only) {
-    const { data: wl } = await supabase
+    const { data: wl } = await admin
       .from("whitelist")
       .select("id")
       .eq("wallet_address", walletAddress)
@@ -235,32 +218,20 @@ export async function processClaimMint(params: ClaimMintParams): Promise<ClaimMi
     if (!wl) throw new Error("This wallet is not on the whitelist");
   }
 
-  // ── Step 3: Per-wallet limit ─────────────────────────────────────────────
-  const { count: existingCount } = await supabase
+  // ── Step 3: Per-wallet limit ──────────────────────────────────────────────
+  // Identity is the wallet address itself — no sign-in required. Ownership,
+  // idempotency and the payment sender check below are all keyed off the
+  // wallet, so wallet possession (proven by the on-chain payment signature)
+  // is the trust boundary, not a Supabase session.
+  const { count: existingCount } = await admin
     .from("nfts")
     .select("*", { count: "exact", head: true })
-    .eq("owner_user_id", userId)
+    .eq("owner_wallet", walletAddress)
     .eq("status", "minted");
   const owned = existingCount ?? 0;
   const maxPerWallet = config.max_per_wallet ?? 5;
   if (owned + qty > maxPerWallet) {
     throw new Error(`Exceeds wallet limit of ${maxPerWallet} NFTs (already owns ${owned})`);
-  }
-
-  // ── Step 3.5: Wallet identity binding ────────────────────────────────────
-  // If the user has a registered wallet in their profile, the provided wallet
-  // MUST match it. This prevents replay attacks where an attacker intercepts
-  // another user's on-chain tx signature and submits it under their own session.
-  const { data: claimProfile } = await supabase
-    .from("profiles")
-    .select("wallet_address")
-    .eq("id", userId)
-    .single();
-  if (claimProfile?.wallet_address && claimProfile.wallet_address !== walletAddress) {
-    throw new Error(
-      "The connected wallet does not match the wallet registered to your account. " +
-        "Reconnect with your registered wallet to mint.",
-    );
   }
 
   // ── Step 4: Primary idempotency check (via transactions ledger) ──────────
@@ -302,7 +273,6 @@ export async function processClaimMint(params: ClaimMintParams): Promise<ClaimMi
     .from("transactions")
     .insert({
       signature,
-      user_id: userId,
       wallet_address: walletAddress,
       tx_type: "mint",
       status: "pending",
@@ -342,7 +312,7 @@ export async function processClaimMint(params: ClaimMintParams): Promise<ClaimMi
     });
 
     // Step 8: Atomically assign NFTs
-    const claimed = await atomicClaimNFTs({ admin, userId, walletAddress, signature, qty, nowIso });
+    const claimed = await atomicClaimNFTs({ admin, walletAddress, signature, qty, nowIso });
 
     // Step 9: Confirm the ledger record
     const { error: confirmErr } = await admin
@@ -488,7 +458,7 @@ interface AtomicClaimParams {
 async function atomicClaimNFTs(
   params: AtomicClaimParams,
 ): Promise<Array<{ id: string; token_id: number; name: string }>> {
-  const { admin, userId, walletAddress, signature, qty, nowIso } = params;
+  const { admin, walletAddress, signature, qty, nowIso } = params;
 
   // SELECT candidates
   const { data: candidates, error: selErr } = await admin
@@ -514,7 +484,6 @@ async function atomicClaimNFTs(
     .from("nfts")
     .update({
       status: "minted",
-      owner_user_id: userId,
       owner_wallet: walletAddress,
       mint_signature: signature,
       minted_at: nowIso,
@@ -532,7 +501,6 @@ async function atomicClaimNFTs(
         .from("nfts")
         .update({
           status: "available",
-          owner_user_id: null,
           owner_wallet: null,
           mint_signature: null,
           minted_at: null,
