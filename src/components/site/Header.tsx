@@ -3,6 +3,13 @@ import { useState } from "react";
 import { Menu, X } from "lucide-react";
 import { Logo } from "./Logo";
 import { WalletButton } from "./WalletButton";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 
 const nav = [
   { to: "/", label: "Home", num: "01" },
@@ -15,6 +22,7 @@ const nav = [
 export function Header() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const [open, setOpen] = useState(false);
+  const [stakingOpen, setStakingOpen] = useState(false);
   return (
     <header className="sticky top-0 z-40 border-b border-white/10 backdrop-blur-xl bg-background/70">
       <div className="mx-auto flex max-w-[1400px] items-center justify-between gap-6 px-6 py-4 sm:px-10">
@@ -40,6 +48,12 @@ export function Header() {
           })}
         </nav>
         <div className="flex items-center gap-3">
+          <button
+            onClick={() => setStakingOpen(true)}
+            className="hidden items-center gap-1.5 rounded-full border border-african-gold/40 bg-african-gold/10 px-3.5 py-1.5 text-sm font-medium text-african-gold transition hover:bg-african-gold/20 md:flex"
+          >
+            🔘 Africa 🌍 Staking
+          </button>
           <div className="hidden md:block">
             <WalletButton />
           </div>
@@ -67,12 +81,29 @@ export function Header() {
                 <span className="font-display text-xl">{n.label}</span>
               </Link>
             ))}
+            <button
+              onClick={() => {
+                setOpen(false);
+                setStakingOpen(true);
+              }}
+              className="flex items-center gap-1.5 rounded-sm border border-african-gold/40 bg-african-gold/10 px-3 py-2.5 text-left text-african-gold"
+            >
+              🔘 Africa 🌍 Staking
+            </button>
             <div className="pt-2">
               <WalletButton />
             </div>
           </div>
         </div>
       )}
+      <Dialog open={stakingOpen} onOpenChange={setStakingOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>🌍 Africa Staking</DialogTitle>
+            <DialogDescription>Africa Staking coming soon.</DialogDescription>
+          </DialogHeader>
+        </DialogContent>
+      </Dialog>
     </header>
   );
 }
