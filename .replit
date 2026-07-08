@@ -47,6 +47,12 @@ externalPort = 80
 localPort = 5001
 externalPort = 3000
 
+[[ports]]
+localPort = 5050
+externalPort = 3001
+
 [deployment]
-deploymentTarget = "static"
+deploymentTarget = "autoscale"
 publicDir = "dist/public"
+run = ["node", ".output/server/index.mjs"]
+build = ["npm", "run", "build"]
