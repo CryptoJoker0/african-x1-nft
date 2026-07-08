@@ -2,7 +2,18 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import cover from "@/assets/african-x1-cover.png.asset.json";
+import preReveal from "@/assets/pre-reveal.jpg";
 import { CheckCircle2, Sparkles } from "lucide-react";
+
+type NftRarity = "legendary" | "elite" | "rare" | "uncommon" | "common";
+
+const RARITY_STYLES: Record<NftRarity, { badge: string; glow: string; label: string }> = {
+  legendary: { badge: "border-african-gold text-african-gold bg-african-gold/10", glow: "shadow-[0_0_18px_rgba(212,175,55,0.35)]", label: "Legendary" },
+  elite:     { badge: "border-purple-400 text-purple-300 bg-purple-400/10",       glow: "shadow-[0_0_14px_rgba(192,132,252,0.3)]",  label: "Elite" },
+  rare:      { badge: "border-cyber-cyan text-cyber-cyan bg-cyber-cyan/10",        glow: "shadow-[0_0_14px_rgba(0,255,255,0.2)]",   label: "Rare" },
+  uncommon:  { badge: "border-emerald-400 text-emerald-400 bg-emerald-400/10",     glow: "shadow-[0_0_10px_rgba(52,211,153,0.2)]",  label: "Uncommon" },
+  common:    { badge: "border-white/20 text-muted-foreground bg-white/5",          glow: "",                                        label: "Common" },
+};
 
 export const Route = createFileRoute("/collection")({
   head: () => ({
@@ -44,6 +55,17 @@ function CollectionPage() {
         .select("*", { count: "exact", head: true })
         .eq("status", "minted");
       return count ?? 0;
+    },
+  });
+
+  const { data: nfts = [] } = useQuery({
+    queryKey: ["nfts-collection"],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("nfts")
+        .select("id, token_id, name, rarity, status")
+        .order("token_id", { ascending: true });
+      return data ?? [];
     },
   });
 
@@ -175,6 +197,50 @@ function CollectionPage() {
         </div>
       </section>
 
+      {/* NFT Grid */}
+      <section className="mx-auto max-w-7xl px-6 pb-20 sm:px-10">
+        <div className="mb-8 flex items-end justify-between">
+          <div>
+            <div className="label-xs text-african-gold">Genesis Collection</div>
+            <h2 className="mt-1 font-display text-3xl">
+              All <span className="text-gradient-gold">{maxSupply}</span> NFTs
+            </h2>
+          </div>
+          <div className="text-right text-xs text-muted-foreground">
+            <span className="text-african-gold font-semibold">{mintedCount}</span> minted
+            &nbsp;·&nbsp;
+            <span>{remaining} remaining</span>
+          </div>
+        </div>
+
+        {nfts.length === 0 ? (
+          /* Empty state — NFTs not seeded yet */
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+            {Array.from({ length: maxSupply }).map((_, i) => (
+              <NftCard
+                key={i}
+                tokenId={i + 1}
+                name={`AFRICAN X1 #${String(i + 1).padStart(3, "0")}`}
+                rarity="common"
+                status="available"
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+            {nfts.map((nft) => (
+              <NftCard
+                key={nft.id}
+                tokenId={nft.token_id}
+                name={nft.name}
+                rarity={(nft.rarity as NftRarity) ?? "common"}
+                status={nft.status ?? "available"}
+              />
+            ))}
+          </div>
+        )}
+      </section>
+
       {/* Info row */}
       <section className="border-t border-white/5 bg-background/60 backdrop-blur-sm">
         <div className="mx-auto grid max-w-7xl grid-cols-1 gap-6 px-6 py-16 sm:px-10 md:grid-cols-3">
@@ -195,6 +261,57 @@ function CollectionPage() {
           />
         </div>
       </section>
+    </div>
+  );
+}
+
+function NftCard({
+  tokenId,
+  name,
+  rarity,
+  status,
+}: {
+  tokenId: number;
+  name: string;
+  rarity: NftRarity;
+  status: string;
+}) {
+  const styles = RARITY_STYLES[rarity] ?? RARITY_STYLES.common;
+  const isMinted = status === "minted";
+
+  return (
+    <div
+      className={`group relative flex flex-col overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] transition hover:border-white/20 hover:-translate-y-0.5 ${styles.glow}`}
+    >
+      {/* Pre-reveal image — never the real artwork */}
+      <div className="relative aspect-square overflow-hidden">
+        <img
+          src={preReveal}
+          alt={name}
+          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+        />
+        {/* Overlay with token number */}
+        <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/20 to-transparent" />
+        <div className="absolute bottom-2 left-0 right-0 text-center font-mono text-lg font-bold leading-none text-white drop-shadow">
+          #{String(tokenId).padStart(3, "0")}
+        </div>
+        {/* Minted badge */}
+        {isMinted && (
+          <div className="absolute right-2 top-2 rounded-full bg-african-gold px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest text-background">
+            Minted
+          </div>
+        )}
+      </div>
+
+      {/* Card footer */}
+      <div className="flex flex-col gap-1 p-3">
+        <div className="truncate font-display text-sm leading-tight">{name}</div>
+        <span
+          className={`self-start rounded-full border px-2 py-0.5 text-[9px] uppercase tracking-widest ${styles.badge}`}
+        >
+          {styles.label}
+        </span>
+      </div>
     </div>
   );
 }
