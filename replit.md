@@ -35,13 +35,15 @@ Requires Node.js 22+ (node v22 module installed).
 
 ## Environment Variables
 
-Already set in `.replit` (userenv/shared):
+Already set in `.replit` (userenv/shared), pointing at the production Supabase project `loerakigzqdromadabnm`:
 - `SUPABASE_URL` — Supabase project URL
 - `SUPABASE_PUBLISHABLE_KEY` — Supabase anon/public key
 - `VITE_SUPABASE_URL` / `VITE_SUPABASE_PUBLISHABLE_KEY` — client-side variants
 
 **Secrets required (set in Replit Secrets):**
-- `SUPABASE_SERVICE_ROLE_KEY` — **Required for minting.** Bypasses RLS for NFT assignment. Get from Supabase Dashboard → Settings → API.
+- `SUPABASE_SERVICE_ROLE_KEY` — **Required for minting.** Bypasses RLS for NFT assignment. Must belong to the same project as `SUPABASE_URL` above (`loerakigzqdromadabnm`). Get from Supabase Dashboard → Settings → API.
+
+> Note: an earlier Supabase project (`yftokrdaluslbvvixukh`) was used during initial setup but is no longer wired up. All env vars and secrets must reference `loerakigzqdromadabnm` consistently — never split URL/keys across two projects.
 
 ## Collection Configuration
 
