@@ -16,7 +16,7 @@ const nav = [
   { to: "/collection", label: "Collection", num: "02" },
   { to: "/mint", label: "Mint", num: "03" },
   { to: "/marketplace", label: "Market", num: "04" },
-  { to: "/dashboard", label: "Dashboard", num: "05" },
+  { to: "/my-nfts", label: "My NFTs", num: "05" },
 ] as const;
 
 export function Header() {

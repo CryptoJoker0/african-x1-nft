@@ -326,10 +326,10 @@ function MintPage() {
                 </a>
               </div>
               <Link
-                to="/dashboard"
+                to="/my-nfts"
                 className="mt-3 inline-flex text-xs text-african-gold hover:underline"
               >
-                View in your dashboard →
+                View my NFTs →
               </Link>
             </div>
           )}

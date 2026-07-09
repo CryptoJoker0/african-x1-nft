@@ -55,8 +55,8 @@ export function Footer() {
                 </Link>
               </li>
               <li>
-                <Link to="/dashboard" className="hover:text-african-gold">
-                  Dashboard
+                <Link to="/my-nfts" className="hover:text-african-gold">
+                  My NFTs
                 </Link>
               </li>
             </ul>

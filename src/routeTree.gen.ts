@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as MyNftsRouteImport } from './routes/my-nfts'
 import { Route as MintRouteImport } from './routes/mint'
 import { Route as MarketplaceRouteImport } from './routes/marketplace'
 import { Route as DashboardRouteImport } from './routes/dashboard'
@@ -21,6 +22,11 @@ import { Route as IndexRouteImport } from './routes/index'
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MyNftsRoute = MyNftsRouteImport.update({
+  id: '/my-nfts',
+  path: '/my-nfts',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MintRoute = MintRouteImport.update({
@@ -67,6 +73,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof DashboardRoute
   '/marketplace': typeof MarketplaceRoute
   '/mint': typeof MintRoute
+  '/my-nfts': typeof MyNftsRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
 }
 export interface FileRoutesByTo {
@@ -77,6 +84,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof DashboardRoute
   '/marketplace': typeof MarketplaceRoute
   '/mint': typeof MintRoute
+  '/my-nfts': typeof MyNftsRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
 }
 export interface FileRoutesById {
@@ -88,6 +96,7 @@ export interface FileRoutesById {
   '/dashboard': typeof DashboardRoute
   '/marketplace': typeof MarketplaceRoute
   '/mint': typeof MintRoute
+  '/my-nfts': typeof MyNftsRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
 }
 export interface FileRouteTypes {
@@ -100,6 +109,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/marketplace'
     | '/mint'
+    | '/my-nfts'
     | '/sitemap.xml'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -110,6 +120,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/marketplace'
     | '/mint'
+    | '/my-nfts'
     | '/sitemap.xml'
   id:
     | '__root__'
@@ -120,6 +131,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/marketplace'
     | '/mint'
+    | '/my-nfts'
     | '/sitemap.xml'
   fileRoutesById: FileRoutesById
 }
@@ -131,6 +143,7 @@ export interface RootRouteChildren {
   DashboardRoute: typeof DashboardRoute
   MarketplaceRoute: typeof MarketplaceRoute
   MintRoute: typeof MintRoute
+  MyNftsRoute: typeof MyNftsRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
 }
 
@@ -141,6 +154,13 @@ declare module '@tanstack/react-router' {
       path: '/sitemap.xml'
       fullPath: '/sitemap.xml'
       preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/my-nfts': {
+      id: '/my-nfts'
+      path: '/my-nfts'
+      fullPath: '/my-nfts'
+      preLoaderRoute: typeof MyNftsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/mint': {
@@ -203,6 +223,7 @@ const rootRouteChildren: RootRouteChildren = {
   DashboardRoute: DashboardRoute,
   MarketplaceRoute: MarketplaceRoute,
   MintRoute: MintRoute,
+  MyNftsRoute: MyNftsRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
 }
 export const routeTree = rootRouteImport
