@@ -439,7 +439,6 @@ export async function verifyPaymentOnChain(params: VerifyPaymentParams): Promise
 
 interface AtomicClaimParams {
   admin: DB;
-  userId: string;
   walletAddress: string;
   signature: string;
   qty: number;

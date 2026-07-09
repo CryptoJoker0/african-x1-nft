@@ -13,7 +13,6 @@ import {
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useWallet } from "@/lib/wallet";
-import { useAuth } from "@/lib/use-auth";
 import { WalletButton } from "@/components/site/WalletButton";
 import { toast } from "sonner";
 import { claimMint, preflightMint } from "@/lib/mint.functions";
@@ -52,7 +51,6 @@ type Stage =
 
 function MintPage() {
   const { address, status: walletStatus, walletId, isSimulated } = useWallet();
-  const { user } = useAuth();
   const claim = useServerFn(claimMint);
   const preflight = useServerFn(preflightMint);
   const [qty, setQty] = useState(1);
@@ -83,12 +81,13 @@ function MintPage() {
   const total = price * qty;
   const configReady = !!config?.treasury_wallet && !!config?.rpc_url;
   const soldOut = minted >= (config?.max_supply ?? 0) && (config?.max_supply ?? 0) > 0;
+
+  // Wallet connection alone gates minting — no sign-in required.
   const canMint =
     walletStatus === "connected" &&
     !isSimulated &&
     !config?.mint_paused &&
     configReady &&
-    !!user &&
     !soldOut;
 
   async function handleMint() {
@@ -98,7 +97,6 @@ function MintPage() {
       return toast.error(
         "Simulated wallet cannot sign real transactions. Install Phantom, Backpack, or X1 Wallet.",
       );
-    if (!user) return toast.error("Sign in first to mint");
     if (config?.mint_paused) return toast.error("Mint is currently paused");
     if (!configReady) return toast.error("Admin must configure treasury wallet + RPC URL");
     if (soldOut) return toast.error("Collection is sold out");
@@ -110,8 +108,8 @@ function MintPage() {
     try {
       // ── Step 1: Pre-flight (server validates BEFORE payment) ─────────────
       // This ensures the service role key is present, Supabase is reachable,
-      // NFTs are available, and the user is whitelisted — all BEFORE any funds
-      // leave the user's wallet.
+      // NFTs are available, and the wallet is whitelisted — all BEFORE any
+      // funds leave the wallet.
       const pre = await preflight({ data: { walletAddress: address, qty } });
 
       // ── Step 2: Submit payment on-chain ──────────────────────────────────
@@ -267,14 +265,6 @@ function MintPage() {
               {isSimulated && (
                 <p className="text-african-gold">
                   Simulated wallet — install Phantom, Backpack, or X1 Wallet to mint on-chain.
-                </p>
-              )}
-              {!user && (
-                <p>
-                  <Link to="/auth" className="text-cyber-cyan hover:underline">
-                    Sign in
-                  </Link>{" "}
-                  to record your mint.
                 </p>
               )}
               {!configReady && <p>Waiting for admin to configure treasury wallet + RPC URL.</p>}

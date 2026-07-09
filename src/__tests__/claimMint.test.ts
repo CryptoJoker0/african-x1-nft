@@ -99,7 +99,6 @@ const NFT_2 = { id: "nft-uuid-2", token_id: 2, name: "AFRICAN X1 #002" };
 const VALID_SIG = "5xSig" + "A".repeat(85);
 const WALLET = "Sender1111111111111111111111111111111111111";
 const TREASURY = VALID_CONFIG.treasury_wallet;
-const USER_ID = "user-uuid-abc";
 
 /** Build a minimal valid RPC getTransaction response. */
 function rpcSuccess(sender = WALLET, treasury = TREASURY, lamports = 1_000_000_000): unknown {
@@ -131,19 +130,16 @@ describe("processClaimMint", () => {
   it("1. returns tokens on a successful mint", async () => {
     mockFetch(rpcSuccess());
 
-    const supabase = createMockDB({
-      collection_config: [{ data: VALID_CONFIG, error: null }],
-      nfts: [{ data: null, error: null, count: 0 }], // per-wallet count
-    });
-
-    // Admin DB: idempotency (confirmed) → nfts.mint_signature → lock insert → assign candidates → assign update → confirm update
+    // Admin DB: config → per-wallet count → idempotency → mint_signature → lock insert → assign candidates → assign update → confirm update
     const admin = createMockDB({
+      collection_config: [{ data: VALID_CONFIG, error: null }],
       transactions: [
         { data: null, error: null }, // confirmed idempotency: none
         { data: [{ id: "lock-id-1" }], error: null }, // lock insert succeeds
         { data: null, error: null }, // confirm update
       ],
       nfts: [
+        { data: null, error: null, count: 0 }, // per-wallet count
         { data: [], error: null }, // mint_signature check: none
         { data: [NFT_1], error: null }, // SELECT candidates
         { data: [NFT_1], error: null }, // atomic UPDATE → claimed
@@ -154,8 +150,6 @@ describe("processClaimMint", () => {
       signature: VALID_SIG,
       walletAddress: WALLET,
       qty: 1,
-      userId: USER_ID,
-      supabase: supabase as never,
       getAdmin: async () => admin as never,
     });
 
@@ -178,17 +172,17 @@ describe("processClaimMint", () => {
       },
     });
 
-    const supabase = createMockDB({
-      collection_config: [{ data: VALID_CONFIG, error: null }],
-      nfts: [{ data: null, error: null, count: 0 }],
-    });
     const admin = createMockDB({
+      collection_config: [{ data: VALID_CONFIG, error: null }],
       transactions: [
         { data: null, error: null }, // confirmed idempotency
         { data: [{ id: "lock-id" }], error: null }, // lock insert
         { data: null, error: null }, // delete lock (payment failed)
       ],
-      nfts: [{ data: [], error: null }], // mint_signature check
+      nfts: [
+        { data: null, error: null, count: 0 }, // per-wallet count
+        { data: [], error: null }, // mint_signature check
+      ],
     });
 
     await expect(
@@ -196,8 +190,6 @@ describe("processClaimMint", () => {
         signature: VALID_SIG,
         walletAddress: WALLET,
         qty: 1,
-        userId: USER_ID,
-        supabase: supabase as never,
         getAdmin: async () => admin as never,
       }),
     ).rejects.toThrow(/payment transaction failed on-chain/i);
@@ -216,8 +208,6 @@ describe("processClaimMint", () => {
         signature: VALID_SIG,
         walletAddress: WALLET,
         qty: 1,
-        userId: USER_ID,
-        supabase: createMockDB({}) as never,
         getAdmin,
       }),
     ).rejects.toThrow(/not operational/i);
@@ -227,17 +217,15 @@ describe("processClaimMint", () => {
   it("4. throws sold-out error when no NFTs are available", async () => {
     mockFetch(rpcSuccess());
 
-    const supabase = createMockDB({
-      collection_config: [{ data: VALID_CONFIG, error: null }],
-      nfts: [{ data: null, error: null, count: 0 }],
-    });
     const admin = createMockDB({
+      collection_config: [{ data: VALID_CONFIG, error: null }],
       transactions: [
         { data: null, error: null }, // confirmed idempotency
         { data: [{ id: "lock-id" }], error: null }, // lock insert
         { data: null, error: null }, // update lock → failed (sold out is an NFT assignment error after payment confirmed)
       ],
       nfts: [
+        { data: null, error: null, count: 0 }, // per-wallet count
         { data: [], error: null }, // mint_signature check
         { data: [], error: null }, // SELECT candidates → 0 available
       ],
@@ -248,8 +236,6 @@ describe("processClaimMint", () => {
         signature: VALID_SIG,
         walletAddress: WALLET,
         qty: 1,
-        userId: USER_ID,
-        supabase: supabase as never,
         getAdmin: async () => admin as never,
       }),
     ).rejects.toThrow(/sold out/i);
@@ -258,21 +244,19 @@ describe("processClaimMint", () => {
   // ── Test 5: Duplicate mint — transactions ledger idempotency ────────────────
   it("5. returns alreadyClaimed when transactions ledger shows confirmed prior", async () => {
     const admin = createMockDB({
+      collection_config: [{ data: VALID_CONFIG, error: null }],
       transactions: [
         { data: { id: "prior-tx" }, error: null }, // confirmed prior found
       ],
-    });
-    const supabase = createMockDB({
-      collection_config: [{ data: VALID_CONFIG, error: null }],
-      nfts: [{ data: null, error: null, count: 0 }],
+      nfts: [
+        { data: null, error: null, count: 0 }, // per-wallet count
+      ],
     });
 
     const result = await processClaimMint({
       signature: VALID_SIG,
       walletAddress: WALLET,
       qty: 1,
-      userId: USER_ID,
-      supabase: supabase as never,
       getAdmin: async () => admin as never,
     });
 
@@ -281,29 +265,28 @@ describe("processClaimMint", () => {
     const nftCalls = (admin.from as ReturnType<typeof vi.fn>).mock.calls.filter(
       (args) => args[0] === "nfts",
     );
-    expect(nftCalls).toHaveLength(0);
+    // Only the per-wallet count check — no mint_signature or assign calls
+    expect(nftCalls).toHaveLength(1);
   });
 
   // ── Test 6: Concurrent mints — claim lock (unique-violation) ────────────────
   it("6. returns alreadyClaimed when claim lock insert fails with unique violation", async () => {
-    const supabase = createMockDB({
-      collection_config: [{ data: VALID_CONFIG, error: null }],
-      nfts: [{ data: null, error: null, count: 0 }],
-    });
     const admin = createMockDB({
+      collection_config: [{ data: VALID_CONFIG, error: null }],
       transactions: [
         { data: null, error: null }, // confirmed idempotency: none
         { data: null, error: { message: "duplicate key value", code: "23505" } }, // lock insert: unique violation
       ],
-      nfts: [{ data: [], error: null }], // mint_signature check: none
+      nfts: [
+        { data: null, error: null, count: 0 }, // per-wallet count
+        { data: [], error: null }, // mint_signature check: none
+      ],
     });
 
     const result = await processClaimMint({
       signature: VALID_SIG,
       walletAddress: WALLET,
       qty: 1,
-      userId: USER_ID,
-      supabase: supabase as never,
       getAdmin: async () => admin as never,
     });
 
@@ -316,17 +299,15 @@ describe("processClaimMint", () => {
     // (a concurrent request grabbed the other). Must roll back and throw.
     mockFetch(rpcSuccess(WALLET, TREASURY, 2_000_000_000));
 
-    const supabase = createMockDB({
-      collection_config: [{ data: { ...VALID_CONFIG, mint_price: 1 }, error: null }],
-      nfts: [{ data: null, error: null, count: 0 }],
-    });
-
     const rollbackSpy = vi.fn().mockReturnValue(makeChain({ data: null, error: null }));
     let txCall = 0;
     let nftCall = 0;
 
     const admin = {
       from: vi.fn().mockImplementation((table: string) => {
+        if (table === "collection_config") {
+          return makeChain({ data: { ...VALID_CONFIG, mint_price: 1 }, error: null });
+        }
         if (table === "transactions") {
           txCall++;
           if (txCall === 1) return makeChain({ data: null, error: null }); // confirmed idempotency: none
@@ -335,10 +316,11 @@ describe("processClaimMint", () => {
         }
         if (table === "nfts") {
           nftCall++;
-          if (nftCall === 1) return makeChain({ data: [], error: null }); // mint_signature: none
-          if (nftCall === 2) return makeChain({ data: [NFT_1, NFT_2], error: null }); // SELECT candidates
-          if (nftCall === 3) return makeChain({ data: [NFT_1], error: null }); // UPDATE: only 1 of 2 claimed
-          if (nftCall === 4) {
+          if (nftCall === 1) return makeChain({ data: null, error: null, count: 0 }); // per-wallet count
+          if (nftCall === 2) return makeChain({ data: [], error: null }); // mint_signature: none
+          if (nftCall === 3) return makeChain({ data: [NFT_1, NFT_2], error: null }); // SELECT candidates
+          if (nftCall === 4) return makeChain({ data: [NFT_1], error: null }); // UPDATE: only 1 of 2 claimed
+          if (nftCall === 5) {
             rollbackSpy();
             return makeChain({ data: null, error: null });
           } // ROLLBACK
@@ -352,8 +334,6 @@ describe("processClaimMint", () => {
         signature: VALID_SIG,
         walletAddress: WALLET,
         qty: 2,
-        userId: USER_ID,
-        supabase: supabase as never,
         getAdmin: async () => admin as never,
       }),
     ).rejects.toThrow(/sold out|concurrent/i);
@@ -366,15 +346,13 @@ describe("processClaimMint", () => {
   it("8. returns alreadyClaimed (with tokens) when nfts.mint_signature shows prior assignment", async () => {
     // No confirmed transaction record (ledger write failed last time),
     // but the NFT has mint_signature set (assignment DID succeed last time).
-    const supabase = createMockDB({
-      collection_config: [{ data: VALID_CONFIG, error: null }],
-      nfts: [{ data: null, error: null, count: 0 }],
-    });
     const admin = createMockDB({
+      collection_config: [{ data: VALID_CONFIG, error: null }],
       transactions: [
         { data: null, error: null }, // confirmed idempotency: none
       ],
       nfts: [
+        { data: null, error: null, count: 0 }, // per-wallet count
         { data: [NFT_1], error: null }, // mint_signature check: NFT_1 already has this sig
       ],
     });
@@ -383,8 +361,6 @@ describe("processClaimMint", () => {
       signature: VALID_SIG,
       walletAddress: WALLET,
       qty: 1,
-      userId: USER_ID,
-      supabase: supabase as never,
       getAdmin: async () => admin as never,
     });
 
@@ -403,16 +379,14 @@ describe("processClaimMint", () => {
   it("9. deletes pending lock and throws when payment is not yet indexed on-chain", async () => {
     mockFetch({ result: null }); // tx not found → "not found on-chain yet"
 
-    const supabase = createMockDB({
-      collection_config: [{ data: VALID_CONFIG, error: null }],
-      nfts: [{ data: null, error: null, count: 0 }],
-    });
-
     const deleteSpy = vi.fn().mockReturnValue(makeChain({ data: null, error: null }));
     let txCall = 0;
 
     const admin = {
       from: vi.fn().mockImplementation((table: string) => {
+        if (table === "collection_config") {
+          return makeChain({ data: VALID_CONFIG, error: null });
+        }
         if (table === "transactions") {
           txCall++;
           if (txCall === 1) return makeChain({ data: null, error: null }); // confirmed idempotency
@@ -422,7 +396,7 @@ describe("processClaimMint", () => {
             return makeChain({ data: null, error: null });
           } // DELETE lock
         }
-        if (table === "nfts") return makeChain({ data: [], error: null }); // mint_signature check
+        if (table === "nfts") return makeChain({ data: [], error: null, count: 0 }); // per-wallet count + mint_signature check
         return makeChain({ data: null, error: null });
       }),
     };
@@ -432,8 +406,6 @@ describe("processClaimMint", () => {
         signature: VALID_SIG,
         walletAddress: WALLET,
         qty: 1,
-        userId: USER_ID,
-        supabase: supabase as never,
         getAdmin: async () => admin as never,
       }),
     ).rejects.toThrow(/not found on-chain yet/i);
@@ -487,20 +459,19 @@ describe("verifyPaymentOnChain", () => {
 // ─── processPreflight ─────────────────────────────────────────────────────────
 
 describe("processPreflight", () => {
-  const base = { walletAddress: WALLET, qty: 1, userId: USER_ID };
+  const base = { walletAddress: WALLET, qty: 1 };
 
   it("14. resolves with mint params when all conditions are met", async () => {
-    const supabase = createMockDB({
-      collection_config: [{ data: VALID_CONFIG, error: null }],
-      nfts: [{ data: null, error: null, count: 0 }], // per-wallet = 0
-    });
     const admin = createMockDB({
-      nfts: [{ data: null, error: null, count: 10 }], // 10 available
+      collection_config: [{ data: VALID_CONFIG, error: null }],
+      nfts: [
+        { data: null, error: null, count: 0 }, // per-wallet = 0
+        { data: null, error: null, count: 10 }, // 10 available
+      ],
     });
 
     const result = await processPreflight({
       ...base,
-      supabase: supabase as never,
       getAdmin: async () => admin as never,
     });
 
@@ -514,7 +485,6 @@ describe("processPreflight", () => {
     await expect(
       processPreflight({
         ...base,
-        supabase: createMockDB({}) as never,
         getAdmin: async () => {
           throw new Error(
             "Mint system not operational — administrator must configure: SUPABASE_SERVICE_ROLE_KEY.",
@@ -525,18 +495,17 @@ describe("processPreflight", () => {
   });
 
   it("16. throws when collection is sold out", async () => {
-    const supabase = createMockDB({
-      collection_config: [{ data: VALID_CONFIG, error: null }],
-      nfts: [{ data: null, error: null, count: 0 }],
-    });
     const admin = createMockDB({
-      nfts: [{ data: null, error: null, count: 0 }], // 0 available
+      collection_config: [{ data: VALID_CONFIG, error: null }],
+      nfts: [
+        { data: null, error: null, count: 0 }, // per-wallet = 0
+        { data: null, error: null, count: 0 }, // 0 available
+      ],
     });
 
     await expect(
       processPreflight({
         ...base,
-        supabase: supabase as never,
         getAdmin: async () => admin as never,
       }),
     ).rejects.toThrow(/sold out/i);
