@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as StakingRouteImport } from './routes/staking'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as MyNftsRouteImport } from './routes/my-nfts'
 import { Route as MintRouteImport } from './routes/mint'
@@ -19,6 +20,11 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 
+const StakingRoute = StakingRouteImport.update({
+  id: '/staking',
+  path: '/staking',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
@@ -75,6 +81,7 @@ export interface FileRoutesByFullPath {
   '/mint': typeof MintRoute
   '/my-nfts': typeof MyNftsRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/staking': typeof StakingRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -86,6 +93,7 @@ export interface FileRoutesByTo {
   '/mint': typeof MintRoute
   '/my-nfts': typeof MyNftsRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/staking': typeof StakingRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -98,6 +106,7 @@ export interface FileRoutesById {
   '/mint': typeof MintRoute
   '/my-nfts': typeof MyNftsRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/staking': typeof StakingRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -111,6 +120,7 @@ export interface FileRouteTypes {
     | '/mint'
     | '/my-nfts'
     | '/sitemap.xml'
+    | '/staking'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -122,6 +132,7 @@ export interface FileRouteTypes {
     | '/mint'
     | '/my-nfts'
     | '/sitemap.xml'
+    | '/staking'
   id:
     | '__root__'
     | '/'
@@ -133,6 +144,7 @@ export interface FileRouteTypes {
     | '/mint'
     | '/my-nfts'
     | '/sitemap.xml'
+    | '/staking'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -145,10 +157,18 @@ export interface RootRouteChildren {
   MintRoute: typeof MintRoute
   MyNftsRoute: typeof MyNftsRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  StakingRoute: typeof StakingRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/staking': {
+      id: '/staking'
+      path: '/staking'
+      fullPath: '/staking'
+      preLoaderRoute: typeof StakingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/sitemap.xml': {
       id: '/sitemap.xml'
       path: '/sitemap.xml'
@@ -225,6 +245,7 @@ const rootRouteChildren: RootRouteChildren = {
   MintRoute: MintRoute,
   MyNftsRoute: MyNftsRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  StakingRoute: StakingRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -420,6 +420,83 @@ export type Database = {
         };
         Relationships: [];
       };
+      staking_config: {
+        Row: {
+          daily_rate: number;
+          display_name: string;
+          is_active: boolean;
+          reward_token: Database["public"]["Enums"]["reward_token"];
+          updated_at: string;
+        };
+        Insert: {
+          daily_rate: number;
+          display_name: string;
+          is_active?: boolean;
+          reward_token: Database["public"]["Enums"]["reward_token"];
+          updated_at?: string;
+        };
+        Update: {
+          daily_rate?: number;
+          display_name?: string;
+          is_active?: boolean;
+          reward_token?: Database["public"]["Enums"]["reward_token"];
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      staking_positions: {
+        Row: {
+          claimed_at: string | null;
+          created_at: string;
+          id: string;
+          multiplier: number;
+          nft_id: string;
+          owner_wallet: string;
+          period_days: number;
+          reward_amount: number | null;
+          reward_token: Database["public"]["Enums"]["reward_token"];
+          staked_at: string;
+          status: Database["public"]["Enums"]["stake_status"];
+          unlock_at: string;
+        };
+        Insert: {
+          claimed_at?: string | null;
+          created_at?: string;
+          id?: string;
+          multiplier: number;
+          nft_id: string;
+          owner_wallet: string;
+          period_days: number;
+          reward_amount?: number | null;
+          reward_token: Database["public"]["Enums"]["reward_token"];
+          staked_at?: string;
+          status?: Database["public"]["Enums"]["stake_status"];
+          unlock_at: string;
+        };
+        Update: {
+          claimed_at?: string | null;
+          created_at?: string;
+          id?: string;
+          multiplier?: number;
+          nft_id?: string;
+          owner_wallet?: string;
+          period_days?: number;
+          reward_amount?: number | null;
+          reward_token?: Database["public"]["Enums"]["reward_token"];
+          staked_at?: string;
+          status?: Database["public"]["Enums"]["stake_status"];
+          unlock_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "staking_positions_nft_id_fkey";
+            columns: ["nft_id"];
+            isOneToOne: false;
+            referencedRelation: "nfts";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
     };
     Views: {
       [_ in never]: never;
@@ -447,7 +524,9 @@ export type Database = {
       listing_status: "active" | "sold" | "cancelled";
       nft_rarity: "legendary" | "elite" | "rare" | "uncommon" | "common";
       nft_status: "available" | "reserved" | "minted";
+      reward_token: "x1brains" | "africa" | "xnt";
       sale_status: "pending" | "confirmed" | "failed";
+      stake_status: "active" | "claimed";
       tx_status: "pending" | "confirmed" | "failed";
       tx_type: "mint" | "transfer" | "reveal";
     };
@@ -575,7 +654,9 @@ export const Constants = {
       listing_status: ["active", "sold", "cancelled"],
       nft_rarity: ["legendary", "elite", "rare", "uncommon", "common"],
       nft_status: ["available", "reserved", "minted"],
+      reward_token: ["x1brains", "africa", "xnt"],
       sale_status: ["pending", "confirmed", "failed"],
+      stake_status: ["active", "claimed"],
       tx_status: ["pending", "confirmed", "failed"],
       tx_type: ["mint", "transfer", "reveal"],
     },

@@ -55,6 +55,8 @@
   --gradient-cyber: linear-gradient(135deg, #2d7ff9 0%, #00e5ff 100%);
   --gradient-gold: linear-gradient(135deg, #d4af37 0%, #ffd700 55%, #ffe566 100%);
   --gradient-staking: linear-gradient(120deg, #ffffff 0%, #ffe566 32%, #ffd700 50%, #00e5ff 78%, #2d7ff9 100%);
+  --gradient-barbie: linear-gradient(120deg, #ff8fd8 0%, #ff4fb8 45%, #e0218a 100%);
+  --shadow-glow-barbie: 0 0 18px color-mix(in oklab, #ff4fb8 55%, transparent);
   --shadow-glow-staking: 0 0 18px color-mix(in oklab, #ffd700 45%, transparent),
     0 0 30px color-mix(in oklab, #00e5ff 35%, transparent);
 }
@@ -163,6 +165,10 @@
 }
 @utility btn-staking {
   background-image: var(--gradient-staking);
+  background-size: 200% 200%;
+}
+@utility btn-barbie {
+  background-image: var(--gradient-barbie);
   background-size: 200% 200%;
 }
 

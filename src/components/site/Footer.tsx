@@ -59,6 +59,11 @@ export function Footer() {
                   My NFTs
                 </Link>
               </li>
+              <li>
+                <Link to="/staking" className="hover:text-african-gold">
+                  Staking
+                </Link>
+              </li>
             </ul>
           </div>
           <div className="md:col-span-4">

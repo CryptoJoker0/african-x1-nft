@@ -3,13 +3,6 @@ import { useState } from "react";
 import { Menu, X } from "lucide-react";
 import { Logo } from "./Logo";
 import { WalletButton } from "./WalletButton";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from "@/components/ui/dialog";
 
 const nav = [
   { to: "/", label: "Home", num: "01" },
@@ -17,12 +10,12 @@ const nav = [
   { to: "/mint", label: "Mint", num: "03" },
   { to: "/marketplace", label: "Market", num: "04" },
   { to: "/my-nfts", label: "My NFTs", num: "05" },
+  { to: "/staking", label: "Staking", num: "06" },
 ] as const;
 
 export function Header() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const [open, setOpen] = useState(false);
-  const [stakingOpen, setStakingOpen] = useState(false);
   return (
     <header className="sticky top-0 z-40 border-b border-white/10 backdrop-blur-xl bg-background/70">
       <div className="mx-auto flex max-w-[1400px] items-center justify-between gap-6 px-6 py-4 sm:px-10">
@@ -48,18 +41,15 @@ export function Header() {
           })}
         </nav>
         <div className="flex items-center gap-3">
-          <button
-            onClick={() => setStakingOpen(true)}
+          <Link
+            to="/staking"
             className="btn-staking group relative hidden shrink-0 items-center gap-2 overflow-hidden whitespace-nowrap rounded-full bg-[position:0%_50%] px-4 py-2 text-sm font-semibold text-ink transition-[background-position,filter] duration-500 hover:bg-[position:100%_50%] hover:brightness-110 md:inline-flex"
             style={{ boxShadow: "var(--shadow-glow-staking)" }}
           >
             <span className="text-base leading-none">🌍</span>
             <span className="tracking-tight">Africa Staking</span>
-            <span className="shrink-0 rounded-full bg-ink/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest">
-              Soon
-            </span>
             <span className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/50 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
-          </button>
+          </Link>
           <div className="hidden md:block">
             <WalletButton />
           </div>
@@ -87,34 +77,21 @@ export function Header() {
                 <span className="font-display text-xl">{n.label}</span>
               </Link>
             ))}
-            <button
-              onClick={() => {
-                setOpen(false);
-                setStakingOpen(true);
-              }}
+            <Link
+              to="/staking"
+              onClick={() => setOpen(false)}
               className="btn-staking mt-1 flex items-center justify-center gap-2 rounded-sm px-3 py-2.5 text-left font-semibold text-ink"
               style={{ boxShadow: "var(--shadow-glow-staking)" }}
             >
               <span className="text-base leading-none">🌍</span>
               <span>Africa Staking</span>
-              <span className="rounded-full bg-ink/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest">
-                Soon
-              </span>
-            </button>
+            </Link>
             <div className="pt-2">
               <WalletButton />
             </div>
           </div>
         </div>
       )}
-      <Dialog open={stakingOpen} onOpenChange={setStakingOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>🌍 Africa Staking</DialogTitle>
-            <DialogDescription>Africa Staking coming soon.</DialogDescription>
-          </DialogHeader>
-        </DialogContent>
-      </Dialog>
     </header>
   );
 }
