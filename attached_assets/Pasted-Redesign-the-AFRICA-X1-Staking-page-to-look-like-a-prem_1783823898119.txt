@@ -1,0 +1,138 @@
+Redesign the AFRICA X1 Staking page to look like a premium production Web3 staking platform. Keep the existing AFRICA X1 branding, colors, and navigation, but completely improve the staking user experience.
+
+Do not ask users to connect their wallet immediately. The staking flow should be:
+
+Step 1 – Welcome
+
+Display a premium hero section introducing AFRICA X1 Genesis Staking.
+
+Show:
+
+- Stake your Genesis NFT
+- Earn rewards
+- Only 50 Genesis NFTs exist
+- Secure staking powered by X1 Blockchain
+
+Step 2 – NFT Verification
+
+Explain that only AFRICA X1 Genesis NFTs are eligible for staking.
+
+When a wallet is connected later, automatically verify NFT ownership.
+
+If no NFT is found, display:
+"No AFRICA X1 Genesis NFT detected in this wallet."
+
+Step 3 – Select Reward
+
+Allow the user to choose only one reward token.
+
+Options:
+
+- X1Brains
+- AFRICA Token (AF)
+
+If the NFT is Legendary, unlock a third option:
+
+- XNT (Legendary Exclusive)
+
+All other rarities must not be able to choose XNT.
+
+Display a premium gold badge:
+
+"Legendary NFT holders unlock exclusive XNT rewards."
+
+Step 4 – Select Lock Period
+
+Allow the user to choose only one staking duration:
+
+- 30 Days
+- 60 Days
+- 90 Days
+
+Display each option as a premium card.
+
+Show:
+
+- Lock period
+- Reward multiplier
+- Estimated rewards
+- Unlock date
+
+Step 5 – Connect Wallet
+
+Only after the user has selected a reward and staking duration should the Connect Wallet button appear.
+
+Support:
+
+- X1 Wallet
+- Backpack
+
+After connecting:
+
+- Verify wallet ownership
+- Verify Genesis NFT ownership
+- Verify reward eligibility
+
+Step 6 – Review
+
+Display a confirmation summary:
+
+NFT Selected
+
+Reward Token
+
+Lock Period
+
+Estimated Rewards
+
+Unlock Date
+
+Wallet Address
+
+Status: Ready to Stake
+
+Display one large premium button:
+
+STAKE NFT
+
+Active Staking Dashboard
+
+After staking, show:
+
+- NFTs Staked
+- Pending Rewards
+- Reward Token
+- Days Remaining
+- Unlock Date
+- Claim Rewards button
+
+Status colors:
+
+🟡 Yellow = Pending
+
+🟢 Green = Active
+
+🔴 Red = Unlocked / Ready to Claim
+
+Design Requirements
+
+Keep the page simple, elegant, and premium.
+
+Use:
+
+- Black background
+- Gold accents
+- Dark blue glow
+- Glassmorphism cards
+- Smooth animations
+- Rounded corners
+- Professional spacing
+- Mobile responsive
+
+Keep the AFRICA X1 theme throughout the page.
+
+Add a premium pink button in the header:
+
+BUY AF ON BARBIE
+
+Do not modify the NFT minting system, collection, marketplace, or wallet logic. Build the staking page as a separate production-ready module that integrates with the existing website.
