@@ -1,6 +1,6 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { useState } from "react";
-import { Menu, X } from "lucide-react";
+import { ExternalLink, Menu, Sparkles, X } from "lucide-react";
 import { Logo } from "./Logo";
 import { WalletButton } from "./WalletButton";
 
@@ -50,6 +50,20 @@ export function Header() {
             <span className="tracking-tight">Africa Staking</span>
             <span className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/50 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
           </Link>
+          <a
+            href="https://barbie.market"
+            target="_blank"
+            rel="noreferrer"
+            title="Buy AF on Barbie"
+            className="btn-barbie group relative hidden shrink-0 items-center gap-1.5 overflow-hidden whitespace-nowrap rounded-full bg-[position:0%_50%] px-3 py-2 text-sm font-bold uppercase tracking-wide text-white transition-[background-position,filter] duration-500 hover:bg-[position:100%_50%] hover:brightness-110 md:inline-flex 2xl:px-4"
+            style={{ boxShadow: "var(--shadow-glow-barbie)" }}
+          >
+            <Sparkles size={13} />
+            <span className="hidden 2xl:inline">Buy AF on Barbie</span>
+            <span className="2xl:hidden">AF</span>
+            <ExternalLink size={12} />
+            <span className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/50 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
+          </a>
           <div className="hidden md:block">
             <WalletButton />
           </div>
@@ -86,6 +100,17 @@ export function Header() {
               <span className="text-base leading-none">🌍</span>
               <span>Africa Staking</span>
             </Link>
+            <a
+              href="https://barbie.market"
+              target="_blank"
+              rel="noreferrer"
+              className="btn-barbie mt-1 flex items-center justify-center gap-1.5 rounded-sm px-3 py-2.5 text-sm font-bold uppercase tracking-wide text-white"
+              style={{ boxShadow: "var(--shadow-glow-barbie)" }}
+            >
+              <Sparkles size={14} />
+              Buy AF on Barbie
+              <ExternalLink size={13} />
+            </a>
             <div className="pt-2">
               <WalletButton />
             </div>
