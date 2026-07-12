@@ -40,8 +40,10 @@ Already set in `.replit` (userenv/shared), pointing at the production Supabase p
 - `SUPABASE_PUBLISHABLE_KEY` — Supabase anon/public key
 - `VITE_SUPABASE_URL` / `VITE_SUPABASE_PUBLISHABLE_KEY` — client-side variants
 
-**Secrets required (set in Replit Secrets):**
-- `SUPABASE_SERVICE_ROLE_KEY` — **Required for minting.** Bypasses RLS for NFT assignment. Must belong to the same project as `SUPABASE_URL` above (`loerakigzqdromadabnm`). Get from Supabase Dashboard → Settings → API.
+There is no `.env` file in this project — do not recreate one. A stale `.env` pointing at an old Supabase project (`yftokrdaluslbvvixukh`) was removed during setup; all Supabase config now comes solely from `.replit`'s `userenv.shared`, avoiding the two-project split warned about above.
+
+**Secrets (Replit Secrets):**
+- `SUPABASE_SERVICE_ROLE_KEY` — **Required for minting.** Bypasses RLS for NFT assignment. Belongs to the same project as `SUPABASE_URL` above (`loerakigzqdromadabnm`). Already configured.
 
 > Note: an earlier Supabase project (`yftokrdaluslbvvixukh`) was used during initial setup but is no longer wired up. All env vars and secrets must reference `loerakigzqdromadabnm` consistently — never split URL/keys across two projects.
 

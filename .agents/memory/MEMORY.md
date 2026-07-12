@@ -3,3 +3,4 @@
 - [Solana SSR stub](solana-ssr.md) — @solana/web3.js aliased to empty stub in SSR env; mint tx uses createIsomorphicFn().client() so it only runs in browser.
 - [Node.js 22 required](node22-required.md) — TanStack Start requires Node ≥ 22.12.0; Bus error on Node 20. Use installProgrammingLanguage({ language: "nodejs-22" }) then full clean reinstall (rm -rf node_modules package-lock.json && npm install) to rebuild native bindings (Rollup).
 - [Mint wallet-only identity model](mint-wallet-identity.md) — no sign-in required to mint; wallet + on-chain payment verification is the trust boundary; admin client used for all DB ops.
+- [Supabase env var source of truth](env-source-of-truth.md) — .replit userenv.shared is authoritative; a stale committed .env can reintroduce a wrong Supabase project on re-import.
