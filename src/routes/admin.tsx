@@ -1,9 +1,10 @@
-import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/use-auth";
 import { toast } from "sonner";
+import { NotFoundComponent } from "@/routes/__root";
 import {
   Pause,
   Play,
@@ -11,7 +12,6 @@ import {
   Settings,
   Users,
   Activity,
-  ShieldAlert,
   Sliders,
   ScrollText,
   Upload,
@@ -49,7 +49,6 @@ type Section =
 
 function AdminPage() {
   const { user, loading } = useAuth();
-  const navigate = useNavigate();
   const qc = useQueryClient();
   const [section, setSection] = useState<Section>("overview");
 
@@ -67,10 +66,6 @@ function AdminPage() {
     },
   });
   const isAdmin = !!roleRow;
-
-  useEffect(() => {
-    if (!loading && !user) navigate({ to: "/auth" });
-  }, [loading, user, navigate]);
 
   const { data: config } = useQuery({
     enabled: isAdmin,
@@ -125,31 +120,23 @@ function AdminPage() {
     },
   });
 
+  // Not signed in: no route exists as far as the visitor is concerned.
+  if (!loading && !user) {
+    return <NotFoundComponent />;
+  }
+
+  // Signed in but still resolving role: brief neutral loading, no reveal either way.
   if (loading || roleLoading || !user) {
     return (
       <div className="mx-auto max-w-3xl px-4 py-20 text-center text-muted-foreground">
-        Verifying admin access…
+        Loading…
       </div>
     );
   }
 
+  // Signed in, confirmed not an admin: still no route exists as far as they're concerned.
   if (!isAdmin) {
-    return (
-      <div className="mx-auto max-w-md px-4 py-20 text-center">
-        <ShieldAlert size={40} className="mx-auto text-destructive" />
-        <h1 className="mt-4 font-display text-3xl">Restricted area</h1>
-        <p className="mt-3 text-sm text-muted-foreground">
-          Your account doesn&apos;t have admin privileges. Ask a collection admin to grant your
-          account the <span className="font-mono text-african-gold">admin</span> role.
-        </p>
-        <Link
-          to="/dashboard"
-          className="mt-6 inline-flex rounded-sm border border-white/15 px-4 py-2 text-sm"
-        >
-          Back to dashboard
-        </Link>
-      </div>
-    );
+    return <NotFoundComponent />;
   }
 
   async function updateConfig(patch: Record<string, unknown>) {
