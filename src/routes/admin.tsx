@@ -19,6 +19,12 @@ import {
   FileJson,
   ExternalLink,
   Loader2,
+  Store,
+  Check,
+  X,
+  ShieldCheck,
+  Star,
+  BadgeDollarSign,
 } from "lucide-react";
 
 export const Route = createFileRoute("/admin")({
@@ -32,7 +38,14 @@ export const Route = createFileRoute("/admin")({
 });
 
 type Section =
-  "overview" | "controls" | "config" | "whitelist" | "uploads" | "transactions" | "minted";
+  | "overview"
+  | "controls"
+  | "config"
+  | "whitelist"
+  | "uploads"
+  | "transactions"
+  | "minted"
+  | "marketplace";
 
 function AdminPage() {
   const { user, loading } = useAuth();
@@ -157,6 +170,7 @@ function AdminPage() {
     { id: "uploads", label: "Upload", num: "05", icon: <Upload size={14} /> },
     { id: "transactions", label: "Transactions", num: "06", icon: <ScrollText size={14} /> },
     { id: "minted", label: "Minted NFTs", num: "07", icon: <ImageIcon size={14} /> },
+    { id: "marketplace", label: "Marketplace", num: "08", icon: <Store size={14} /> },
   ];
 
   return (
@@ -263,6 +277,7 @@ function AdminPage() {
           )}
           {section === "transactions" && <TransactionsPanel />}
           {section === "minted" && <MintedPanel />}
+          {section === "marketplace" && <MarketplacePanel requesterId={user.id} />}
         </main>
       </div>
     </div>
@@ -1089,6 +1104,420 @@ function MintedPanel() {
           )}
         </>
       )}
+    </div>
+  );
+}
+
+/* ── Marketplace Panel ── */
+
+type MarketSubTab = "applications" | "listings" | "collections" | "revenue";
+
+function MarketplacePanel({ requesterId }: { requesterId: string }) {
+  const [sub, setSub] = useState<MarketSubTab>("applications");
+  const qc = useQueryClient();
+
+  const subTabs: { id: MarketSubTab; label: string }[] = [
+    { id: "applications", label: "Applications" },
+    { id: "listings", label: "Listings" },
+    { id: "collections", label: "Collections" },
+    { id: "revenue", label: "Revenue" },
+  ];
+
+  function invalidate() {
+    qc.invalidateQueries({ queryKey: ["admin-applications"] });
+    qc.invalidateQueries({ queryKey: ["admin-listings"] });
+    qc.invalidateQueries({ queryKey: ["admin-collections"] });
+  }
+
+  return (
+    <div>
+      <PanelHeader n="08" kicker="Section" title="Marketplace" />
+      <div className="mb-8 flex flex-wrap gap-2">
+        {subTabs.map((t) => (
+          <button
+            key={t.id}
+            onClick={() => setSub(t.id)}
+            className={`rounded-full border px-4 py-1.5 text-xs font-medium transition ${
+              sub === t.id
+                ? "border-african-gold/60 bg-african-gold/10 text-african-gold"
+                : "border-white/10 text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            {t.label}
+          </button>
+        ))}
+      </div>
+
+      {sub === "applications" && (
+        <ApplicationsAdmin requesterId={requesterId} onChange={invalidate} />
+      )}
+      {sub === "listings" && <ListingsAdmin requesterId={requesterId} onChange={invalidate} />}
+      {sub === "collections" && (
+        <CollectionsAdmin requesterId={requesterId} onChange={invalidate} />
+      )}
+      {sub === "revenue" && <RevenueAdmin />}
+    </div>
+  );
+}
+
+function ApplicationsAdmin({
+  requesterId,
+  onChange,
+}: {
+  requesterId: string;
+  onChange: () => void;
+}) {
+  const { data: apps = [], refetch } = useQuery({
+    queryKey: ["admin-applications"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("collection_applications")
+        .select("*")
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return data;
+    },
+  });
+  const [busyId, setBusyId] = useState<string | null>(null);
+
+  async function approve(id: string) {
+    setBusyId(id);
+    try {
+      const { adminApproveApplication } = await import("@/lib/marketplace.functions");
+      await adminApproveApplication({ data: { requesterId, applicationId: id } });
+      toast.success("Application approved — collection is now live");
+      refetch();
+      onChange();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Failed to approve");
+    } finally {
+      setBusyId(null);
+    }
+  }
+
+  async function reject(id: string) {
+    setBusyId(id);
+    try {
+      const { adminRejectApplication } = await import("@/lib/marketplace.functions");
+      await adminRejectApplication({ data: { requesterId, applicationId: id } });
+      toast.success("Application rejected");
+      refetch();
+      onChange();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Failed to reject");
+    } finally {
+      setBusyId(null);
+    }
+  }
+
+  const pending = apps.filter((a) => a.status === "pending");
+  const reviewed = apps.filter((a) => a.status !== "pending");
+
+  return (
+    <div>
+      <div className="label-xs mb-3">Pending review · {pending.length}</div>
+      {pending.length === 0 ? (
+        <div className="border border-white/10 p-6 text-sm text-muted-foreground">
+          No pending applications.
+        </div>
+      ) : (
+        <div className="divide-y divide-white/10 border-y border-white/10">
+          {pending.map((a) => (
+            <div key={a.id} className="flex flex-col gap-3 py-5 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <div className="font-display text-xl">{a.collection_name}</div>
+                <div className="text-sm text-muted-foreground">by {a.project_name}</div>
+                <div className="mt-1 font-mono text-[11px] text-muted-foreground">
+                  {a.creator_wallet}
+                </div>
+                {a.website && (
+                  <a
+                    href={a.website}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="mt-1 inline-flex items-center gap-1 text-[11px] text-cyber-cyan hover:underline"
+                  >
+                    Website <ExternalLink size={10} />
+                  </a>
+                )}
+              </div>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => approve(a.id)}
+                  disabled={busyId === a.id}
+                  className="inline-flex items-center gap-1 rounded-sm border border-cyber-cyan/40 bg-cyber-cyan/10 px-3 py-2 text-xs font-semibold text-cyber-cyan hover:bg-cyber-cyan/20 disabled:opacity-50"
+                >
+                  <Check size={12} /> Approve
+                </button>
+                <button
+                  onClick={() => reject(a.id)}
+                  disabled={busyId === a.id}
+                  className="inline-flex items-center gap-1 rounded-sm border border-destructive/40 bg-destructive/10 px-3 py-2 text-xs font-semibold text-destructive hover:bg-destructive/20 disabled:opacity-50"
+                >
+                  <X size={12} /> Reject
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <div className="label-xs mb-3 mt-10">History</div>
+      {reviewed.length === 0 ? (
+        <div className="text-sm text-muted-foreground">No reviewed applications yet.</div>
+      ) : (
+        <div className="space-y-2">
+          {reviewed.map((a) => (
+            <div key={a.id} className="flex items-center justify-between border-b border-white/5 py-2 text-sm">
+              <span>{a.collection_name}</span>
+              <span
+                className={`serif-italic ${a.status === "approved" ? "text-cyber-cyan" : "text-destructive"}`}
+              >
+                {a.status}
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ListingsAdmin({ requesterId, onChange }: { requesterId: string; onChange: () => void }) {
+  const { data: listings = [], refetch } = useQuery({
+    queryKey: ["admin-listings"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("listings")
+        .select("*, nfts(name, token_id, image_url)")
+        .order("created_at", { ascending: false })
+        .limit(100);
+      if (error) throw error;
+      return data;
+    },
+  });
+  const [busyId, setBusyId] = useState<string | null>(null);
+
+  async function toggle(id: string, remove: boolean) {
+    setBusyId(id);
+    try {
+      const { adminRemoveListing, adminRestoreListing } = await import("@/lib/marketplace.functions");
+      if (remove) await adminRemoveListing({ data: { requesterId, listingId: id } });
+      else await adminRestoreListing({ data: { requesterId, listingId: id } });
+      toast.success(remove ? "Listing removed" : "Listing restored");
+      refetch();
+      onChange();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Action failed");
+    } finally {
+      setBusyId(null);
+    }
+  }
+
+  return (
+    <div className="divide-y divide-white/10 border-y border-white/10">
+      {listings.length === 0 ? (
+        <div className="py-6 text-sm text-muted-foreground">No listings yet.</div>
+      ) : (
+        listings.map((l) => (
+          <div key={l.id} className="flex items-center justify-between gap-4 py-4">
+            <div className="flex items-center gap-3">
+              <img
+                src={l.nfts?.image_url || "/pre-reveal.jpg"}
+                alt=""
+                className="h-10 w-10 rounded-lg object-cover"
+              />
+              <div>
+                <div className="text-sm font-medium">{l.nfts?.name}</div>
+                <div className="font-mono text-xs text-muted-foreground">{l.price} XNT</div>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <span
+                className={`serif-italic text-xs ${
+                  l.status === "active"
+                    ? "text-cyber-cyan"
+                    : l.status === "removed"
+                      ? "text-destructive"
+                      : "text-muted-foreground"
+                }`}
+              >
+                {l.status}
+              </span>
+              {l.status === "active" ? (
+                <button
+                  onClick={() => toggle(l.id, true)}
+                  disabled={busyId === l.id}
+                  className="rounded-sm border border-destructive/40 px-3 py-1.5 text-xs text-destructive hover:bg-destructive/10 disabled:opacity-50"
+                >
+                  Remove
+                </button>
+              ) : (
+                (l.status === "removed" || l.status === "cancelled") && (
+                  <button
+                    onClick={() => toggle(l.id, false)}
+                    disabled={busyId === l.id}
+                    className="rounded-sm border border-cyber-cyan/40 px-3 py-1.5 text-xs text-cyber-cyan hover:bg-cyber-cyan/10 disabled:opacity-50"
+                  >
+                    Restore
+                  </button>
+                )
+              )}
+            </div>
+          </div>
+        ))
+      )}
+    </div>
+  );
+}
+
+function CollectionsAdmin({ requesterId, onChange }: { requesterId: string; onChange: () => void }) {
+  const { data: collections = [], refetch } = useQuery({
+    queryKey: ["admin-collections"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("collections")
+        .select("*")
+        .order("is_official", { ascending: false });
+      if (error) throw error;
+      return data;
+    },
+  });
+  const [busyId, setBusyId] = useState<string | null>(null);
+
+  async function setFlags(id: string, patch: Record<string, unknown>) {
+    setBusyId(id);
+    try {
+      const { adminSetCollectionFlags } = await import("@/lib/marketplace.functions");
+      await adminSetCollectionFlags({ data: { requesterId, collectionId: id, ...patch } });
+      toast.success("Collection updated");
+      refetch();
+      onChange();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Update failed");
+    } finally {
+      setBusyId(null);
+    }
+  }
+
+  return (
+    <div className="divide-y divide-white/10 border-y border-white/10">
+      {collections.map((c) => (
+        <div key={c.id} className="flex flex-col gap-3 py-5 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="font-display text-lg">{c.collection_name}</span>
+              {c.is_official && (
+                <span className="rounded-full bg-african-gold/15 px-2 py-0.5 text-[10px] uppercase tracking-widest text-african-gold">
+                  Official
+                </span>
+              )}
+              <span
+                className={`serif-italic text-xs ${c.status === "active" ? "text-cyber-cyan" : "text-destructive"}`}
+              >
+                {c.status}
+              </span>
+            </div>
+            <div className="text-xs text-muted-foreground">by {c.project_name}</div>
+          </div>
+          {!c.is_official && (
+            <div className="flex gap-2">
+              <button
+                onClick={() => setFlags(c.id, { verified: !c.verified })}
+                disabled={busyId === c.id}
+                className={`inline-flex items-center gap-1 rounded-sm border px-3 py-1.5 text-xs disabled:opacity-50 ${
+                  c.verified
+                    ? "border-cyber-cyan/50 bg-cyber-cyan/10 text-cyber-cyan"
+                    : "border-white/15 text-muted-foreground"
+                }`}
+              >
+                <ShieldCheck size={12} /> {c.verified ? "Verified" : "Verify"}
+              </button>
+              <button
+                onClick={() => setFlags(c.id, { featured: !c.featured })}
+                disabled={busyId === c.id}
+                className={`inline-flex items-center gap-1 rounded-sm border px-3 py-1.5 text-xs disabled:opacity-50 ${
+                  c.featured
+                    ? "border-african-gold/50 bg-african-gold/10 text-african-gold"
+                    : "border-white/15 text-muted-foreground"
+                }`}
+              >
+                <Star size={12} /> {c.featured ? "Featured" : "Feature"}
+              </button>
+              <button
+                onClick={() =>
+                  setFlags(c.id, { status: c.status === "active" ? "suspended" : "active" })
+                }
+                disabled={busyId === c.id}
+                className={`rounded-sm border px-3 py-1.5 text-xs disabled:opacity-50 ${
+                  c.status === "active"
+                    ? "border-destructive/40 text-destructive hover:bg-destructive/10"
+                    : "border-cyber-cyan/40 text-cyber-cyan hover:bg-cyber-cyan/10"
+                }`}
+              >
+                {c.status === "active" ? "Suspend" : "Reinstate"}
+              </button>
+            </div>
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function RevenueAdmin() {
+  const { data } = useQuery({
+    queryKey: ["admin-revenue"],
+    queryFn: async () => {
+      const [sales, apps] = await Promise.all([
+        supabase.from("sales").select("price, platform_fee_amount").eq("status", "confirmed"),
+        supabase
+          .from("collection_applications")
+          .select("listing_fee_amount")
+          .eq("status", "approved"),
+      ]);
+      const salesRows = sales.data ?? [];
+      const appRows = apps.data ?? [];
+      const totalVolume = salesRows.reduce((s, r) => s + Number(r.price), 0);
+      const saleFees = salesRows.reduce((s, r) => s + Number(r.platform_fee_amount), 0);
+      const appFees = appRows.reduce((s, r) => s + Number(r.listing_fee_amount ?? 0), 0);
+      return {
+        totalVolume,
+        saleFees,
+        appFees,
+        totalRevenue: saleFees + appFees,
+        salesCount: salesRows.length,
+      };
+    },
+  });
+
+  return (
+    <div className="grid gap-6 sm:grid-cols-2">
+      <div className="border border-white/10 p-6">
+        <div className="label-xs flex items-center gap-2">
+          <BadgeDollarSign size={12} /> Total sales volume
+        </div>
+        <div className="mt-3 font-display text-4xl text-african-gold">
+          {(data?.totalVolume ?? 0).toFixed(3)} XNT
+        </div>
+        <div className="mt-1 text-xs text-muted-foreground">{data?.salesCount ?? 0} confirmed sales</div>
+      </div>
+      <div className="border border-white/10 p-6">
+        <div className="label-xs">Platform fee revenue</div>
+        <div className="mt-3 font-display text-4xl">{(data?.saleFees ?? 0).toFixed(3)} XNT</div>
+        <div className="mt-1 text-xs text-muted-foreground">3% of settled sales</div>
+      </div>
+      <div className="border border-white/10 p-6">
+        <div className="label-xs">Application fee revenue</div>
+        <div className="mt-3 font-display text-4xl">{(data?.appFees ?? 0).toFixed(3)} XNT</div>
+        <div className="mt-1 text-xs text-muted-foreground">Approved community listings</div>
+      </div>
+      <div className="border border-african-gold/30 bg-african-gold/5 p-6">
+        <div className="label-xs text-african-gold">Total marketplace revenue</div>
+        <div className="mt-3 font-display text-4xl text-african-gold">
+          {(data?.totalRevenue ?? 0).toFixed(3)} XNT
+        </div>
+      </div>
     </div>
   );
 }

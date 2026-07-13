@@ -43,6 +43,7 @@ export type Database = {
           collection_name: string;
           fee_wallet: string | null;
           id: number;
+          listing_application_fee_xnt: number;
           marketplace_enabled: boolean;
           max_per_wallet: number;
           max_supply: number;
@@ -52,7 +53,6 @@ export type Database = {
           pre_reveal_image_url: string | null;
           program_id: string | null;
           revealed: boolean;
-          royalty_bps: number;
           rpc_url: string;
           symbol: string;
           treasury_wallet: string | null;
@@ -63,6 +63,7 @@ export type Database = {
           collection_name?: string;
           fee_wallet?: string | null;
           id?: number;
+          listing_application_fee_xnt?: number;
           marketplace_enabled?: boolean;
           max_per_wallet?: number;
           max_supply?: number;
@@ -72,7 +73,6 @@ export type Database = {
           pre_reveal_image_url?: string | null;
           program_id?: string | null;
           revealed?: boolean;
-          royalty_bps?: number;
           rpc_url?: string;
           symbol?: string;
           treasury_wallet?: string | null;
@@ -83,6 +83,7 @@ export type Database = {
           collection_name?: string;
           fee_wallet?: string | null;
           id?: number;
+          listing_application_fee_xnt?: number;
           marketplace_enabled?: boolean;
           max_per_wallet?: number;
           max_supply?: number;
@@ -92,7 +93,6 @@ export type Database = {
           pre_reveal_image_url?: string | null;
           program_id?: string | null;
           revealed?: boolean;
-          royalty_bps?: number;
           rpc_url?: string;
           symbol?: string;
           treasury_wallet?: string | null;
@@ -101,34 +101,183 @@ export type Database = {
         };
         Relationships: [];
       };
+      collections: {
+        Row: {
+          banner_url: string | null;
+          collection_name: string;
+          contract_address: string | null;
+          created_at: string;
+          creator_wallet: string | null;
+          description: string | null;
+          featured: boolean;
+          id: string;
+          is_official: boolean;
+          logo_url: string | null;
+          project_name: string;
+          slug: string;
+          status: Database["public"]["Enums"]["collection_status"];
+          telegram: string | null;
+          updated_at: string;
+          verified: boolean;
+          website: string | null;
+          x_account: string | null;
+        };
+        Insert: {
+          banner_url?: string | null;
+          collection_name: string;
+          contract_address?: string | null;
+          created_at?: string;
+          creator_wallet?: string | null;
+          description?: string | null;
+          featured?: boolean;
+          id?: string;
+          is_official?: boolean;
+          logo_url?: string | null;
+          project_name: string;
+          slug: string;
+          status?: Database["public"]["Enums"]["collection_status"];
+          telegram?: string | null;
+          updated_at?: string;
+          verified?: boolean;
+          website?: string | null;
+          x_account?: string | null;
+        };
+        Update: {
+          banner_url?: string | null;
+          collection_name?: string;
+          contract_address?: string | null;
+          created_at?: string;
+          creator_wallet?: string | null;
+          description?: string | null;
+          featured?: boolean;
+          id?: string;
+          is_official?: boolean;
+          logo_url?: string | null;
+          project_name?: string;
+          slug?: string;
+          status?: Database["public"]["Enums"]["collection_status"];
+          telegram?: string | null;
+          updated_at?: string;
+          verified?: boolean;
+          website?: string | null;
+          x_account?: string | null;
+        };
+        Relationships: [];
+      };
+      collection_applications: {
+        Row: {
+          collection_id: string | null;
+          contract_address: string | null;
+          created_at: string;
+          creator_wallet: string;
+          description: string | null;
+          id: string;
+          listing_fee_amount: number;
+          listing_fee_signature: string;
+          logo_url: string | null;
+          banner_url: string | null;
+          project_name: string;
+          collection_name: string;
+          rejection_reason: string | null;
+          reviewed_at: string | null;
+          reviewed_by: string | null;
+          status: Database["public"]["Enums"]["application_status"];
+          telegram: string | null;
+          website: string | null;
+          x_account: string | null;
+        };
+        Insert: {
+          collection_id?: string | null;
+          contract_address?: string | null;
+          created_at?: string;
+          creator_wallet: string;
+          description?: string | null;
+          id?: string;
+          listing_fee_amount: number;
+          listing_fee_signature: string;
+          logo_url?: string | null;
+          banner_url?: string | null;
+          project_name: string;
+          collection_name: string;
+          rejection_reason?: string | null;
+          reviewed_at?: string | null;
+          reviewed_by?: string | null;
+          status?: Database["public"]["Enums"]["application_status"];
+          telegram?: string | null;
+          website?: string | null;
+          x_account?: string | null;
+        };
+        Update: {
+          collection_id?: string | null;
+          contract_address?: string | null;
+          created_at?: string;
+          creator_wallet?: string;
+          description?: string | null;
+          id?: string;
+          listing_fee_amount?: number;
+          listing_fee_signature?: string;
+          logo_url?: string | null;
+          banner_url?: string | null;
+          project_name?: string;
+          collection_name?: string;
+          rejection_reason?: string | null;
+          reviewed_at?: string | null;
+          reviewed_by?: string | null;
+          status?: Database["public"]["Enums"]["application_status"];
+          telegram?: string | null;
+          website?: string | null;
+          x_account?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "collection_applications_collection_id_fkey";
+            columns: ["collection_id"];
+            isOneToOne: false;
+            referencedRelation: "collections";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       listings: {
         Row: {
+          buyer_wallet: string | null;
+          category: string | null;
+          collection_id: string | null;
           created_at: string;
+          description: string | null;
           id: string;
           nft_id: string;
           price: number;
-          seller_user_id: string;
           seller_wallet: string;
+          sold_at: string | null;
           status: Database["public"]["Enums"]["listing_status"];
           updated_at: string;
         };
         Insert: {
+          buyer_wallet?: string | null;
+          category?: string | null;
+          collection_id?: string | null;
           created_at?: string;
+          description?: string | null;
           id?: string;
           nft_id: string;
           price: number;
-          seller_user_id: string;
           seller_wallet: string;
+          sold_at?: string | null;
           status?: Database["public"]["Enums"]["listing_status"];
           updated_at?: string;
         };
         Update: {
+          buyer_wallet?: string | null;
+          category?: string | null;
+          collection_id?: string | null;
           created_at?: string;
+          description?: string | null;
           id?: string;
           nft_id?: string;
           price?: number;
-          seller_user_id?: string;
           seller_wallet?: string;
+          sold_at?: string | null;
           status?: Database["public"]["Enums"]["listing_status"];
           updated_at?: string;
         };
@@ -138,6 +287,13 @@ export type Database = {
             columns: ["nft_id"];
             isOneToOne: false;
             referencedRelation: "nfts";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "listings_collection_id_fkey";
+            columns: ["collection_id"];
+            isOneToOne: false;
+            referencedRelation: "collections";
             referencedColumns: ["id"];
           },
         ];
@@ -261,48 +417,45 @@ export type Database = {
       };
       sales: {
         Row: {
-          buyer_user_id: string | null;
           buyer_wallet: string;
           confirmed_at: string | null;
           created_at: string;
+          error_message: string | null;
           id: string;
           listing_id: string | null;
           nft_id: string;
           platform_fee_amount: number;
           price: number;
-          royalty_amount: number;
           seller_amount: number;
           seller_wallet: string;
           signature: string | null;
           status: Database["public"]["Enums"]["sale_status"];
         };
         Insert: {
-          buyer_user_id?: string | null;
           buyer_wallet: string;
           confirmed_at?: string | null;
           created_at?: string;
+          error_message?: string | null;
           id?: string;
           listing_id?: string | null;
           nft_id: string;
           platform_fee_amount?: number;
           price: number;
-          royalty_amount?: number;
           seller_amount?: number;
           seller_wallet: string;
           signature?: string | null;
           status?: Database["public"]["Enums"]["sale_status"];
         };
         Update: {
-          buyer_user_id?: string | null;
           buyer_wallet?: string;
           confirmed_at?: string | null;
           created_at?: string;
+          error_message?: string | null;
           id?: string;
           listing_id?: string | null;
           nft_id?: string;
           platform_fee_amount?: number;
           price?: number;
-          royalty_amount?: number;
           seller_amount?: number;
           seller_wallet?: string;
           signature?: string | null;
@@ -521,7 +674,9 @@ export type Database = {
     };
     Enums: {
       app_role: "admin" | "user";
-      listing_status: "active" | "sold" | "cancelled";
+      application_status: "pending" | "approved" | "rejected";
+      collection_status: "active" | "suspended";
+      listing_status: "active" | "sold" | "cancelled" | "removed";
       nft_rarity: "legendary" | "elite" | "rare" | "uncommon" | "common";
       nft_status: "available" | "reserved" | "minted";
       reward_token: "x1brains" | "africa" | "xnt";
@@ -651,7 +806,9 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "user"],
-      listing_status: ["active", "sold", "cancelled"],
+      application_status: ["pending", "approved", "rejected"],
+      collection_status: ["active", "suspended"],
+      listing_status: ["active", "sold", "cancelled", "removed"],
       nft_rarity: ["legendary", "elite", "rare", "uncommon", "common"],
       nft_status: ["available", "reserved", "minted"],
       reward_token: ["x1brains", "africa", "xnt"],

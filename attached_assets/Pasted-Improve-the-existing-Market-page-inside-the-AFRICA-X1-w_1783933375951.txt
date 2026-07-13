@@ -1,0 +1,190 @@
+Improve the existing Market page inside the AFRICA X1 website. Do not create a new website or separate application. Expand the current Market page into a complete production-ready NFT marketplace while keeping the existing AFRICA X1 design and navigation.
+
+When a user clicks the Market button in the navigation, first display a premium welcome popup.
+
+Welcome Popup
+
+Title:
+
+WELCOME TO AFRICA NFT MARKETPLACE
+
+Message:
+
+Trade, Buy, Sell, and Discover NFT Art Across the X1 Blockchain.
+
+Buttons:
+
+- Enter Marketplace
+- Cancel
+
+Only enter the marketplace after the user clicks Enter Marketplace.
+
+---
+
+Marketplace
+
+This marketplace lives inside the AFRICA X1 website.
+
+It should allow users to:
+
+- Buy NFTs
+- Sell NFTs
+- View NFT collections
+- Browse verified collections
+- Search NFTs
+- Filter NFTs by collection, category, and price
+- View trending NFTs
+- View recently listed NFTs
+
+---
+
+Official AFRICA X1 Collection
+
+The AFRICA X1 Genesis Collection should always appear as a verified collection.
+
+Display:
+
+- Verified Badge
+- Collection Banner
+- Total Supply
+- Holders
+- Floor Price
+- Volume
+- Available NFTs
+
+---
+
+Community Collections
+
+Allow creators and projects on the X1 Blockchain to apply to list their NFT collections on the marketplace.
+
+Application form:
+
+- Project Name
+- Collection Name
+- Website
+- X Account
+- Telegram
+- Contract Address
+- Creator Wallet
+- Description
+- Collection Logo
+- Collection Banner
+
+Every application requires a $3 USD listing fee.
+
+The listing fee must be sent directly to the AFRICA X1 Treasury Wallet.
+
+After payment:
+
+- Save the application
+- Mark it as Pending Review
+- Notify the admin
+
+Only approved collections receive a Verified badge and become visible in the marketplace.
+
+---
+
+NFT Listings
+
+Users can list NFTs they own.
+
+Requirements:
+
+- Wallet connected
+- NFT ownership verified
+- NFT exists on the X1 Blockchain
+
+Seller chooses:
+
+- Sale Price
+- Description
+- Category
+
+Buttons:
+
+- List NFT
+- Cancel Listing
+
+---
+
+NFT Purchases
+
+Before purchase, display:
+
+- NFT Image
+- Collection
+- Seller
+- Price
+- Marketplace Fee
+- Total Cost
+
+Button:
+
+Buy NFT
+
+After payment:
+
+- Transfer NFT ownership
+- Send payment to the seller
+- Send the marketplace fee to the AFRICA X1 Treasury Wallet
+- Update ownership automatically
+
+Charge a 3% marketplace fee on every completed NFT sale.
+
+---
+
+User Dashboard
+
+Inside the Market page, users should be able to view:
+
+- My Listed NFTs
+- My Purchased NFTs
+- My Sold NFTs
+- My Active Listings
+- My Earnings
+- My Marketplace Activity
+
+---
+
+Admin Controls
+
+Admin access must remain private and only be available through:
+
+/admin
+
+Admin features:
+
+- Approve Collection Applications
+- Reject Applications
+- Approve Listings
+- Remove Listings
+- Suspend Collections
+- View Marketplace Revenue
+- View Listing Fee Payments
+- View Marketplace Fees
+- Manage Featured Collections
+- Manage Verified Collections
+
+---
+
+Design
+
+Keep the existing AFRICA X1 website layout.
+
+Do not redesign the whole website.
+
+Only improve the existing Market page.
+
+Use the AFRICA X1 premium theme:
+
+- Matte Black background
+- Gold accents
+- Deep Blue glow
+- Premium cards
+- Smooth animations
+- Mobile responsive
+- Fast loading
+- Production-ready code
+
+The marketplace should feel like a premium part of the AFRICA X1 website, not a separate platform.
