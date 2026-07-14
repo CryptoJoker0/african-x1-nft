@@ -128,9 +128,7 @@ function AdminPage() {
   // Signed in but still resolving role: brief neutral loading, no reveal either way.
   if (loading || roleLoading || !user) {
     return (
-      <div className="mx-auto max-w-3xl px-4 py-20 text-center text-muted-foreground">
-        Loading…
-      </div>
+      <div className="mx-auto max-w-3xl px-4 py-20 text-center text-muted-foreground">Loading…</div>
     );
   }
 
@@ -264,7 +262,7 @@ function AdminPage() {
           )}
           {section === "transactions" && <TransactionsPanel />}
           {section === "minted" && <MintedPanel />}
-          {section === "marketplace" && <MarketplacePanel requesterId={user.id} />}
+          {section === "marketplace" && <MarketplacePanel />}
         </main>
       </div>
     </div>
@@ -1099,7 +1097,7 @@ function MintedPanel() {
 
 type MarketSubTab = "applications" | "listings" | "collections" | "revenue";
 
-function MarketplacePanel({ requesterId }: { requesterId: string }) {
+function MarketplacePanel() {
   const [sub, setSub] = useState<MarketSubTab>("applications");
   const qc = useQueryClient();
 
@@ -1135,25 +1133,15 @@ function MarketplacePanel({ requesterId }: { requesterId: string }) {
         ))}
       </div>
 
-      {sub === "applications" && (
-        <ApplicationsAdmin requesterId={requesterId} onChange={invalidate} />
-      )}
-      {sub === "listings" && <ListingsAdmin requesterId={requesterId} onChange={invalidate} />}
-      {sub === "collections" && (
-        <CollectionsAdmin requesterId={requesterId} onChange={invalidate} />
-      )}
+      {sub === "applications" && <ApplicationsAdmin onChange={invalidate} />}
+      {sub === "listings" && <ListingsAdmin onChange={invalidate} />}
+      {sub === "collections" && <CollectionsAdmin onChange={invalidate} />}
       {sub === "revenue" && <RevenueAdmin />}
     </div>
   );
 }
 
-function ApplicationsAdmin({
-  requesterId,
-  onChange,
-}: {
-  requesterId: string;
-  onChange: () => void;
-}) {
+function ApplicationsAdmin({ onChange }: { onChange: () => void }) {
   const { data: apps = [], refetch } = useQuery({
     queryKey: ["admin-applications"],
     queryFn: async () => {
@@ -1171,7 +1159,7 @@ function ApplicationsAdmin({
     setBusyId(id);
     try {
       const { adminApproveApplication } = await import("@/lib/marketplace.functions");
-      await adminApproveApplication({ data: { requesterId, applicationId: id } });
+      await adminApproveApplication({ data: { applicationId: id } });
       toast.success("Application approved — collection is now live");
       refetch();
       onChange();
@@ -1186,7 +1174,7 @@ function ApplicationsAdmin({
     setBusyId(id);
     try {
       const { adminRejectApplication } = await import("@/lib/marketplace.functions");
-      await adminRejectApplication({ data: { requesterId, applicationId: id } });
+      await adminRejectApplication({ data: { applicationId: id } });
       toast.success("Application rejected");
       refetch();
       onChange();
@@ -1210,7 +1198,10 @@ function ApplicationsAdmin({
       ) : (
         <div className="divide-y divide-white/10 border-y border-white/10">
           {pending.map((a) => (
-            <div key={a.id} className="flex flex-col gap-3 py-5 sm:flex-row sm:items-center sm:justify-between">
+            <div
+              key={a.id}
+              className="flex flex-col gap-3 py-5 sm:flex-row sm:items-center sm:justify-between"
+            >
               <div>
                 <div className="font-display text-xl">{a.collection_name}</div>
                 <div className="text-sm text-muted-foreground">by {a.project_name}</div>
@@ -1255,7 +1246,10 @@ function ApplicationsAdmin({
       ) : (
         <div className="space-y-2">
           {reviewed.map((a) => (
-            <div key={a.id} className="flex items-center justify-between border-b border-white/5 py-2 text-sm">
+            <div
+              key={a.id}
+              className="flex items-center justify-between border-b border-white/5 py-2 text-sm"
+            >
               <span>{a.collection_name}</span>
               <span
                 className={`serif-italic ${a.status === "approved" ? "text-cyber-cyan" : "text-destructive"}`}
@@ -1270,7 +1264,7 @@ function ApplicationsAdmin({
   );
 }
 
-function ListingsAdmin({ requesterId, onChange }: { requesterId: string; onChange: () => void }) {
+function ListingsAdmin({ onChange }: { onChange: () => void }) {
   const { data: listings = [], refetch } = useQuery({
     queryKey: ["admin-listings"],
     queryFn: async () => {
@@ -1288,9 +1282,10 @@ function ListingsAdmin({ requesterId, onChange }: { requesterId: string; onChang
   async function toggle(id: string, remove: boolean) {
     setBusyId(id);
     try {
-      const { adminRemoveListing, adminRestoreListing } = await import("@/lib/marketplace.functions");
-      if (remove) await adminRemoveListing({ data: { requesterId, listingId: id } });
-      else await adminRestoreListing({ data: { requesterId, listingId: id } });
+      const { adminRemoveListing, adminRestoreListing } =
+        await import("@/lib/marketplace.functions");
+      if (remove) await adminRemoveListing({ data: { listingId: id } });
+      else await adminRestoreListing({ data: { listingId: id } });
       toast.success(remove ? "Listing removed" : "Listing restored");
       refetch();
       onChange();
@@ -1358,7 +1353,7 @@ function ListingsAdmin({ requesterId, onChange }: { requesterId: string; onChang
   );
 }
 
-function CollectionsAdmin({ requesterId, onChange }: { requesterId: string; onChange: () => void }) {
+function CollectionsAdmin({ onChange }: { onChange: () => void }) {
   const { data: collections = [], refetch } = useQuery({
     queryKey: ["admin-collections"],
     queryFn: async () => {
@@ -1376,7 +1371,7 @@ function CollectionsAdmin({ requesterId, onChange }: { requesterId: string; onCh
     setBusyId(id);
     try {
       const { adminSetCollectionFlags } = await import("@/lib/marketplace.functions");
-      await adminSetCollectionFlags({ data: { requesterId, collectionId: id, ...patch } });
+      await adminSetCollectionFlags({ data: { collectionId: id, ...patch } });
       toast.success("Collection updated");
       refetch();
       onChange();
@@ -1390,7 +1385,10 @@ function CollectionsAdmin({ requesterId, onChange }: { requesterId: string; onCh
   return (
     <div className="divide-y divide-white/10 border-y border-white/10">
       {collections.map((c) => (
-        <div key={c.id} className="flex flex-col gap-3 py-5 sm:flex-row sm:items-center sm:justify-between">
+        <div
+          key={c.id}
+          className="flex flex-col gap-3 py-5 sm:flex-row sm:items-center sm:justify-between"
+        >
           <div>
             <div className="flex items-center gap-2">
               <span className="font-display text-lg">{c.collection_name}</span>
@@ -1487,7 +1485,9 @@ function RevenueAdmin() {
         <div className="mt-3 font-display text-4xl text-african-gold">
           {(data?.totalVolume ?? 0).toFixed(3)} XNT
         </div>
-        <div className="mt-1 text-xs text-muted-foreground">{data?.salesCount ?? 0} confirmed sales</div>
+        <div className="mt-1 text-xs text-muted-foreground">
+          {data?.salesCount ?? 0} confirmed sales
+        </div>
       </div>
       <div className="border border-white/10 p-6">
         <div className="label-xs">Platform fee revenue</div>

@@ -8,6 +8,7 @@ import {
   processSubmitApplication,
   type DB,
 } from "@/lib/marketplace.logic";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 async function getAdmin(): Promise<DB> {
   const { validateAdminKey, supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -22,7 +23,10 @@ async function logFailure(action: string, metadata: Record<string, unknown>) {
       .from("audit_logs")
       .insert({ action, entity_type: "marketplace", metadata: metadata as never });
   } catch (logErr) {
-    console.error(`[marketplace] audit log insert failed:`, logErr instanceof Error ? logErr.message : logErr);
+    console.error(
+      `[marketplace] audit log insert failed:`,
+      logErr instanceof Error ? logErr.message : logErr,
+    );
   }
 }
 
@@ -126,12 +130,14 @@ export const submitApplication = createServerFn({ method: "POST" })
   });
 
 // ─── Admin actions ──────────────────────────────────────────────────────────
-// These require an authenticated Supabase session with the admin role. RLS on
-// every underlying table already restricts writes to admins for the anon/auth
-// client, but these run through the admin client for atomic multi-step updates
-// (e.g. approving an application also creates the collection row).
-
-const AdminAuthedInput = z.object({ requesterId: z.string().uuid() });
+// These require an authenticated Supabase session with the admin role. The
+// caller's identity comes ONLY from `requireSupabaseAuth`, which verifies a
+// real Supabase JWT server-side (context.userId) — it is never taken from the
+// request body, so a client cannot claim to be a different (admin) user.
+// RLS on every underlying table already restricts writes to admins for the
+// anon/auth client, but these run through the admin client for atomic
+// multi-step updates (e.g. approving an application also creates the
+// collection row).
 
 async function assertAdmin(admin: DB, requesterId: string) {
   const { data, error } = await admin.rpc("has_role", { _user_id: requesterId, _role: "admin" });
@@ -139,13 +145,14 @@ async function assertAdmin(admin: DB, requesterId: string) {
   if (!data) throw new Error("Admin privileges required");
 }
 
-const ApproveApplicationInput = AdminAuthedInput.extend({ applicationId: z.string().uuid() });
+const ApproveApplicationInput = z.object({ applicationId: z.string().uuid() });
 
 export const adminApproveApplication = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .validator((data: unknown) => ApproveApplicationInput.parse(data))
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
     const admin = await getAdmin();
-    await assertAdmin(admin, data.requesterId);
+    await assertAdmin(admin, context.userId);
 
     const { data: app, error } = await admin
       .from("collection_applications")
@@ -162,7 +169,11 @@ export const adminApproveApplication = createServerFn({ method: "POST" })
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/(^-|-$)/g, "");
     let slug = slugBase || `collection-${app.id.slice(0, 8)}`;
-    const { data: clash } = await admin.from("collections").select("id").eq("slug", slug).maybeSingle();
+    const { data: clash } = await admin
+      .from("collections")
+      .select("id")
+      .eq("slug", slug)
+      .maybeSingle();
     if (clash) slug = `${slug}-${app.id.slice(0, 6)}`;
 
     const { data: collection, error: collErr } = await admin
@@ -191,7 +202,7 @@ export const adminApproveApplication = createServerFn({ method: "POST" })
       .from("collection_applications")
       .update({
         status: "approved",
-        reviewed_by: data.requesterId,
+        reviewed_by: context.userId,
         reviewed_at: new Date().toISOString(),
         collection_id: collection.id,
       })
@@ -200,22 +211,23 @@ export const adminApproveApplication = createServerFn({ method: "POST" })
     return { ok: true as const, collectionId: collection.id };
   });
 
-const RejectApplicationInput = AdminAuthedInput.extend({
+const RejectApplicationInput = z.object({
   applicationId: z.string().uuid(),
   reason: z.string().max(1000).optional(),
 });
 
 export const adminRejectApplication = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .validator((data: unknown) => RejectApplicationInput.parse(data))
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
     const admin = await getAdmin();
-    await assertAdmin(admin, data.requesterId);
+    await assertAdmin(admin, context.userId);
     const { error } = await admin
       .from("collection_applications")
       .update({
         status: "rejected",
         rejection_reason: data.reason || null,
-        reviewed_by: data.requesterId,
+        reviewed_by: context.userId,
         reviewed_at: new Date().toISOString(),
       })
       .eq("id", data.applicationId)
@@ -224,15 +236,16 @@ export const adminRejectApplication = createServerFn({ method: "POST" })
     return { ok: true as const };
   });
 
-const ListingModerationInput = AdminAuthedInput.extend({
+const ListingModerationInput = z.object({
   listingId: z.string().uuid(),
 });
 
 export const adminRemoveListing = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .validator((data: unknown) => ListingModerationInput.parse(data))
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
     const admin = await getAdmin();
-    await assertAdmin(admin, data.requesterId);
+    await assertAdmin(admin, context.userId);
     const { error } = await admin
       .from("listings")
       .update({ status: "removed" })
@@ -242,10 +255,11 @@ export const adminRemoveListing = createServerFn({ method: "POST" })
   });
 
 export const adminRestoreListing = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .validator((data: unknown) => ListingModerationInput.parse(data))
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
     const admin = await getAdmin();
-    await assertAdmin(admin, data.requesterId);
+    await assertAdmin(admin, context.userId);
     const { error } = await admin
       .from("listings")
       .update({ status: "active" })
@@ -255,7 +269,7 @@ export const adminRestoreListing = createServerFn({ method: "POST" })
     return { ok: true as const };
   });
 
-const CollectionFlagsInput = AdminAuthedInput.extend({
+const CollectionFlagsInput = z.object({
   collectionId: z.string().uuid(),
   verified: z.boolean().optional(),
   featured: z.boolean().optional(),
@@ -263,10 +277,11 @@ const CollectionFlagsInput = AdminAuthedInput.extend({
 });
 
 export const adminSetCollectionFlags = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .validator((data: unknown) => CollectionFlagsInput.parse(data))
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
     const admin = await getAdmin();
-    await assertAdmin(admin, data.requesterId);
+    await assertAdmin(admin, context.userId);
     const patch: Record<string, unknown> = {};
     if (data.verified !== undefined) patch.verified = data.verified;
     if (data.featured !== undefined) patch.featured = data.featured;
