@@ -64,26 +64,29 @@ function DashboardPage() {
   });
 
   const { data: owned = [] } = useQuery({
-    enabled: !!user,
-    queryKey: ["owned-nfts", user?.id],
+    // Mint sets owner_wallet (not owner_user_id) — query by wallet address.
+    enabled: !!address,
+    queryKey: ["owned-nfts", address],
     queryFn: async () => {
       const { data } = await supabase
         .from("nfts")
-        .select("*")
-        .eq("owner_user_id", user!.id)
+        .select("id, token_id, name, image_url")
+        .eq("owner_wallet", address as string)
+        .eq("status", "minted")
         .order("token_id");
       return data ?? [];
     },
   });
 
   const { data: txs = [] } = useQuery({
-    enabled: !!user,
-    queryKey: ["txs", user?.id],
+    // Mint inserts transactions with wallet_address (not user_id) — query by wallet.
+    enabled: !!address,
+    queryKey: ["txs", address],
     queryFn: async () => {
       const { data } = await supabase
         .from("transactions")
-        .select("*")
-        .eq("user_id", user!.id)
+        .select("id, created_at, tx_type, status, amount, signature")
+        .eq("wallet_address", address as string)
         .order("created_at", { ascending: false })
         .limit(50);
       return data ?? [];

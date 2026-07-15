@@ -307,6 +307,9 @@ export async function processClaimStake(params: ClaimStakeParams) {
   if (stake.status !== "active") throw new Error("This stake has already been claimed.");
 
   const unlockAt = new Date(stake.unlock_at);
+  if (isNaN(unlockAt.getTime())) {
+    throw new Error("Invalid stake record — unlock date is corrupted. Contact support with your stake ID.");
+  }
   if (now < unlockAt) {
     throw new Error(
       `Rewards unlock on ${unlockAt.toLocaleDateString()}. Early unstaking is not permitted.`,
