@@ -190,7 +190,7 @@ export interface ClaimStakeParams {
  * Stake an NFT. Validates ownership, one-active-stake-per-NFT, and the
  * XNT/Legendary gate before writing anything.
  */
-export async function processStakeNft(params: StakeNftParams) {
+export async function processStakeNft(params: StakeNftParams): Promise<StakingPositionRow> {
   const { nftId, walletAddress, rewardToken, periodDays, now = new Date() } = params;
 
   if (!walletAddress) throw new Error("Wallet not connected.");
@@ -267,10 +267,10 @@ export async function processStakeNft(params: StakeNftParams) {
     throw new Error("This NFT is already staking.");
   }
 
-  return inserted;
+  return inserted as StakingPositionRow;
 }
 
-interface StakingPositionRow {
+export interface StakingPositionRow {
   id: string;
   nft_id: string;
   owner_wallet: string;
@@ -289,7 +289,7 @@ interface StakingPositionRow {
  * passed. There is no early-unstake path — this function is the only way
  * a staking_position ever leaves the 'active' state.
  */
-export async function processClaimStake(params: ClaimStakeParams) {
+export async function processClaimStake(params: ClaimStakeParams): Promise<StakingPositionRow> {
   const { stakeId, walletAddress, now = new Date() } = params;
   if (!walletAddress) throw new Error("Wallet not connected.");
 
@@ -356,5 +356,5 @@ export async function processClaimStake(params: ClaimStakeParams) {
     throw new Error("This stake has already been claimed.");
   }
 
-  return updated;
+  return updated as StakingPositionRow;
 }
