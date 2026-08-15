@@ -10,6 +10,8 @@ import {
   Minus,
   Plus,
   Sparkles,
+  Crown,
+  X,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useWallet } from "@/lib/wallet";
@@ -57,6 +59,7 @@ function MintPage() {
   const [stage, setStage] = useState<Stage>("idle");
   const [signature, setSignature] = useState<string | null>(null);
   const [errMsg, setErrMsg] = useState<string | null>(null);
+  const [showGamePassNotice, setShowGamePassNotice] = useState(false);
 
   const { data: config } = useQuery({
     queryKey: ["config"],
@@ -210,6 +213,13 @@ function MintPage() {
             <div className="space-y-3">
               <p className="text-sm text-muted-foreground">Connect a wallet to mint.</p>
               <WalletButton />
+              <button
+                type="button"
+                onClick={() => setShowGamePassNotice(true)}
+                className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-african-gold/50 bg-african-gold/10 px-6 py-3 text-sm font-semibold text-african-gold transition hover:border-african-gold hover:bg-african-gold/20"
+              >
+                <Crown size={16} /> Mint Game Pass NFT
+              </button>
             </div>
           ) : (
             <button
@@ -346,6 +356,49 @@ function MintPage() {
           )}
         </div>
       </div>
+
+      {showGamePassNotice && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 px-4 backdrop-blur-sm"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="game-pass-title"
+          onClick={() => setShowGamePassNotice(false)}
+        >
+          <div
+            className="relative w-full max-w-md rounded-2xl border border-african-gold/30 bg-card p-7 text-center shadow-2xl"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <button
+              type="button"
+              aria-label="Close"
+              onClick={() => setShowGamePassNotice(false)}
+              className="absolute right-4 top-4 rounded-full p-2 text-muted-foreground transition hover:bg-white/10 hover:text-foreground"
+            >
+              <X size={16} />
+            </button>
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full border border-african-gold/40 bg-african-gold/10 text-african-gold">
+              <Crown size={25} />
+            </div>
+            <p className="mt-5 text-[10px] uppercase tracking-[0.3em] text-african-gold">
+              Premium access
+            </p>
+            <h2 id="game-pass-title" className="mt-2 font-display text-2xl">
+              Game Pass NFT
+            </h2>
+            <p className="mt-3 text-sm leading-6 text-muted-foreground">
+              Minting for the Game Pass NFT is coming in a few days. Stay tuned for the launch.
+            </p>
+            <button
+              type="button"
+              onClick={() => setShowGamePassNotice(false)}
+              className="mt-6 rounded-full bg-african-gold px-6 py-2.5 text-sm font-semibold text-background transition hover:brightness-110"
+            >
+              Got it
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
