@@ -17,7 +17,7 @@
  *   9. Concurrent double-claim rejected (idempotency)
  *  10. Pure helpers: multiplier table, reward math, display status
  */
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import {
   processStakeNft,
   processClaimStake,
@@ -66,6 +66,21 @@ const NFT_LEGENDARY = {
 };
 const CFG_X1BRAINS = { reward_token: "x1brains", daily_rate: 10, is_active: true };
 const CFG_XNT = { reward_token: "xnt", daily_rate: 0.05, is_active: true };
+const GAS_CONFIG = {
+  staking_gas_fee_xnt: 5.69,
+  treasury_wallet: "Treasury",
+  rpc_url: "https://x1-rpc.test",
+};
+
+vi.stubGlobal("fetch", async () => ({
+  ok: true,
+  json: async () => ({
+    result: {
+      meta: { err: null, preBalances: [0, 0], postBalances: [0, 5_690_000_000] },
+      transaction: { message: { accountKeys: ["WalletA", "Treasury"] } },
+    },
+  }),
+}));
 
 describe("processStakeNft", () => {
   it("1. stakes successfully and locks in the chosen token + period", async () => {
@@ -73,9 +88,11 @@ describe("processStakeNft", () => {
       nfts: [{ data: NFT_COMMON, error: null }],
       staking_positions: [
         { data: null, error: null }, // no existing active stake
+        { data: null, error: null }, // gas signature not used
         { data: { id: "stake-1", reward_token: "x1brains", period_days: 60 }, error: null }, // insert
       ],
       staking_config: [{ data: CFG_X1BRAINS, error: null }],
+      collection_config: [{ data: GAS_CONFIG, error: null }],
     });
 
     const result = (await processStakeNft({
@@ -83,6 +100,7 @@ describe("processStakeNft", () => {
       walletAddress: "WalletA",
       rewardToken: "x1brains",
       periodDays: 60,
+      gasFeeSignature: "test-gas-signature-1",
       getAdmin: async () => admin as never,
     })) as { reward_token: string; period_days: number };
 
@@ -102,6 +120,7 @@ describe("processStakeNft", () => {
         walletAddress: "WalletA",
         rewardToken: "xnt",
         periodDays: 30,
+        gasFeeSignature: "test-gas-signature-2",
         getAdmin: async () => admin as never,
       }),
     ).rejects.toThrow(/legendary/i);
@@ -112,9 +131,11 @@ describe("processStakeNft", () => {
       nfts: [{ data: NFT_LEGENDARY, error: null }],
       staking_positions: [
         { data: null, error: null },
+        { data: null, error: null },
         { data: { id: "stake-2", reward_token: "xnt" }, error: null },
       ],
       staking_config: [{ data: CFG_XNT, error: null }],
+      collection_config: [{ data: GAS_CONFIG, error: null }],
     });
 
     const result = (await processStakeNft({
@@ -122,6 +143,7 @@ describe("processStakeNft", () => {
       walletAddress: "WalletA",
       rewardToken: "xnt",
       periodDays: 90,
+      gasFeeSignature: "test-gas-signature-3",
       getAdmin: async () => admin as never,
     })) as { reward_token: string };
 
@@ -139,6 +161,7 @@ describe("processStakeNft", () => {
         walletAddress: "SomeoneElse",
         rewardToken: "x1brains",
         periodDays: 30,
+        gasFeeSignature: "test-gas-signature-4",
         getAdmin: async () => admin as never,
       }),
     ).rejects.toThrow(/do not own/i);
@@ -156,6 +179,7 @@ describe("processStakeNft", () => {
         walletAddress: "WalletA",
         rewardToken: "x1brains",
         periodDays: 30,
+        gasFeeSignature: "test-gas-signature-5",
         getAdmin: async () => admin as never,
       }),
     ).rejects.toThrow(/already staking/i);

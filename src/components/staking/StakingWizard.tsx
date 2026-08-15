@@ -22,8 +22,10 @@ export function StakingWizard({
   ownedNfts,
   stakeableNfts,
   config,
+  stakingGasFeeXnt,
   onStake,
   isStaking,
+  stakeStage,
   stakeError,
   onStaked,
 }: {
@@ -33,12 +35,14 @@ export function StakingWizard({
   ownedNfts: StakeableNft[];
   stakeableNfts: StakeableNft[];
   config: StakingConfigRow[];
+  stakingGasFeeXnt: number;
   onStake: (params: {
     nftId: string;
     rewardToken: RewardToken;
     periodDays: StakingPeriodDays;
   }) => void;
   isStaking: boolean;
+  stakeStage: "idle" | "preparing" | "signing" | "confirming" | "staking";
   stakeError: string | null;
   onStaked: () => void;
 }) {
@@ -104,8 +108,10 @@ export function StakingWizard({
           rewardToken={rewardToken}
           periodDays={periodDays}
           config={config}
+           stakingGasFeeXnt={stakingGasFeeXnt}
           walletAddress={walletAddress}
           isStaking={isStaking}
+           stakeStage={stakeStage}
           error={stakeError}
           onBack={() => goTo(5)}
           onStake={() => {

@@ -176,6 +176,8 @@ export interface StakeNftParams {
   rewardToken: string;
   periodDays: number;
   getAdmin: () => Promise<DB>;
+  /** On-chain signature of the $3 gas fee paid to the treasury before staking. */
+  gasFeeSignature: string;
   now?: Date;
 }
 
@@ -191,7 +193,7 @@ export interface ClaimStakeParams {
  * XNT/Legendary gate before writing anything.
  */
 export async function processStakeNft(params: StakeNftParams): Promise<StakingPositionRow> {
-  const { nftId, walletAddress, rewardToken, periodDays, now = new Date() } = params;
+  const { nftId, walletAddress, rewardToken, periodDays, gasFeeSignature, now = new Date() } = params;
 
   if (!walletAddress) throw new Error("Wallet not connected.");
   if (!isValidRewardToken(rewardToken)) {
@@ -200,6 +202,7 @@ export async function processStakeNft(params: StakeNftParams): Promise<StakingPo
   if (!isValidPeriod(periodDays)) {
     throw new Error(`Invalid staking period: ${periodDays} days. Choose 30, 60, or 90.`);
   }
+  if (!gasFeeSignature) throw new Error("Gas fee payment signature is required.");
 
   const db = await params.getAdmin();
 
@@ -245,6 +248,46 @@ export async function processStakeNft(params: StakeNftParams): Promise<StakingPo
     throw new Error(`${rewardToken} rewards are not currently available.`);
   }
 
+  // ── Gas fee verification ──────────────────────────────────────────────────
+  // All stake eligibility checks happen before this point. Payment is verified
+  // immediately before the insert, so an unqualified request never consumes a
+  // valid payment signature.
+  const { data: collCfg, error: collCfgErr } = await db
+    .from("collection_config")
+    .select("staking_gas_fee_xnt, treasury_wallet, rpc_url")
+    .eq("id", 1)
+    .single();
+  const ccfg = collCfg as {
+    staking_gas_fee_xnt: number;
+    treasury_wallet: string;
+    rpc_url: string;
+  } | null;
+  if (collCfgErr || !ccfg?.treasury_wallet || !ccfg?.rpc_url) {
+    throw new Error("Staking gas fee configuration is incomplete. Contact support.");
+  }
+
+  // Replay-attack guard: each gas fee signature can only be used once.
+  const { data: sigUsed } = await db
+    .from("staking_positions")
+    .select("id")
+    .eq("gas_fee_signature", gasFeeSignature)
+    .maybeSingle();
+  if (sigUsed) {
+    throw new Error(
+      "This payment signature has already been used. Each gas fee can only fund one stake.",
+    );
+  }
+
+  // Verify the on-chain payment reached the treasury in the correct amount.
+  const { verifyPaymentOnChain } = await import("@/lib/mint.logic");
+  await verifyPaymentOnChain({
+    signature: gasFeeSignature,
+    walletAddress,
+    treasury: ccfg.treasury_wallet,
+    expectedLamports: Math.round(Number(ccfg.staking_gas_fee_xnt ?? 5.69) * 1_000_000_000),
+    rpcUrl: ccfg.rpc_url,
+  });
+
   const mult = periodMultiplier(periodDays);
   const unlock = unlockDate(now, periodDays);
 
@@ -259,6 +302,7 @@ export async function processStakeNft(params: StakeNftParams): Promise<StakingPo
       status: "active",
       staked_at: now.toISOString(),
       unlock_at: unlock.toISOString(),
+      gas_fee_signature: gasFeeSignature,
     })
     .select("*")
     .single();

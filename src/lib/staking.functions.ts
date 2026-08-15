@@ -7,6 +7,8 @@ const StakeInput = z.object({
   walletAddress: z.string().min(32),
   rewardToken: z.enum(["x1brains", "africa", "xnt"]),
   periodDays: z.union([z.literal(30), z.literal(60), z.literal(90)]),
+  /** On-chain signature of the ~$3 gas fee paid to the treasury. */
+  gasFeeSignature: z.string().min(40),
 });
 
 const ClaimInput = z.object({

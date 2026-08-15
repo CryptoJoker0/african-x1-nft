@@ -45,6 +45,7 @@ export type Database = {
           id: number;
           listing_application_fee_xnt: number;
           marketplace_enabled: boolean;
+          staking_gas_fee_xnt: number;
           max_per_wallet: number;
           max_supply: number;
           mint_paused: boolean;
@@ -65,6 +66,7 @@ export type Database = {
           id?: number;
           listing_application_fee_xnt?: number;
           marketplace_enabled?: boolean;
+          staking_gas_fee_xnt?: number;
           max_per_wallet?: number;
           max_supply?: number;
           mint_paused?: boolean;
@@ -85,6 +87,7 @@ export type Database = {
           id?: number;
           listing_application_fee_xnt?: number;
           marketplace_enabled?: boolean;
+          staking_gas_fee_xnt?: number;
           max_per_wallet?: number;
           max_supply?: number;
           mint_paused?: boolean;

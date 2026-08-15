@@ -23,20 +23,24 @@ export function ReviewStep({
   rewardToken,
   periodDays,
   config,
+  stakingGasFeeXnt,
   walletAddress,
   onStake,
   onBack,
   isStaking,
+  stakeStage,
   error,
 }: {
   nft: { name: string; token_id: number; image_url: string | null; rarity: NftRarity };
   rewardToken: RewardToken;
   periodDays: StakingPeriodDays;
   config: StakingConfigRow[];
+  stakingGasFeeXnt: number;
   walletAddress: string;
   onStake: () => void;
   onBack: () => void;
   isStaking: boolean;
+  stakeStage: "idle" | "preparing" | "signing" | "confirming" | "staking";
   error: string | null;
 }) {
   const [copied, setCopied] = useState(false);
@@ -86,6 +90,11 @@ export function ReviewStep({
               day: "numeric",
             })}
           />
+          <Row
+            label="Staking gas fee"
+            value={`${stakingGasFeeXnt.toFixed(2)} XNT (≈ $3 USD)`}
+            accent="text-african-gold"
+          />
           <div className="flex items-start justify-between gap-3 border-b border-white/5 pb-2">
             <span className="label-xs pt-0.5">Wallet address</span>
             <button
@@ -103,7 +112,7 @@ export function ReviewStep({
           <div className="flex items-center justify-between pt-1">
             <span className="label-xs">Status</span>
             <span className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-emerald-400">
-              <Lock size={12} /> Ready to Stake
+              <Lock size={12} /> Payment required before staking
             </span>
           </div>
         </div>
@@ -126,7 +135,15 @@ export function ReviewStep({
           style={{ boxShadow: "var(--shadow-glow-staking)" }}
         >
           <Lock size={15} />
-          {isStaking ? "Staking…" : "STAKE NFT"}
+          {isStaking
+            ? stakeStage === "signing"
+              ? "Approve fee in wallet…"
+              : stakeStage === "confirming"
+                ? "Confirming fee payment…"
+                : stakeStage === "staking"
+                  ? "Creating stake…"
+                  : "Preparing payment…"
+            : `PAY ${stakingGasFeeXnt.toFixed(2)} XNT & STAKE`}
         </button>
       </div>
     </div>

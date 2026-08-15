@@ -6,3 +6,4 @@
 - [Supabase env var source of truth](env-source-of-truth.md) — .replit userenv.shared is authoritative; a stale committed .env can reintroduce a wrong Supabase project on re-import.
 - [Supabase migrations require manual apply](supabase-migrations-manual-apply.md) — no DB password/DATABASE_URL available, only service-role key; user must paste new migration SQL into Supabase Dashboard SQL Editor.
 - [Admin server fn auth pattern](admin-serverfn-auth.md) — never trust a client-supplied user/requester ID for privilege checks; verify identity via session middleware.
+- [Staking payment fee](staking-payment-fee.md) — configurable XNT fee is paid to treasury and verified on-chain before a stake is created.

@@ -5,6 +5,7 @@ import { Wallet } from "lucide-react";
 import { useWallet } from "@/lib/wallet";
 import { supabase } from "@/integrations/supabase/client";
 import { stakeNft, claimStake } from "@/lib/staking.functions";
+import { submitMintTransfer } from "@/lib/mint-tx";
 import { StakingWizard } from "@/components/staking/StakingWizard";
 import { StakingDashboard } from "@/components/staking/StakingDashboard";
 import type { NftRarity, RewardToken, StakingPeriodDays } from "@/lib/staking.logic";
@@ -51,10 +52,13 @@ interface StakePositionRow {
 }
 
 function StakingPage() {
-  const { address, status: walletStatus } = useWallet();
+  const { address, status: walletStatus, walletId, isSimulated } = useWallet();
   const queryClient = useQueryClient();
   const [forceWizard, setForceWizard] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [stakeStage, setStakeStage] = useState<
+    "idle" | "preparing" | "signing" | "confirming" | "staking"
+  >("idle");
 
   const { data: nfts = [], isLoading: nftsLoading } = useQuery({
     enabled: !!address,
@@ -93,6 +97,26 @@ function StakingPage() {
     staleTime: 5 * 60_000,
   });
 
+  const { data: feeConfig } = useQuery({
+    queryKey: ["staking-fee-config"],
+    queryFn: async () => {
+      const { data, error: feeError } = await supabase
+        .from("collection_config")
+        .select("staking_gas_fee_xnt, treasury_wallet, rpc_url")
+        .eq("id", 1)
+        .single();
+      if (feeError) throw feeError;
+      return data as {
+        staking_gas_fee_xnt: number;
+        treasury_wallet: string;
+        rpc_url: string;
+      };
+    },
+    staleTime: 5 * 60_000,
+  });
+
+  const stakingGasFeeXnt = Number(feeConfig?.staking_gas_fee_xnt ?? 5.69);
+
   const activePositions = positions.filter((p) => p.status === "active");
   const stakedNftIds = new Set(activePositions.map((p) => p.nft_id));
   const stakeableNfts = nfts.filter((n) => !stakedNftIds.has(n.id));
@@ -104,21 +128,46 @@ function StakingPage() {
       periodDays: StakingPeriodDays;
     }) => {
       if (!address) throw new Error("Wallet not connected.");
+      if (isSimulated) {
+        throw new Error(
+          "Simulated wallet cannot pay the staking fee. Install Phantom, Backpack, or X1 Wallet.",
+        );
+      }
+      if (!feeConfig?.treasury_wallet || !feeConfig.rpc_url) {
+        throw new Error("Staking payment is not configured yet. Please contact the administrator.");
+      }
+
+      setStakeStage("preparing");
+      const gasFeeSignature = await submitMintTransfer({
+        rpcUrl: feeConfig.rpc_url,
+        treasury: feeConfig.treasury_wallet,
+        address,
+        totalXnt: stakingGasFeeXnt,
+        walletId,
+        onStage: (stage) => setStakeStage(stage),
+      });
+
+      setStakeStage("staking");
       return stakeNft({
         data: {
           nftId: params.nftId,
           walletAddress: address,
           rewardToken: params.rewardToken,
           periodDays: params.periodDays,
+          gasFeeSignature,
         },
       });
     },
     onSuccess: () => {
       setError(null);
+      setStakeStage("idle");
       setForceWizard(false);
       queryClient.invalidateQueries({ queryKey: ["staking-positions", address] });
     },
-    onError: (e: unknown) => setError(e instanceof Error ? e.message : "Failed to stake."),
+    onError: (e: unknown) => {
+      setStakeStage("idle");
+      setError(e instanceof Error ? e.message : "Failed to stake.");
+    },
   });
 
   const claimMutation = useMutation({
@@ -170,8 +219,10 @@ function StakingPage() {
           ownedNfts={nfts}
           stakeableNfts={stakeableNfts}
           config={config}
+           stakingGasFeeXnt={stakingGasFeeXnt}
           onStake={(params) => stakeMutation.mutate(params)}
           isStaking={stakeMutation.isPending}
+           stakeStage={stakeStage}
           stakeError={error}
           onStaked={() => setForceWizard(false)}
         />
