@@ -9,55 +9,20 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as StakingRouteImport } from './routes/staking'
-import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
-import { Route as MyNftsRouteImport } from './routes/my-nfts'
-import { Route as MintRouteImport } from './routes/mint'
-import { Route as MarketplaceRouteImport } from './routes/marketplace'
-import { Route as DashboardRouteImport } from './routes/dashboard'
-import { Route as CollectionRouteImport } from './routes/collection'
-import { Route as AuthRouteImport } from './routes/auth'
-import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AdminRouteImport } from './routes/admin'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as CollectionRouteImport } from './routes/collection'
+import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as MarketplaceRouteImport } from './routes/marketplace'
+import { Route as MintRouteImport } from './routes/mint'
+import { Route as MyNftsRouteImport } from './routes/my-nfts'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as StakingRouteImport } from './routes/staking'
 
-const StakingRoute = StakingRouteImport.update({
-  id: '/staking',
-  path: '/staking',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
-  id: '/sitemap.xml',
-  path: '/sitemap.xml',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MyNftsRoute = MyNftsRouteImport.update({
-  id: '/my-nfts',
-  path: '/my-nfts',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MintRoute = MintRouteImport.update({
-  id: '/mint',
-  path: '/mint',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MarketplaceRoute = MarketplaceRouteImport.update({
-  id: '/marketplace',
-  path: '/marketplace',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DashboardRoute = DashboardRouteImport.update({
-  id: '/dashboard',
-  path: '/dashboard',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CollectionRoute = CollectionRouteImport.update({
-  id: '/collection',
-  path: '/collection',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AuthRoute = AuthRouteImport.update({
-  id: '/auth',
-  path: '/auth',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminRoute = AdminRouteImport.update({
@@ -65,9 +30,44 @@ const AdminRoute = AdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CollectionRoute = CollectionRouteImport.update({
+  id: '/collection',
+  path: '/collection',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardRoute = DashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MarketplaceRoute = MarketplaceRouteImport.update({
+  id: '/marketplace',
+  path: '/marketplace',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MintRoute = MintRouteImport.update({
+  id: '/mint',
+  path: '/mint',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MyNftsRoute = MyNftsRouteImport.update({
+  id: '/my-nfts',
+  path: '/my-nfts',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StakingRoute = StakingRouteImport.update({
+  id: '/staking',
+  path: '/staking',
   getParentRoute: () => rootRouteImport,
 } as any)
 
@@ -162,60 +162,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/staking': {
-      id: '/staking'
-      path: '/staking'
-      fullPath: '/staking'
-      preLoaderRoute: typeof StakingRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/sitemap.xml': {
-      id: '/sitemap.xml'
-      path: '/sitemap.xml'
-      fullPath: '/sitemap.xml'
-      preLoaderRoute: typeof SitemapDotxmlRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/my-nfts': {
-      id: '/my-nfts'
-      path: '/my-nfts'
-      fullPath: '/my-nfts'
-      preLoaderRoute: typeof MyNftsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/mint': {
-      id: '/mint'
-      path: '/mint'
-      fullPath: '/mint'
-      preLoaderRoute: typeof MintRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/marketplace': {
-      id: '/marketplace'
-      path: '/marketplace'
-      fullPath: '/marketplace'
-      preLoaderRoute: typeof MarketplaceRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/dashboard': {
-      id: '/dashboard'
-      path: '/dashboard'
-      fullPath: '/dashboard'
-      preLoaderRoute: typeof DashboardRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/collection': {
-      id: '/collection'
-      path: '/collection'
-      fullPath: '/collection'
-      preLoaderRoute: typeof CollectionRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/auth': {
-      id: '/auth'
-      path: '/auth'
-      fullPath: '/auth'
-      preLoaderRoute: typeof AuthRouteImport
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin': {
@@ -225,11 +176,60 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/collection': {
+      id: '/collection'
+      path: '/collection'
+      fullPath: '/collection'
+      preLoaderRoute: typeof CollectionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/marketplace': {
+      id: '/marketplace'
+      path: '/marketplace'
+      fullPath: '/marketplace'
+      preLoaderRoute: typeof MarketplaceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mint': {
+      id: '/mint'
+      path: '/mint'
+      fullPath: '/mint'
+      preLoaderRoute: typeof MintRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/my-nfts': {
+      id: '/my-nfts'
+      path: '/my-nfts'
+      fullPath: '/my-nfts'
+      preLoaderRoute: typeof MyNftsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/staking': {
+      id: '/staking'
+      path: '/staking'
+      fullPath: '/staking'
+      preLoaderRoute: typeof StakingRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
