@@ -1,20 +1,38 @@
 @import url("https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Work+Sans:wght@300;400;500;600&display=swap");
 
 .x1-split {
-  --bg: #090d1a;
-  --paper: #f1efe8;
-  --muted: #9ba3b7;
-  --line: rgba(241, 239, 232, 0.13);
-  --gold: #d7b34a;
-  --cyan: #6ee7e4;
+  --bg: #070910;
+  --paper: #f6f0e4;
+  --muted: #a6a7b1;
+  --line: rgba(246, 240, 228, 0.14);
+  --gold: #d6ad5c;
+  --gold-light: #f0d18c;
+  --cyan: #7de0d1;
+  --plum: #80658f;
+  isolation: isolate;
   min-height: 100vh;
   overflow: hidden;
   color: var(--paper);
   background:
-    radial-gradient(ellipse 55% 35% at 92% 6%, rgba(215, 179, 74, 0.13), transparent 70%),
-    radial-gradient(ellipse 45% 30% at 8% 55%, rgba(70, 183, 202, 0.1), transparent 70%),
+    radial-gradient(ellipse 60% 48% at 96% 0%, rgba(214, 173, 92, 0.16), transparent 68%),
+    radial-gradient(ellipse 52% 42% at 0% 48%, rgba(125, 224, 209, 0.1), transparent 70%),
+    radial-gradient(ellipse 38% 34% at 62% 88%, rgba(128, 101, 143, 0.12), transparent 72%),
     var(--bg);
   font-family: "Work Sans", sans-serif;
+}
+
+.x1-split::before {
+  background-image:
+    linear-gradient(rgba(246, 240, 228, 0.028) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(246, 240, 228, 0.028) 1px, transparent 1px);
+  background-size: 72px 72px;
+  content: "";
+  inset: 0;
+  mask-image: linear-gradient(to bottom, black, transparent 78%);
+  opacity: 0.7;
+  pointer-events: none;
+  position: absolute;
+  z-index: -1;
 }
 
 .x1-split *,
@@ -70,7 +88,8 @@
 }
 
 .x1-split .brand img {
-  border: 1px solid rgba(215, 179, 74, 0.5);
+  border: 1px solid rgba(214, 173, 92, 0.65);
+  box-shadow: 0 0 18px rgba(214, 173, 92, 0.12);
   height: 38px;
   object-fit: cover;
   width: 38px;
@@ -93,6 +112,8 @@
 .x1-split .topnav a {
   color: var(--muted);
   font-size: 12px;
+  padding: 8px 0;
+  position: relative;
   transition: color 0.2s;
 }
 
@@ -100,8 +121,26 @@
   color: var(--paper);
 }
 
+.x1-split .topnav a::after {
+  background: var(--gold-light);
+  bottom: 0;
+  content: "";
+  height: 1px;
+  left: 0;
+  position: absolute;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.25s ease;
+  width: 100%;
+}
+
+.x1-split .topnav a:hover::after,
+.x1-split .topnav a:first-child::after {
+  transform: scaleX(1);
+}
+
 .x1-split .topnav a:first-child {
-  color: var(--gold);
+  color: var(--gold-light);
 }
 
 .x1-split .wallet-slot {
@@ -109,10 +148,10 @@
 }
 
 .x1-split .wallet-slot button {
-  background: var(--paper) !important;
-  border: 0 !important;
+  background: linear-gradient(135deg, var(--paper), #dfd5c1) !important;
+  border: 1px solid rgba(240, 209, 140, 0.25) !important;
   border-radius: 0 !important;
-  box-shadow: none !important;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.24) !important;
   color: var(--bg) !important;
   cursor: pointer;
   font-size: 11px !important;
@@ -123,8 +162,8 @@
 }
 
 .x1-split .wallet-slot button:hover {
-  background: var(--gold) !important;
-  box-shadow: none !important;
+  background: var(--gold-light) !important;
+  box-shadow: 0 8px 28px rgba(214, 173, 92, 0.2) !important;
 }
 
 .x1-split .edition {
@@ -147,6 +186,16 @@
   position: relative;
 }
 
+.x1-split .hero-art::after {
+  background: linear-gradient(to bottom, rgba(240, 209, 140, 0.7), transparent);
+  content: "";
+  height: 68px;
+  left: -1px;
+  position: absolute;
+  top: 0;
+  width: 1px;
+}
+
 .x1-split .hero-art .folio {
   color: rgba(241, 239, 232, 0.09);
   font-size: 132px;
@@ -158,6 +207,9 @@
 
 .x1-split .cover {
   aspect-ratio: 0.87;
+  box-shadow:
+    16px 18px 0 rgba(214, 173, 92, 0.1),
+    0 28px 60px rgba(0, 0, 0, 0.35);
   margin-top: 70px;
   max-width: 340px;
   overflow: hidden;
@@ -203,7 +255,7 @@
 }
 
 .x1-split .eyebrow {
-  color: var(--gold);
+  color: var(--gold-light);
   font-size: 10px;
   letter-spacing: 0.28em;
   text-transform: uppercase;
@@ -219,7 +271,7 @@
 }
 
 .x1-split h1 em {
-  color: var(--gold);
+  color: var(--gold-light);
 }
 
 .x1-split .lead {
@@ -231,7 +283,7 @@
 }
 
 .x1-split .lead b {
-  color: var(--gold);
+  color: var(--gold-light);
   font-weight: 400;
 }
 
@@ -246,7 +298,7 @@
   align-items: center;
   background:
     linear-gradient(var(--bg), var(--bg)) padding-box,
-    linear-gradient(135deg, var(--gold), var(--cyan)) border-box;
+    linear-gradient(135deg, var(--gold-light), var(--cyan), var(--plum)) border-box;
   border: 1px solid transparent;
   border-radius: 999px;
   bottom: 26px;
@@ -279,7 +331,7 @@
 .x1-split .validator-float:hover {
   background:
     linear-gradient(rgba(215, 179, 74, 0.12), rgba(215, 179, 74, 0.12)) padding-box,
-    linear-gradient(135deg, var(--gold), var(--cyan)) border-box;
+    linear-gradient(135deg, var(--gold-light), var(--cyan), var(--plum)) border-box;
   box-shadow:
     0 16px 40px rgba(0, 0, 0, 0.48),
     0 0 24px rgba(110, 231, 228, 0.14);
@@ -293,7 +345,7 @@
 
 .x1-split .validator-float-icon {
   align-items: center;
-  background: linear-gradient(145deg, var(--gold), #a97f21);
+  background: linear-gradient(145deg, var(--gold-light), var(--gold));
   border-radius: 50%;
   color: var(--bg);
   display: inline-flex;
@@ -330,32 +382,46 @@
 }
 
 .x1-split .validator-float-arrow {
-  color: var(--gold);
+  color: var(--gold-light);
   position: relative;
   z-index: 1;
 }
 
 .x1-split .cta {
   align-items: center;
-  background: var(--gold);
+  background: linear-gradient(135deg, var(--gold-light), var(--gold));
+  box-shadow: 0 12px 28px rgba(214, 173, 92, 0.14);
   color: var(--bg);
   display: inline-flex;
   font-family: "Instrument Serif", serif;
   font-size: 20px;
   gap: 10px;
   padding: 13px 20px;
-  transition: background 0.2s;
+  transition:
+    background 0.2s,
+    box-shadow 0.2s,
+    transform 0.2s;
 }
 
 .x1-split .cta:hover {
-  background: var(--paper);
+  background: linear-gradient(135deg, var(--paper), var(--gold-light));
+  box-shadow: 0 16px 34px rgba(214, 173, 92, 0.24);
+  transform: translateY(-2px);
 }
 
 .x1-split .text-link {
-  border-bottom: 1px solid var(--gold);
+  border-bottom: 1px solid var(--gold-light);
   color: var(--paper);
   font-size: 12px;
   padding-bottom: 4px;
+  transition:
+    border-color 0.2s,
+    color 0.2s;
+}
+
+.x1-split .text-link:hover {
+  border-color: var(--cyan);
+  color: var(--cyan);
 }
 
 .x1-split .stats {
@@ -403,8 +469,8 @@
 }
 
 .x1-split .track i {
-  background: var(--gold);
-  box-shadow: 0 0 12px rgba(215, 179, 74, 0.65);
+  background: linear-gradient(90deg, var(--gold), var(--cyan));
+  box-shadow: 0 0 12px rgba(214, 173, 92, 0.65);
   display: block;
   height: 100%;
   transition: width 0.4s ease;
@@ -477,7 +543,7 @@
 }
 
 .x1-split .feature {
-  border-top: 1px solid var(--gold);
+  border-top: 1px solid var(--gold-light);
   padding-top: 12px;
 }
 
@@ -528,7 +594,7 @@
 }
 
 .x1-split .active {
-  color: var(--gold);
+  color: var(--cyan);
 }
 
 .x1-split .faq button {
