@@ -1,4 +1,4 @@
-import { ArrowUpRight, ChevronDown } from "lucide-react";
+import { ArrowUpRight, ChevronDown, ShieldCheck } from "lucide-react";
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 
@@ -108,6 +108,22 @@ export function EditorialHome({
       </header>
 
       <main id="top">
+        <a
+          className="validator-float"
+          href="/barbiefun-validator.html"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Open BARBIEFUN-VALIDATOR in a new tab"
+        >
+          <span className="validator-float-icon" aria-hidden="true">
+            <ShieldCheck size={19} strokeWidth={1.8} />
+          </span>
+          <span className="validator-float-copy">
+            <span className="validator-float-kicker">Official access</span>
+            <strong>BARBIEFUN-VALIDATOR</strong>
+          </span>
+          <ArrowUpRight className="validator-float-arrow" size={17} aria-hidden="true" />
+        </a>
         <section className="shell hero">
           <div className="hero-art">
             <div className="serif folio">01</div>
