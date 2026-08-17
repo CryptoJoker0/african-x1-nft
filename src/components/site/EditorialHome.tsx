@@ -1,4 +1,4 @@
-import { ArrowUpRight, ChevronDown, ShieldCheck } from "lucide-react";
+import { ArrowUpRight, ChevronDown, ShieldCheck, X } from "lucide-react";
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 
@@ -71,6 +71,7 @@ export function EditorialHome({
   minted: number;
 }) {
   const [open, setOpen] = useState<number | null>(null);
+  const [showWelcome, setShowWelcome] = useState(true);
   const maxSupply = config?.max_supply ?? 50;
   const remaining = Math.max(0, maxSupply - minted);
   const progress = maxSupply > 0 ? (minted / maxSupply) * 100 : 0;
@@ -79,6 +80,46 @@ export function EditorialHome({
 
   return (
     <div className="x1-split">
+      {showWelcome && (
+        <div className="welcome-backdrop" role="presentation">
+          <section
+            className="welcome-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="welcome-title"
+          >
+            <button
+              className="welcome-close"
+              type="button"
+              onClick={() => setShowWelcome(false)}
+              aria-label="Close welcome message"
+            >
+              <X size={18} />
+            </button>
+            <div className="welcome-mark" aria-hidden="true">
+              <span>BX</span>
+              <span>001 / X1</span>
+            </div>
+            <p className="welcome-kicker">A new chapter begins</p>
+            <h2 id="welcome-title">
+              WELCOME TO <em>BARBIEFUN</em>
+              <br />
+              <span>AFRICAN NFT MARKET</span>
+            </h2>
+            <p className="welcome-copy">
+              Discover culture, collect legacy, and step into a marketplace built on the X1
+              Blockchain.
+            </p>
+            <button
+              className="welcome-enter"
+              type="button"
+              onClick={() => setShowWelcome(false)}
+            >
+              Enter the collection <ArrowUpRight size={17} />
+            </button>
+          </section>
+        </div>
+      )}
       <header>
         <div className="shell topbar">
           <Link className="brand" to="/">

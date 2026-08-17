@@ -1,30 +1,30 @@
 @import url("https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Work+Sans:wght@300;400;500;600&display=swap");
 
 .x1-split {
-  --bg: #070910;
-  --paper: #f6f0e4;
-  --muted: #a6a7b1;
-  --line: rgba(246, 240, 228, 0.14);
-  --gold: #d6ad5c;
-  --gold-light: #f0d18c;
-  --cyan: #7de0d1;
-  --plum: #80658f;
+  --bg: #1b0e0a;
+  --paper: #fffdf8;
+  --muted: #c8b7ae;
+  --line: rgba(255, 253, 248, 0.16);
+  --gold: #3988ff;
+  --gold-light: #9cc7ff;
+  --cyan: #d1e5ff;
+  --plum: #4a2519;
   isolation: isolate;
   min-height: 100vh;
   overflow: hidden;
   color: var(--paper);
   background:
-    radial-gradient(ellipse 60% 48% at 96% 0%, rgba(214, 173, 92, 0.16), transparent 68%),
-    radial-gradient(ellipse 52% 42% at 0% 48%, rgba(125, 224, 209, 0.1), transparent 70%),
-    radial-gradient(ellipse 38% 34% at 62% 88%, rgba(128, 101, 143, 0.12), transparent 72%),
+    radial-gradient(ellipse 60% 48% at 96% 0%, rgba(57, 136, 255, 0.22), transparent 68%),
+    radial-gradient(ellipse 52% 42% at 0% 48%, rgba(111, 56, 35, 0.36), transparent 70%),
+    radial-gradient(ellipse 38% 34% at 62% 88%, rgba(27, 82, 162, 0.2), transparent 72%),
     var(--bg);
   font-family: "Work Sans", sans-serif;
 }
 
 .x1-split::before {
   background-image:
-    linear-gradient(rgba(246, 240, 228, 0.028) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(246, 240, 228, 0.028) 1px, transparent 1px);
+    linear-gradient(rgba(255, 253, 248, 0.032) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 253, 248, 0.032) 1px, transparent 1px);
   background-size: 72px 72px;
   content: "";
   inset: 0;
@@ -33,6 +33,180 @@
   pointer-events: none;
   position: absolute;
   z-index: -1;
+}
+
+.x1-split .welcome-backdrop {
+  align-items: center;
+  background: rgba(10, 5, 4, 0.78);
+  display: flex;
+  inset: 0;
+  justify-content: center;
+  padding: 24px;
+  position: fixed;
+  z-index: 40;
+}
+
+.x1-split .welcome-modal {
+  background:
+    linear-gradient(145deg, rgba(74, 37, 25, 0.98), rgba(27, 14, 10, 0.99)) padding-box,
+    linear-gradient(135deg, #9cc7ff, #3988ff, #6f3823) border-box;
+  border: 1px solid transparent;
+  box-shadow:
+    0 28px 90px rgba(0, 0, 0, 0.6),
+    0 0 0 1px rgba(156, 199, 255, 0.08);
+  max-width: 560px;
+  padding: 46px clamp(28px, 6vw, 64px) 52px;
+  position: relative;
+  text-align: center;
+  width: 100%;
+}
+
+.x1-split .welcome-modal::before {
+  border: 1px solid rgba(156, 199, 255, 0.18);
+  content: "";
+  inset: 9px;
+  pointer-events: none;
+  position: absolute;
+}
+
+.x1-split .welcome-close {
+  align-items: center;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  color: var(--paper);
+  cursor: pointer;
+  display: inline-flex;
+  height: 34px;
+  justify-content: center;
+  position: absolute;
+  right: 20px;
+  top: 20px;
+  transition:
+    background 0.2s,
+    color 0.2s,
+    transform 0.2s;
+  width: 34px;
+  z-index: 1;
+}
+
+.x1-split .welcome-close:hover {
+  background: #ffffff;
+  color: var(--bg);
+  transform: rotate(90deg);
+}
+
+.x1-split .welcome-close:focus-visible {
+  outline: 2px solid var(--gold-light);
+  outline-offset: 3px;
+}
+
+.x1-split .welcome-mark {
+  align-items: center;
+  color: var(--gold-light);
+  display: flex;
+  flex-direction: column;
+  font-size: 9px;
+  font-weight: 600;
+  gap: 6px;
+  letter-spacing: 0.24em;
+  margin: 0 auto 31px;
+  position: relative;
+  text-transform: uppercase;
+  z-index: 1;
+}
+
+.x1-split .welcome-mark span:first-child {
+  align-items: center;
+  border: 1px solid var(--gold-light);
+  border-radius: 50%;
+  color: #ffffff;
+  display: flex;
+  font-family: "Instrument Serif", serif;
+  font-size: 21px;
+  height: 55px;
+  justify-content: center;
+  letter-spacing: -0.05em;
+  width: 55px;
+}
+
+.x1-split .welcome-kicker {
+  color: var(--cyan);
+  font-size: 10px;
+  letter-spacing: 0.28em;
+  margin: 0 0 17px;
+  position: relative;
+  text-transform: uppercase;
+  z-index: 1;
+}
+
+.x1-split .welcome-modal h2 {
+  color: var(--paper);
+  font-size: clamp(35px, 6vw, 58px);
+  letter-spacing: -0.04em;
+  line-height: 0.9;
+  margin: 0;
+  position: relative;
+  z-index: 1;
+}
+
+.x1-split .welcome-modal h2 em {
+  color: var(--gold-light);
+  font-family: "Instrument Serif", serif;
+  font-style: italic;
+  font-weight: 400;
+}
+
+.x1-split .welcome-modal h2 span {
+  color: #ffffff;
+  font-family: "Instrument Serif", serif;
+  font-style: italic;
+  font-weight: 400;
+}
+
+.x1-split .welcome-copy {
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.7;
+  margin: 23px auto 29px;
+  max-width: 380px;
+  position: relative;
+  z-index: 1;
+}
+
+.x1-split .welcome-enter {
+  align-items: center;
+  background: linear-gradient(135deg, #4a9aff, #1f64d4);
+  border: 1px solid rgba(209, 229, 255, 0.72);
+  box-shadow:
+    0 9px 25px rgba(20, 87, 190, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  color: #ffffff;
+  cursor: pointer;
+  display: inline-flex;
+  font-family: "Instrument Serif", serif;
+  font-size: 20px;
+  gap: 10px;
+  padding: 12px 19px;
+  position: relative;
+  transition:
+    background 0.2s,
+    box-shadow 0.2s,
+    transform 0.2s;
+  z-index: 1;
+}
+
+.x1-split .welcome-enter:hover {
+  background: linear-gradient(135deg, #70b5ff, #347de8);
+  box-shadow:
+    0 13px 31px rgba(57, 136, 255, 0.44),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  transform: translateY(-2px);
+}
+
+.x1-split .welcome-enter:focus-visible {
+  outline: 2px solid var(--paper);
+  outline-offset: 4px;
 }
 
 .x1-split *,
@@ -88,8 +262,8 @@
 }
 
 .x1-split .brand img {
-  border: 1px solid rgba(214, 173, 92, 0.65);
-  box-shadow: 0 0 18px rgba(214, 173, 92, 0.12);
+  border: 1px solid rgba(57, 136, 255, 0.8);
+  box-shadow: 0 0 18px rgba(57, 136, 255, 0.18);
   height: 38px;
   object-fit: cover;
   width: 38px;
@@ -148,11 +322,13 @@
 }
 
 .x1-split .wallet-slot button {
-  background: linear-gradient(135deg, var(--paper), #dfd5c1) !important;
-  border: 1px solid rgba(240, 209, 140, 0.25) !important;
-  border-radius: 0 !important;
-  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.24) !important;
-  color: var(--bg) !important;
+  background: linear-gradient(135deg, #4a9aff, #1f64d4) !important;
+  border: 1px solid rgba(209, 229, 255, 0.72) !important;
+  border-radius: 999px !important;
+  box-shadow:
+    0 8px 28px rgba(20, 87, 190, 0.32),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
+  color: #ffffff !important;
   cursor: pointer;
   font-size: 11px !important;
   font-weight: 600 !important;
@@ -162,8 +338,10 @@
 }
 
 .x1-split .wallet-slot button:hover {
-  background: var(--gold-light) !important;
-  box-shadow: 0 8px 28px rgba(214, 173, 92, 0.2) !important;
+  background: linear-gradient(135deg, #68adff, #2a72e4) !important;
+  box-shadow:
+    0 10px 34px rgba(57, 136, 255, 0.46),
+    inset 0 1px 0 rgba(255, 255, 255, 0.55) !important;
 }
 
 .x1-split .edition {
@@ -187,7 +365,7 @@
 }
 
 .x1-split .hero-art::after {
-  background: linear-gradient(to bottom, rgba(240, 209, 140, 0.7), transparent);
+  background: linear-gradient(to bottom, rgba(57, 136, 255, 0.85), transparent);
   content: "";
   height: 68px;
   left: -1px;
@@ -208,7 +386,7 @@
 .x1-split .cover {
   aspect-ratio: 0.87;
   box-shadow:
-    16px 18px 0 rgba(214, 173, 92, 0.1),
+    16px 18px 0 rgba(57, 136, 255, 0.12),
     0 28px 60px rgba(0, 0, 0, 0.35);
   margin-top: 70px;
   max-width: 340px;
@@ -298,7 +476,7 @@
   align-items: center;
   background:
     linear-gradient(var(--bg), var(--bg)) padding-box,
-    linear-gradient(135deg, var(--gold-light), var(--cyan), var(--plum)) border-box;
+    linear-gradient(135deg, var(--gold-light), var(--gold), var(--cyan)) border-box;
   border: 1px solid transparent;
   border-radius: 999px;
   bottom: 26px;
@@ -330,8 +508,8 @@
 
 .x1-split .validator-float:hover {
   background:
-    linear-gradient(rgba(215, 179, 74, 0.12), rgba(215, 179, 74, 0.12)) padding-box,
-    linear-gradient(135deg, var(--gold-light), var(--cyan), var(--plum)) border-box;
+    linear-gradient(rgba(57, 136, 255, 0.12), rgba(57, 136, 255, 0.12)) padding-box,
+    linear-gradient(135deg, var(--gold-light), var(--gold), var(--cyan)) border-box;
   box-shadow:
     0 16px 40px rgba(0, 0, 0, 0.48),
     0 0 24px rgba(110, 231, 228, 0.14);
@@ -345,7 +523,7 @@
 
 .x1-split .validator-float-icon {
   align-items: center;
-  background: linear-gradient(145deg, var(--gold-light), var(--gold));
+  background: linear-gradient(145deg, #ffffff, #cfe4ff);
   border-radius: 50%;
   color: var(--bg);
   display: inline-flex;
@@ -389,9 +567,9 @@
 
 .x1-split .cta {
   align-items: center;
-  background: linear-gradient(135deg, var(--gold-light), var(--gold));
-  box-shadow: 0 12px 28px rgba(214, 173, 92, 0.14);
-  color: var(--bg);
+  background: linear-gradient(135deg, #4a9aff, #1f64d4);
+  box-shadow: 0 12px 28px rgba(57, 136, 255, 0.22);
+  color: #ffffff;
   display: inline-flex;
   font-family: "Instrument Serif", serif;
   font-size: 20px;
@@ -404,8 +582,8 @@
 }
 
 .x1-split .cta:hover {
-  background: linear-gradient(135deg, var(--paper), var(--gold-light));
-  box-shadow: 0 16px 34px rgba(214, 173, 92, 0.24);
+  background: linear-gradient(135deg, #70b5ff, #347de8);
+  box-shadow: 0 16px 34px rgba(57, 136, 255, 0.38);
   transform: translateY(-2px);
 }
 
@@ -470,7 +648,7 @@
 
 .x1-split .track i {
   background: linear-gradient(90deg, var(--gold), var(--cyan));
-  box-shadow: 0 0 12px rgba(214, 173, 92, 0.65);
+  box-shadow: 0 0 12px rgba(57, 136, 255, 0.65);
   display: block;
   height: 100%;
   transition: width 0.4s ease;
