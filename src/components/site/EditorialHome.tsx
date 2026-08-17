@@ -88,6 +88,13 @@ export function EditorialHome({
             aria-modal="true"
             aria-labelledby="welcome-title"
           >
+            <div className="welcome-cover">
+              <img
+                src="/welcome-cover.jpg"
+                alt="Africa silhouetted against a golden moon with wildlife"
+              />
+              <span aria-hidden="true">A continent, a legacy</span>
+            </div>
             <button
               className="welcome-close"
               type="button"
